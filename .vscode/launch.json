@@ -1,0 +1,43 @@
+{
+  // IntelliSense를 사용하여 가능한 특성에 대해 알아보세요.
+  // 기존 특성에 대한 설명을 보려면 가리킵니다.
+  // 자세한 내용을 보려면 https://go.microsoft.com/fwlink/?linkid=830387을(를) 방문하세요.
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "app",
+      "request": "launch",
+      "type": "dart",
+      "toolArgs": ["--dart-define-from-file", "./.env"]
+    },
+    {
+      "name": "web",
+      "request": "launch",
+      "type": "dart",
+      "flutterMode": "debug",
+      "program": "lib/main.dart",
+      "args": [
+        "-d",
+        "chrome",
+        "--web-port",
+        "8080",
+        "--web-browser-flag=--unsafely-treat-insecure-origin-as-secure=http://localhost:8080"
+      ],
+      "toolArgs": ["--dart-define-from-file", "./.env"]
+    },
+    {
+      "name": "client (profile mode)",
+      "request": "launch",
+      "type": "dart",
+      "flutterMode": "profile",
+      "toolArgs": ["--dart-define-from-file", "./.env"]
+    },
+    {
+      "name": "client (release mode)",
+      "request": "launch",
+      "type": "dart",
+      "flutterMode": "release",
+      "toolArgs": ["--dart-define-from-file", "./.env"]
+    }
+  ]
+}
