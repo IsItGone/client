@@ -51,6 +51,8 @@ class NaverMapService {
     }
 
     // 위치 정보 가져오기
-    return await Geolocator.getCurrentPosition();
+    return await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.high);
   }
+
 }

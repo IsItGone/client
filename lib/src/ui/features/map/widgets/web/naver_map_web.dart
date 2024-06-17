@@ -3,7 +3,7 @@ import 'dart:ui_web' as ui;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:client/src/providers/provider.dart';
+import 'package:client/src/providers/naver_map_providers.dart';
 
 class NaverMapWidget extends ConsumerStatefulWidget {
   const NaverMapWidget({super.key});

@@ -3,7 +3,7 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 
-import 'package:client/src/ui/widgets/common/naver_map_widget.dart';
+import 'package:client/src/ui/features/map/widgets/naver_map_widget.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
