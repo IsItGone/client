@@ -33,6 +33,7 @@ void displayStationInfo(BuildContext context, String markerId) {
     isScrollControlled: true,
     showDragHandle: true,
     useSafeArea: true,
+    barrierColor: Colors.transparent,
     builder: (BuildContext context) {
       return DraggableScrollableSheet(
         initialChildSize: 0.5,
@@ -40,29 +41,31 @@ void displayStationInfo(BuildContext context, String markerId) {
         maxChildSize: 0.85,
         expand: false,
         builder: (BuildContext context, ScrollController scrollController) {
-          return SingleChildScrollView(
+          return ListView(
             controller: scrollController,
-            child: Container(
-              height: 1500,
-              decoration: const BoxDecoration(
-                  borderRadius: BorderRadius.only(
-                      topLeft: Radius.circular(20),
-                      topRight: Radius.circular(20)),
-                  color: AppTheme.mainWhite),
-              child: Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  mainAxisSize: MainAxisSize.min,
-                  children: <Widget>[
-                    Text('Marker ID: $markerId'),
-                    ElevatedButton(
-                      child: const Text('Done!'),
-                      onPressed: () => Navigator.pop(context),
-                    )
-                  ],
+            children: [
+              Container(
+                height: 400,
+                decoration: const BoxDecoration(
+                    borderRadius: BorderRadius.only(
+                        topLeft: Radius.circular(20),
+                        topRight: Radius.circular(20)),
+                    color: AppTheme.mainWhite),
+                child: Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    mainAxisSize: MainAxisSize.min,
+                    children: <Widget>[
+                      Text('Marker ID: $markerId'),
+                      ElevatedButton(
+                        child: const Text('Done!'),
+                        onPressed: () => Navigator.pop(context),
+                      )
+                    ],
+                  ),
                 ),
               ),
-            ),
+            ],
           );
         },
       );
