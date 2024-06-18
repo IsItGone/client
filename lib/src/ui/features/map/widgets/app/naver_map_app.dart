@@ -1,138 +1,205 @@
-import 'dart:developer';
-
-import 'package:client/src/providers/naver_map_providers.dart';
-import 'package:client/src/ui/common/widgets/modal_bottom_sheet.dart';
-import 'package:client/src/utils/constants/constants.dart';
-import 'package:client/src/ui/common/widgets/map_search_bar.dart';
+import 'package:client/src/ui/common/widgets/drag_handle.dart';
+import 'package:client/src/ui/features/map/widgets/app/widgets/naver_map_container.dart';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_naver_map/flutter_naver_map.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+class DrawerState extends ChangeNotifier {
+  bool _isDrawerOpen = false;
+  double _drawerHeight = 300;
+  final double _minDrawerHeight = 100;
+  final double _maxDrawerHeight = 600;
+
+  bool get isDrawerOpen => _isDrawerOpen;
+  double get drawerHeight => _drawerHeight;
+
+  void toggleDrawer() {
+    _isDrawerOpen = !_isDrawerOpen;
+    notifyListeners();
+  }
+
+  void openDrawer() {
+    if (!_isDrawerOpen) {
+      _isDrawerOpen = true;
+      notifyListeners();
+    }
+  }
+
+  void closeDrawer() {
+    if (_isDrawerOpen) {
+      _isDrawerOpen = false;
+      notifyListeners();
+    }
+  }
+
+  void updateDrawerHeight(double height) {
+    _drawerHeight = height.clamp(_minDrawerHeight, _maxDrawerHeight);
+    notifyListeners();
+  }
+}
+
+final drawerStateProvider = ChangeNotifierProvider((ref) => DrawerState());
 
 class NaverMapWidget extends ConsumerWidget {
   const NaverMapWidget({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final initialization = ref.watch(naverMapInitializationProvider);
-    final currentLocation = ref.watch(currentLocationProvider);
+    final drawerState = ref.watch(drawerStateProvider);
 
-    return initialization.when(
-      data: (_) {
-        return currentLocation.when(
-          data: (position) {
-            final initialPosition = position != null
-                ? NLatLng(position.latitude, position.longitude)
-                : MapConstants.defaultLatLng;
-            return FutureBuilder<Set<NAddableOverlay<NOverlay<void>>>>(
-              future: loadMarkers(context),
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const Center(
-                    child: CircularProgressIndicator(),
-                  );
-                } else if (snapshot.hasError) {
-                  return Center(
-                    child: Text('Error: ${snapshot.error}'),
-                  );
-                } else {
-                  final markers = snapshot.data!;
-
-                  return Stack(
-                    children: [
-                      NaverMap(
-                        options: NaverMapViewOptions(
-                          initialCameraPosition: NCameraPosition(
-                            target: initialPosition,
-                            zoom: 17,
-                            bearing: 0,
-                            tilt: 0,
-                          ),
-                          indoorEnable: true,
-                          locationButtonEnable: true,
-                          consumeSymbolTapEvents: false,
-                          logoClickEnable: false,
-                          locale: const Locale('ko'),
-                        ),
-                        onMapReady: (controller) {
-                          log('current location $currentLocation');
-                          log("onMapReady", name: "onMapReady");
-                          controller.addOverlayAll(markers);
-                        },
-                      ),
-                      const Positioned(
-                        child: SafeArea(
-                          child: Padding(
-                            padding: EdgeInsets.symmetric(
-                                horizontal: 12, vertical: 10),
-                            child: MapSearchBar(),
-                          ),
-                        ),
-                      )
-                    ],
-                  );
+    return GestureDetector(
+      onTap: () {
+        if (drawerState.isDrawerOpen) {
+          drawerState.closeDrawer();
+        }
+      },
+      child: Stack(
+        children: [
+          AnimatedContainer(
+            duration: const Duration(milliseconds: 300),
+            padding: EdgeInsets.only(
+              bottom: drawerState.isDrawerOpen ? drawerState.drawerHeight : 0,
+            ),
+            child: const NaverMapContainer(),
+          ),
+          if (drawerState.isDrawerOpen)
+            GestureDetector(
+              onTap: () {
+                drawerState.closeDrawer();
+              },
+              child: Container(
+                color: Colors.transparent,
+              ),
+            ),
+          Align(
+            alignment: Alignment.bottomCenter,
+            child: GestureDetector(
+              onVerticalDragUpdate: (details) {
+                drawerState.updateDrawerHeight(
+                  drawerState.drawerHeight - details.primaryDelta!,
+                );
+              },
+              onVerticalDragEnd: (details) {
+                // 드래그가 끝난 후 드로어가 열린 상태로 유지
+                if (!drawerState.isDrawerOpen) {
+                  drawerState.openDrawer();
                 }
               },
-            );
-          },
-          loading: () => const Center(
-            child: CircularProgressIndicator(),
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 300),
+                height: drawerState.drawerHeight,
+                color: Colors.white,
+                child: Column(
+                  children: [
+                    const DragHandle(),
+                    Expanded(
+                      child: ListView(
+                        children: const [
+                          Type4(),
+                          // 필요한 만큼 다른 위젯 추가
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
           ),
-          error: (error, stack) => Center(
-            child: Text('Error: $error'),
-          ),
-        );
-      },
-      loading: () => const Center(
-        child: CircularProgressIndicator(),
-      ), // 초기화 중 로딩 표시
-      error: (error, stack) => Center(
-        child: Text('Error: $error'),
+        ],
       ),
     );
   }
 }
 
-// station mock data
-Future<Set<NAddableOverlay<NOverlay<void>>>> loadMarkers(
-    BuildContext context) async {
-  const iconImage =
-      NOverlayImage.fromAssetImage('assets/icons/bus_station_icon.png');
-  final markers = {
-    NMarker(
-      // 유성온천역 맥도날드
-      id: '1',
-      position: const NLatLng(36.35438082628037, 127.3404049873352),
-      icon: iconImage,
-    ),
-    NMarker(
-      // 유성 문화원
-      id: '2',
-      position: const NLatLng(36.359810556432436, 127.34099453020005),
-      icon: iconImage,
-    ),
-    NMarker(
-      // 현충원역
-      id: '3',
-      position: const NLatLng(36.35954771869189, 127.32119718761012),
-      icon: iconImage,
-    ),
-  };
+class Type4 extends StatefulWidget {
+  const Type4({super.key});
 
-  for (var marker in markers) {
-    marker.setOnTapListener((NMarker marker) {
-      log("마커가 터치되었습니다. id: ${marker.info.id}");
-      showModalBottomSheet<void>(
-        context: context,
-        isScrollControlled: true,
-        useSafeArea: true,
-        barrierColor: Colors.transparent,
-        builder: (BuildContext context) {
-          return ModalBottomSheet(markerId: marker.info.id);
-        },
-      );
-    });
+  @override
+  State<Type4> createState() => _Type4State();
+}
+
+class _Type4State extends State<Type4> {
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: List.generate(5, (index) => subItem()),
+    );
   }
 
-  return markers;
+  Widget subItem() {
+    return InkWell(
+      onTap: () {
+        debugPrint('***** [JHC_DEBUG] 선택');
+      },
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Container(
+              width: 50,
+              height: 50,
+              decoration: const BoxDecoration(
+                color: Colors.purple,
+                shape: BoxShape.circle,
+              ),
+            ), // 좌측 차량 이미지
+            const Expanded(
+              child: Padding(
+                padding: EdgeInsets.symmetric(horizontal: 16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Text('넥스트',
+                            style: TextStyle(fontWeight: FontWeight.bold)),
+                        SizedBox(width: 4),
+                        Icon(Icons.person, size: 14),
+                        SizedBox(width: 4),
+                        Text('5',
+                            style: TextStyle(fontWeight: FontWeight.bold)),
+                        SizedBox(width: 4),
+                        Icon(Icons.info_outline, size: 14),
+                      ],
+                    ),
+                    SizedBox(height: 6),
+                    Text(
+                      '대형 RV의 쾌적한 이동',
+                      style: TextStyle(color: Colors.grey),
+                    ),
+                  ],
+                ),
+              ),
+            ), // 중간 차량 타입
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Row(
+                  children: [
+                    Icon(Icons.arrow_upward,
+                        size: 12, color: Colors.grey.withOpacity(0.8)),
+                    Text('2.0배',
+                        style: TextStyle(
+                            fontSize: 12, color: Colors.grey.withOpacity(0.8))),
+                  ],
+                ),
+                const SizedBox(height: 2),
+                const Text('예상 17,200원', style: TextStyle(fontSize: 16)),
+                const SizedBox(height: 2),
+                Text(
+                  '예상 23,200원',
+                  style: TextStyle(
+                    decoration: TextDecoration.lineThrough,
+                    fontSize: 14,
+                    color: Colors.grey.withOpacity(0.8),
+                  ),
+                ),
+              ],
+            ) // 오른쪽의 요금
+          ],
+        ),
+      ),
+    );
+  }
 }
