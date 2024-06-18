@@ -122,7 +122,15 @@ Future<Set<NAddableOverlay<NOverlay<void>>>> loadMarkers(
   for (var marker in markers) {
     marker.setOnTapListener((NMarker marker) {
       log("마커가 터치되었습니다. id: ${marker.info.id}");
-      displayStationInfo(context, marker.info.id);
+      showModalBottomSheet<void>(
+        context: context,
+        isScrollControlled: true,
+        useSafeArea: true,
+        barrierColor: Colors.transparent,
+        builder: (BuildContext context) {
+          return ModalBottomSheet(markerId: marker.info.id);
+        },
+      );
     });
   }
 
