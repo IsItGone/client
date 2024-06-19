@@ -12,7 +12,7 @@ class MapSearchBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return TextField(
-      onTap: () => log('tap'),
+      onTap: () => log('search bar tapped'),
       decoration: const InputDecoration(
         hintText: '정류장 또는 장소 검색',
         prefixIcon: Icon(Icons.search),

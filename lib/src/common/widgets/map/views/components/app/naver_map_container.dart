@@ -2,6 +2,7 @@ import 'dart:developer';
 
 import 'package:client/src/common/widgets/bottom_drawer/providers/bottom_drawer_provider.dart';
 import 'package:client/src/common/widgets/map/providers/naver_map_providers.dart';
+import 'package:client/src/common/widgets/map/services/naver_map_service.dart';
 import 'package:client/src/config/constants.dart';
 
 import 'package:flutter/material.dart';
@@ -29,8 +30,9 @@ class _NaverMapContainerState extends ConsumerState<NaverMapContainer> {
             final initialPosition = position != null
                 ? NLatLng(position.latitude, position.longitude)
                 : MapConstants.defaultLatLng;
-            return FutureBuilder<Set<NAddableOverlay<NOverlay<void>>>>(
-              future: loadMarkers(context, ref),
+            return FutureBuilder<
+                Map<String, Set<NAddableOverlay<NOverlay<void>>>>>(
+              future: loadShuttleData(context, ref),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return const Center(
@@ -41,7 +43,8 @@ class _NaverMapContainerState extends ConsumerState<NaverMapContainer> {
                     child: Text('Error: ${snapshot.error}'),
                   );
                 } else {
-                  final markers = snapshot.data!;
+                  final stations = snapshot.data!['stations'];
+                  final routes = snapshot.data!['routes'];
 
                   return NaverMap(
                     forceGesture: true,
@@ -66,7 +69,8 @@ class _NaverMapContainerState extends ConsumerState<NaverMapContainer> {
                     onMapReady: (controller) {
                       log('current location $currentLocation');
                       log("onMapReady", name: "onMapReady");
-                      controller.addOverlayAll(markers);
+                      controller.addOverlayAll(stations!);
+                      controller.addOverlayAll(routes!);
                     },
                     onMapTapped: (point, latLng) {
                       log("map tapped");
@@ -95,44 +99,4 @@ class _NaverMapContainerState extends ConsumerState<NaverMapContainer> {
       ),
     );
   }
-}
-
-// station mock data
-Future<Set<NAddableOverlay<NOverlay<void>>>> loadMarkers(
-    BuildContext context, WidgetRef ref) async {
-  const iconImage =
-      NOverlayImage.fromAssetImage('assets/icons/bus_station_icon.png');
-  final markers = {
-    NMarker(
-      // 유성온천역 맥도날드
-      id: '1',
-      position: const NLatLng(36.35438082628037, 127.3404049873352),
-      icon: iconImage,
-    ),
-    NMarker(
-      // 유성 문화원
-      id: '2',
-      position: const NLatLng(36.359810556432436, 127.34099453020005),
-      icon: iconImage,
-    ),
-    NMarker(
-      // 현충원역
-      id: '3',
-      position: const NLatLng(36.35954771869189, 127.32119718761012),
-      icon: iconImage,
-    ),
-  };
-
-  for (var marker in markers) {
-    final drawerNotifier = ref.read(bottomDrawerProvider.notifier);
-
-    marker.setOnTapListener((NMarker marker) {
-      log("마커가 터치되었습니다. id: ${marker.info.id}");
-      if (!drawerNotifier.isDrawerOpen) {
-        drawerNotifier.openDrawer();
-      }
-    });
-  }
-
-  return markers;
 }

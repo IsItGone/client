@@ -1,6 +1,7 @@
 import 'package:client/src/common/widgets/bottom_drawer/providers/bottom_drawer_provider.dart';
 import 'package:client/src/common/widgets/bottom_drawer/bottom_drawer.dart';
-import 'package:client/src/common/widgets/map/components/app/naver_map_container.dart';
+import 'package:client/src/common/widgets/map/views/components/app/naver_map_container.dart';
+import 'package:client/src/common/widgets/map_search_bar.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -26,7 +27,17 @@ class NaverMapWidget extends ConsumerWidget {
             padding: EdgeInsets.only(
                 bottom:
                     drawerState.isDrawerOpen ? drawerState.drawerHeight : 0),
-            child: const NaverMapContainer(),
+            child: const Stack(
+              children: [
+                NaverMapContainer(),
+                SafeArea(
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                    child: MapSearchBar(),
+                  ),
+                ),
+              ],
+            ),
           ),
           BottomDrawer(
               drawerState: drawerState,
