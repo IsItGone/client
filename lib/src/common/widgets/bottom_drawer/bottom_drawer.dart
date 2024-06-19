@@ -1,12 +1,11 @@
 import 'package:client/src/config/theme.dart';
-import 'package:client/src/state/drawer_state.dart';
-import 'package:client/src/ui/features/map/widgets/app/naver_map_app.dart';
+import 'package:client/src/common/widgets/bottom_drawer/view_models/bottom_drawer_view_model.dart';
 
 import 'package:flutter/material.dart';
 
 class BottomDrawer extends StatelessWidget {
-  final DrawerState drawerState;
-  final DrawerState drawerNotifier;
+  final BottomDrawerViewModel drawerState;
+  final BottomDrawerViewModel drawerNotifier;
   final Widget? child;
 
   const BottomDrawer({

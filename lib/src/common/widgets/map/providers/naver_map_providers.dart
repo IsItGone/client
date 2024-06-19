@@ -1,6 +1,6 @@
 import 'dart:developer';
 
-import 'package:client/src/data/services/naver_map_service.dart';
+import 'package:client/src/common/widgets/map/services/naver_map_service.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:geolocator/geolocator.dart';

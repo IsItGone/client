@@ -1,6 +1,6 @@
-import 'package:client/src/providers/drawer_state_provider.dart';
-import 'package:client/src/ui/common/widgets/bottom_drawer.dart';
-import 'package:client/src/ui/features/map/widgets/app/widgets/naver_map_container.dart';
+import 'package:client/src/common/widgets/bottom_drawer/providers/bottom_drawer_provider.dart';
+import 'package:client/src/common/widgets/bottom_drawer/bottom_drawer.dart';
+import 'package:client/src/common/widgets/map/components/app/naver_map_container.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -10,8 +10,8 @@ class NaverMapWidget extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final drawerState = ref.watch(drawerStateProvider);
-    final drawerNotifier = ref.read(drawerStateProvider.notifier);
+    final drawerState = ref.watch(bottomDrawerProvider);
+    final drawerNotifier = ref.read(bottomDrawerProvider.notifier);
 
     return GestureDetector(
       onTap: () {

@@ -1,13 +1,13 @@
 import 'dart:developer';
 import 'package:flutter/material.dart';
 
-class DrawerState extends ChangeNotifier {
+class BottomDrawerViewModel extends ChangeNotifier {
   bool _isDrawerOpen = false;
   double _drawerHeight = 300;
   final double minHeight;
   final double maxHeight;
 
-  DrawerState({
+  BottomDrawerViewModel({
     required this.minHeight,
     required this.maxHeight,
   });

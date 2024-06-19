@@ -1,8 +1,8 @@
 import 'dart:developer';
 
-import 'package:client/src/providers/drawer_state_provider.dart';
-import 'package:client/src/providers/naver_map_providers.dart';
-import 'package:client/src/utils/constants/constants.dart';
+import 'package:client/src/common/widgets/bottom_drawer/providers/bottom_drawer_provider.dart';
+import 'package:client/src/common/widgets/map/providers/naver_map_providers.dart';
+import 'package:client/src/config/constants.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_naver_map/flutter_naver_map.dart';
@@ -20,7 +20,7 @@ class _NaverMapContainerState extends ConsumerState<NaverMapContainer> {
   Widget build(BuildContext context) {
     final initialization = ref.watch(naverMapInitializationProvider);
     final currentLocation = ref.watch(currentLocationProvider);
-    final drawerNotifier = ref.read(drawerStateProvider.notifier);
+    final drawerNotifier = ref.read(bottomDrawerProvider.notifier);
 
     return initialization.when(
       data: (_) {
@@ -124,7 +124,7 @@ Future<Set<NAddableOverlay<NOverlay<void>>>> loadMarkers(
   };
 
   for (var marker in markers) {
-    final drawerNotifier = ref.read(drawerStateProvider.notifier);
+    final drawerNotifier = ref.read(bottomDrawerProvider.notifier);
 
     marker.setOnTapListener((NMarker marker) {
       log("마커가 터치되었습니다. id: ${marker.info.id}");
