@@ -1,7 +1,7 @@
 import 'dart:developer';
 
+import 'package:client/src/providers/drawer_state_provider.dart';
 import 'package:client/src/providers/naver_map_providers.dart';
-import 'package:client/src/ui/features/map/widgets/app/naver_map_app.dart';
 import 'package:client/src/utils/constants/constants.dart';
 
 import 'package:flutter/material.dart';
@@ -20,6 +20,7 @@ class _NaverMapContainerState extends ConsumerState<NaverMapContainer> {
   Widget build(BuildContext context) {
     final initialization = ref.watch(naverMapInitializationProvider);
     final currentLocation = ref.watch(currentLocationProvider);
+    final drawerNotifier = ref.read(drawerStateProvider.notifier);
 
     return initialization.when(
       data: (_) {
@@ -66,6 +67,12 @@ class _NaverMapContainerState extends ConsumerState<NaverMapContainer> {
                       log('current location $currentLocation');
                       log("onMapReady", name: "onMapReady");
                       controller.addOverlayAll(markers);
+                    },
+                    onMapTapped: (point, latLng) {
+                      log("map tapped");
+                      if (drawerNotifier.isDrawerOpen) {
+                        drawerNotifier.closeDrawer();
+                      }
                     },
                   );
                 }
@@ -117,10 +124,13 @@ Future<Set<NAddableOverlay<NOverlay<void>>>> loadMarkers(
   };
 
   for (var marker in markers) {
+    final drawerNotifier = ref.read(drawerStateProvider.notifier);
+
     marker.setOnTapListener((NMarker marker) {
       log("마커가 터치되었습니다. id: ${marker.info.id}");
-      // ref.read(drawerProvider).toggleDrawer();
-      ref.read(drawerStateProvider).toggleDrawer();
+      if (!drawerNotifier.isDrawerOpen) {
+        drawerNotifier.openDrawer();
+      }
     });
   }
 

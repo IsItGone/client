@@ -1,6 +1,7 @@
 import 'dart:developer';
 
 import 'package:client/src/config/theme.dart';
+
 import 'package:flutter/material.dart';
 
 class MapSearchBar extends StatelessWidget {

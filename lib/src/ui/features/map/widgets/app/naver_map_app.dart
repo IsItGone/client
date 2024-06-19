@@ -1,44 +1,9 @@
-import 'package:client/src/ui/common/widgets/drag_handle.dart';
+import 'package:client/src/providers/drawer_state_provider.dart';
+import 'package:client/src/ui/common/widgets/bottom_drawer.dart';
 import 'package:client/src/ui/features/map/widgets/app/widgets/naver_map_container.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-
-class DrawerState extends ChangeNotifier {
-  bool _isDrawerOpen = false;
-  double _drawerHeight = 300;
-  final double _minDrawerHeight = 100;
-  final double _maxDrawerHeight = 600;
-
-  bool get isDrawerOpen => _isDrawerOpen;
-  double get drawerHeight => _drawerHeight;
-
-  void toggleDrawer() {
-    _isDrawerOpen = !_isDrawerOpen;
-    notifyListeners();
-  }
-
-  void openDrawer() {
-    if (!_isDrawerOpen) {
-      _isDrawerOpen = true;
-      notifyListeners();
-    }
-  }
-
-  void closeDrawer() {
-    if (_isDrawerOpen) {
-      _isDrawerOpen = false;
-      notifyListeners();
-    }
-  }
-
-  void updateDrawerHeight(double height) {
-    _drawerHeight = height.clamp(_minDrawerHeight, _maxDrawerHeight);
-    notifyListeners();
-  }
-}
-
-final drawerStateProvider = ChangeNotifierProvider((ref) => DrawerState());
 
 class NaverMapWidget extends ConsumerWidget {
   const NaverMapWidget({super.key});
@@ -46,6 +11,7 @@ class NaverMapWidget extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final drawerState = ref.watch(drawerStateProvider);
+    final drawerNotifier = ref.read(drawerStateProvider.notifier);
 
     return GestureDetector(
       onTap: () {
@@ -58,53 +24,14 @@ class NaverMapWidget extends ConsumerWidget {
           AnimatedContainer(
             duration: const Duration(milliseconds: 300),
             padding: EdgeInsets.only(
-              bottom: drawerState.isDrawerOpen ? drawerState.drawerHeight : 0,
-            ),
+                bottom:
+                    drawerState.isDrawerOpen ? drawerState.drawerHeight : 0),
             child: const NaverMapContainer(),
           ),
-          if (drawerState.isDrawerOpen)
-            GestureDetector(
-              onTap: () {
-                drawerState.closeDrawer();
-              },
-              child: Container(
-                color: Colors.transparent,
-              ),
-            ),
-          Align(
-            alignment: Alignment.bottomCenter,
-            child: GestureDetector(
-              onVerticalDragUpdate: (details) {
-                drawerState.updateDrawerHeight(
-                  drawerState.drawerHeight - details.primaryDelta!,
-                );
-              },
-              onVerticalDragEnd: (details) {
-                // 드래그가 끝난 후 드로어가 열린 상태로 유지
-                if (!drawerState.isDrawerOpen) {
-                  drawerState.openDrawer();
-                }
-              },
-              child: AnimatedContainer(
-                duration: const Duration(milliseconds: 300),
-                height: drawerState.drawerHeight,
-                color: Colors.white,
-                child: Column(
-                  children: [
-                    const DragHandle(),
-                    Expanded(
-                      child: ListView(
-                        children: const [
-                          Type4(),
-                          // 필요한 만큼 다른 위젯 추가
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
+          BottomDrawer(
+              drawerState: drawerState,
+              drawerNotifier: drawerNotifier,
+              child: const Type4()),
         ],
       ),
     );
@@ -121,8 +48,14 @@ class Type4 extends StatefulWidget {
 class _Type4State extends State<Type4> {
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: List.generate(5, (index) => subItem()),
+    return Expanded(
+      child: ListView.builder(
+        itemCount: 5,
+        padding: const EdgeInsets.symmetric(vertical: 10),
+        itemBuilder: (context, index) {
+          return Container(color: Colors.pink, child: subItem());
+        },
+      ),
     );
   }
 
