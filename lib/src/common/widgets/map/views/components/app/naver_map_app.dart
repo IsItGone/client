@@ -22,22 +22,16 @@ class NaverMapWidget extends ConsumerWidget {
       },
       child: Stack(
         children: [
-          AnimatedContainer(
-            duration: const Duration(milliseconds: 300),
-            padding: EdgeInsets.only(
-                bottom:
-                    drawerState.isDrawerOpen ? drawerState.drawerHeight : 0),
-            child: const Stack(
-              children: [
-                NaverMapContainer(),
-                SafeArea(
-                  child: Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-                    child: MapSearchBar(),
-                  ),
+          const Stack(
+            children: [
+              NaverMapContainer(),
+              SafeArea(
+                child: Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                  child: MapSearchBar(),
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
           BottomDrawer(
               drawerState: drawerState,

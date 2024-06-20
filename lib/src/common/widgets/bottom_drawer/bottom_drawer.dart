@@ -33,36 +33,33 @@ class BottomDrawer extends StatelessWidget {
         child: Offstage(
           offstage: !drawerState.isDrawerOpen,
           child: AnimatedContainer(
-            duration: const Duration(milliseconds: 300),
+            duration: const Duration(milliseconds: 200),
             height: drawerState.drawerHeight,
             color: Colors.transparent,
-            child: Transform.translate(
-              offset: Offset(0, drawerState.isDrawerOpen ? -20 : 0),
-              child: Container(
-                decoration: const BoxDecoration(
-                  color: AppTheme.mainWhite,
-                  borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(12),
-                    topRight: Radius.circular(12),
-                  ),
+            child: Container(
+              decoration: const BoxDecoration(
+                color: AppTheme.mainWhite,
+                borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(12),
+                  topRight: Radius.circular(12),
                 ),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    GestureDetector(
-                      onVerticalDragUpdate: (details) {
-                        double newHeight =
-                            drawerState.drawerHeight - details.delta.dy;
-                        drawerNotifier.setDrawerHeight(newHeight);
-                      },
-                      child: const SizedBox(
-                        height: 40,
-                        child: DragHandle(),
-                      ),
+              ),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  GestureDetector(
+                    onVerticalDragUpdate: (details) {
+                      double newHeight =
+                          drawerState.drawerHeight - details.delta.dy;
+                      drawerNotifier.setDrawerHeight(newHeight);
+                    },
+                    child: const SizedBox(
+                      height: 40,
+                      child: DragHandle(),
                     ),
-                    if (child != null) child!,
-                  ],
-                ),
+                  ),
+                  if (child != null) child!,
+                ],
               ),
             ),
           ),

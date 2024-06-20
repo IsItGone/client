@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 
 class BottomDrawerViewModel extends ChangeNotifier {
   bool _isDrawerOpen = false;
-  double _drawerHeight = 300;
+  double _drawerHeight = 400;
   final double minHeight;
   final double maxHeight;
 
@@ -20,11 +20,12 @@ class BottomDrawerViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  void openDrawer() {
+  Future<void> openDrawer() async {
     if (!_isDrawerOpen) {
       log('open drawer');
       _isDrawerOpen = true;
       notifyListeners();
+      await Future.delayed(const Duration(milliseconds: 300));
     }
   }
 

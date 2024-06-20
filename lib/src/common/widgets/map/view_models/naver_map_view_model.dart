@@ -8,7 +8,7 @@ import 'package:flutter_naver_map/flutter_naver_map.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 Future<Map<String, Set<NAddableOverlay<NOverlay<void>>>>> loadShuttleData(
-    BuildContext context, WidgetRef ref) async {
+    BuildContext context, WidgetRef ref, NaverMapController? controller) async {
   final List<Map<String, dynamic>> getRoutes =
       routesData.asMap().entries.map((entry) {
     int index = entry.key;
@@ -28,7 +28,8 @@ Future<Map<String, Set<NAddableOverlay<NOverlay<void>>>>> loadShuttleData(
     };
   }).toList();
 
-  final Map<String, dynamic> overlays = createOverlays(getRoutes, ref);
+  final Map<String, dynamic> overlays =
+      createOverlays(getRoutes, context, ref, controller);
 
   return {
     'stations': {
@@ -42,8 +43,8 @@ Future<Map<String, Set<NAddableOverlay<NOverlay<void>>>>> loadShuttleData(
   };
 }
 
-Map<String, dynamic> createOverlays(
-    List<Map<String, dynamic>> routesData, WidgetRef ref) {
+Map<String, dynamic> createOverlays(List<Map<String, dynamic>> routesData,
+    BuildContext context, WidgetRef ref, NaverMapController? controller) {
   const patternImage =
       NOverlayImage.fromAssetImage('assets/icons/chevron_up.png');
   const iconImage =
@@ -64,10 +65,23 @@ Map<String, dynamic> createOverlays(
         position: coord,
         icon: iconImage,
       );
-      station.setOnTapListener((NMarker station) {
-        log("마커가 터치되었습니다. id: ${station.info.id}");
+      station.setOnTapListener((NMarker station) async {
+        log("마커가 터치되었습니다. id: ${station.info.id} $station");
+        log('$controller');
         if (!drawerNotifier.isDrawerOpen) {
-          drawerNotifier.openDrawer();
+          await drawerNotifier.openDrawer();
+        }
+        if (controller != null) {
+          final cameraUpdate = NCameraUpdate.scrollAndZoomTo(
+            target: coord,
+          )
+            ..setAnimation(
+              animation: NCameraAnimation.easing,
+              duration: const Duration(milliseconds: 300),
+            )
+            ..setPivot(const NPoint(1 / 2, 1 / 3));
+
+          await controller.updateCamera(cameraUpdate);
         }
       });
       markerSet.add(station);
