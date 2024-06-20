@@ -2,7 +2,7 @@ import 'dart:developer';
 
 import 'package:client/src/common/widgets/bottom_drawer/providers/bottom_drawer_provider.dart';
 import 'package:client/src/common/widgets/map/providers/naver_map_providers.dart';
-import 'package:client/src/common/widgets/map/services/naver_map_service.dart';
+import 'package:client/src/common/widgets/map/view_models/naver_map_view_model.dart';
 import 'package:client/src/config/constants.dart';
 
 import 'package:flutter/material.dart';

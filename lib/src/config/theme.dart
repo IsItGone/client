@@ -12,7 +12,7 @@ class AppTheme {
   static const Color subWhite = Color(0xfffefefe);
 
   static const List<Color> lineColor = [
-    Color(_primaryValue),
+    // Color(_primaryValue),
     Color(0xff3498DB),
     Color(0xffFF8A98),
     Color(0xffF8C957),
