@@ -30,6 +30,18 @@ class StationModel {
       isDeparture: json['isDeparture'],
     );
   }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'name': name,
+      'address': address,
+      'latitude': latitude,
+      'longitude': longitude,
+      'stopTime': stopTime,
+      'isDeparture': isDeparture,
+    };
+  }
 }
 
 // mock data

@@ -5,17 +5,17 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "app",
-      "request": "launch",
-      "type": "dart",
-      "toolArgs": ["--dart-define-from-file", "./.env"]
-    },
-    {
-      "name": "web",
+      "name": "app(dev)",
       "request": "launch",
       "type": "dart",
       "flutterMode": "debug",
-      "program": "lib/main.dart",
+      "toolArgs": ["--dart-define-from-file", "./.env.dev"]
+    },
+    {
+      "name": "web(dev)",
+      "request": "launch",
+      "type": "dart",
+      "flutterMode": "debug",
       "args": [
         "-d",
         "chrome",
@@ -23,8 +23,28 @@
         "8080",
         "--web-browser-flag=--unsafely-treat-insecure-origin-as-secure=http://localhost:8080"
       ],
-      "toolArgs": ["--dart-define-from-file", "./.env"]
+      "toolArgs": ["--dart-define-from-file", "./.env.dev"]
     },
+    {
+      "name": "app (prod)",
+      "request": "launch",
+      "type": "dart",
+      "toolArgs": ["--dart-define-from-file", "./.env.prod"]
+    },
+    {
+      "name": "web (prod)",
+      "request": "launch",
+      "type": "dart",
+      "args": [
+        "-d",
+        "chrome",
+        "--web-port",
+        "8080",
+        "--web-browser-flag=--unsafely-treat-insecure-origin-as-secure=http://localhost:8080"
+      ],
+      "toolArgs": ["--dart-define-from-file", "./.env.prod"]
+    },
+    ////////////////////////////////////////////////////////////////
     {
       "name": "client (profile mode)",
       "request": "launch",

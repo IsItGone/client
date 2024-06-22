@@ -64,6 +64,7 @@ Map<String, dynamic> createOverlays(List<Map<String, dynamic>> routesData,
         id: '$index-$type-${coord.latitude}-${coord.longitude}',
         position: coord,
         icon: iconImage,
+        size: const NSize(32, 40),
       );
       station.setOnTapListener((NMarker station) async {
         log("마커가 터치되었습니다. id: ${station.info.id} $station");

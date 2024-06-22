@@ -26,6 +26,19 @@ class RouteModel {
           .toList(),
     );
   }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'name': name,
+      'departureStations': departureStations.map((e) => e.toJson()).toList(),
+      'arrivalStations': arrivalStations.map((e) => e.toJson()).toList(),
+    };
+  }
+
+  static List<RouteModel> fromJsonList(List<dynamic> jsonList) {
+    return jsonList.map((json) => RouteModel.fromJson(json)).toList();
+  }
 }
 
 // mock data
