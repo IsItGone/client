@@ -24,160 +24,137 @@
 
       const params = getQueryParams();
       const clientId = params["clientId"];
-      //   document.write(`
-      //   <script type="text/javascript" src="https://openapi.map.naver.com/openapi/v3/maps.js?ncpClientId=${clientId}&callback=initMap"><\/script>
-      // `);
+      document.write(`
+        <script type="text/javascript" src="https://openapi.map.naver.com/openapi/v3/maps.js?ncpClientId=${clientId}&callback=initMap"><\/script>
+      `);
     </script>
   </head>
   <body>
-    <!-- <div id="map" style="width: 100%; height: 100vh"></div> -->
-    <div class="input-contianer">
+    <div id="map" style="width: 100%; height: 100vh"></div>
+    <!-- <div class="input-contianer">
       <div style="height: 200px"></div>
       <input type="text" class="text-input" id="text-input" placeholder=" " />
       <button class="button">전송</button>
-      <p id="message" style="font-size: 45px">메시지가 여기에 표시됩니다.</p>
-    </div>
+      <p id="message" style="font-size: 15px">메시지가 여기에 표시됩니다.</p>
+    </div> -->
     <script id="code">
-      const button = document.querySelector("button");
-      const input = document.querySelector("input");
-
-      button.addEventListener("click", (event) => {
-        if ("messageHandler" in window) {
-          messageHandler.postMessage(input.value);
-        }
-        window.parent.postMessage(input.value, "*");
-      });
-
-      if ("messageHandler" in window) {
-        messageHandler.addEventListener("message", (event) => {
-          alert(event.data);
-        });
-      }
-
-      window.parent.addEventListener("message", (event) => {
-        console.log(event);
-        alert(event.data);
-      });
-      // 메시지를 수신하고 화면에 표시하는 함수
       window.addEventListener("message", function (event) {
         try {
-          // 메시지 데이터를 JSON으로 파싱
-          const routesData = JSON.parse(event.data);
-          // routesData를 화면에 표시합니다.
-          const routesDataElement = document.getElementById("routes-data");
-          routesDataElement.textContent = JSON.stringify(routesData, null, 2);
-          // 콘솔에도 출력
-          console.log(routesData);
+          const parsedData = JSON.parse(event.data);
+          drawRoutes(parsedData.data.routes, parsedData.data.colors);
         } catch (e) {
           console.error("Invalid JSON received:", e);
         }
       });
 
-      // console.log(clientId);
-      // var map = new naver.maps.Map("map", {
-      //   center: new naver.maps.LatLng(36.3553177, 127.2981911), // 대전 삼성화재 연수원
-      //   mapTypeId: naver.maps.MapTypeId.NORMAL,
-      // });
+      var map = new naver.maps.Map("map", {
+        center: new naver.maps.LatLng(36.3553177, 127.2981911), // 대전 삼성화재 연수원
+        mapTypeId: naver.maps.MapTypeId.NORMAL,
+      });
 
       // ////////////////////////////////////////////////
-      // var infoWindow = new naver.maps.InfoWindow();
 
-      // var pinkMarker = new naver.maps.Marker({
-      //   position: new naver.maps.LatLng(36.3553177, 127.2981911),
-      //   map: map,
-      //   icon: {
-      //     url: "assets/icons/bus_station_icon_sm.png",
-      //   },
-      // });
-      // pinkMarker.setTitle("Pink Marker");
-      // naver.maps.Event.addListener(pinkMarker, "click", function () {
-      //   infoWindow.setContent(getContentElement("HTML MARKER"));
-      //   infoWindow.open(map, pinkMarker);
-      // });
+      var infoWindow = new naver.maps.InfoWindow();
 
-      // var polyline = new naver.maps.Polyline({
-      //   path: [
-      //     new naver.maps.LatLng(37.359924641705476, 127.1148204803467),
-      //     new naver.maps.LatLng(37.36343797188166, 127.11486339569092),
-      //     new naver.maps.LatLng(37.368520071054576, 127.11473464965819),
-      //     new naver.maps.LatLng(37.3685882848096, 127.1088123321533),
-      //     new naver.maps.LatLng(37.37295383612657, 127.10876941680907),
-      //     new naver.maps.LatLng(37.38001321351567, 127.11851119995116),
-      //     new naver.maps.LatLng(37.378546827477855, 127.11984157562254),
-      //     new naver.maps.LatLng(37.376637072444105, 127.12052822113036),
-      //     new naver.maps.LatLng(37.37530703574853, 127.12190151214598),
-      //     new naver.maps.LatLng(37.371657839593894, 127.11645126342773),
-      //     new naver.maps.LatLng(37.36855417793982, 127.1207857131958),
-      //   ],
-      //   strokeColor: "#00CA00",
-      //   strokeOpacity: 0.8,
-      //   strokeWeight: 6,
-      //   zIndex: 2,
-      //   clickable: true,
-      //   map: map,
-      // });
+      var pinkMarker = new naver.maps.Marker({
+        position: new naver.maps.LatLng(36.3553177, 127.2981911),
+        map: map,
+        icon: {
+          url: "assets/icons/bus_station_icon_sm.png",
+        },
+      });
+      pinkMarker.setTitle("Pink Marker");
+      naver.maps.Event.addListener(pinkMarker, "click", function () {
+        infoWindow.setContent(getContentElement("HTML MARKER"));
+        infoWindow.open(map, pinkMarker);
+      });
 
-      // naver.maps.Event.addListener(polyline, "mousedown", function () {
-      //   polyline.setOptions({
-      //     strokeWeight: 20,
-      //   });
-      // });
+      function drawRoutes(routesData, colorsData) {
+        routesData.forEach((route, index) => {
+          const path = [];
 
-      // naver.maps.Event.addListener(polyline, "mouseup", function () {
-      //   polyline.setOptions({
-      //     strokeWeight: 6,
-      //   });
-      // });
+          // departureStations의 좌표를 path에 추가
+          route.departureStations.forEach((station) => {
+            path.push({ lat: station.latitude, lng: station.longitude });
+          });
 
-      // naver.maps.Event.addListener(polyline, "click", function () {
-      //   alert("polyline click");
-      // });
+          // arrivalStations의 좌표를 path에 추가
+          route.arrivalStations.forEach((station) => {
+            path.push({ lat: station.latitude, lng: station.longitude });
+          });
 
+          const polyline = new naver.maps.Polyline({
+            path: path,
+            strokeColor: "#" + colorsData[index].substring(2, 8),
+            strokeOpacity: 0.8,
+            strokeWeight: 6,
+            zIndex: 2,
+            clickable: true,
+            map: map,
+          });
+
+          naver.maps.Event.addListener(polyline, "mousedown", function () {
+            polyline.setOptions({
+              strokeWeight: 20,
+            });
+          });
+
+          naver.maps.Event.addListener(polyline, "mouseup", function () {
+            polyline.setOptions({
+              strokeWeight: 6,
+            });
+          });
+
+          naver.maps.Event.addListener(polyline, "click", function () {
+            alert("polyline click");
+          });
+        });
+      }
       // /////////////////////////////////////////////////////////
 
-      // // var infowindow = new naver.maps.InfoWindow();
+      // var infowindow = new naver.maps.InfoWindow();
 
-      // function onSuccessGeolocation(position) {
-      //   var location = new naver.maps.LatLng(position.coords.latitude, position.coords.longitude);
+      function onSuccessGeolocation(position) {
+        var location = new naver.maps.LatLng(position.coords.latitude, position.coords.longitude);
 
-      //   map.setCenter(location); // 얻은 좌표를 지도의 중심으로 설정합니다.
+        map.setCenter(location); // 얻은 좌표를 지도의 중심으로 설정합니다.
 
-      //   // infowindow.setContent(
-      //   //   '<div style="padding:20px;">' + "geolocation.getCurrentPosition() 위치" + "</div>"
-      //   // );
+        // infowindow.setContent(
+        //   '<div style="padding:20px;">' + "geolocation.getCurrentPosition() 위치" + "</div>"
+        // );
 
-      //   // infowindow.open(map, location);
-      //   // console.log("Coordinates: " + location.toString());
-      // }
+        // infowindow.open(map, location);
+        // console.log("Coordinates: " + location.toString());
+      }
 
-      // function onErrorGeolocation() {
-      //   var center = map.getCenter();
+      function onErrorGeolocation() {
+        var center = map.getCenter();
 
-      //   // infowindow.setContent(
-      //   //   '<div style="padding:20px;">' +
-      //   //     '<h5 style="margin-bottom:5px;color:#f00;">Geolocation failed!</h5>' +
-      //   //     "latitude: " +
-      //   //     center.lat() +
-      //   //     "<br />longitude: " +
-      //   //     center.lng() +
-      //   //     "</div>"
-      //   // );
+        // infowindow.setContent(
+        //   '<div style="padding:20px;">' +
+        //     '<h5 style="margin-bottom:5px;color:#f00;">Geolocation failed!</h5>' +
+        //     "latitude: " +
+        //     center.lat() +
+        //     "<br />longitude: " +
+        //     center.lng() +
+        //     "</div>"
+        // );
 
-      //   // infowindow.open(map, center);
-      // }
+        // infowindow.open(map, center);
+      }
 
-      // window.addEventListener("load", function () {
-      //   console.log(navigator.geolocation);
-      //   if (navigator.geolocation) {
-      //     navigator.geolocation.getCurrentPosition(onSuccessGeolocation, onErrorGeolocation);
-      //   } else {
-      //     // var center = map.getCenter();
-      //     // infowindow.setContent(
-      //     //   '<div style="padding:20px;"><h5 style="margin-bottom:5px;color:#f00;">Geolocation not supported</h5></div>'
-      //     // );
-      //     // infowindow.open(map, center);
-      //   }
-      // });
+      window.addEventListener("load", function () {
+        console.log(navigator.geolocation);
+        if (navigator.geolocation) {
+          navigator.geolocation.getCurrentPosition(onSuccessGeolocation, onErrorGeolocation);
+        } else {
+          // var center = map.getCenter();
+          // infowindow.setContent(
+          //   '<div style="padding:20px;"><h5 style="margin-bottom:5px;color:#f00;">Geolocation not supported</h5></div>'
+          // );
+          // infowindow.open(map, center);
+        }
+      });
     </script>
   </body>
 </html>

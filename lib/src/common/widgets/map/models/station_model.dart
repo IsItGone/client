@@ -42,6 +42,10 @@ class StationModel {
       'isDeparture': isDeparture,
     };
   }
+
+  static List<StationModel> fromJsonList(List<dynamic> jsonList) {
+    return jsonList.map((json) => StationModel.fromJson(json)).toList();
+  }
 }
 
 // mock data

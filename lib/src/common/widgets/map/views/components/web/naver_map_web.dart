@@ -8,6 +8,7 @@ import 'package:client/src/common/widgets/bottom_drawer/providers/bottom_drawer_
 import 'package:client/src/common/widgets/map/models/route_model.dart';
 import 'package:client/src/common/widgets/map/views/components/app/naver_map_app.dart';
 import 'package:client/src/common/widgets/map_search_bar.dart';
+import 'package:client/src/config/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:client/src/common/widgets/map/providers/naver_map_providers.dart';
@@ -23,14 +24,20 @@ class NaverMapWidget extends ConsumerStatefulWidget {
 class _NaverMapWidgetState extends ConsumerState<NaverMapWidget> {
   late String clientId;
   html.IFrameElement? _iframeElement;
-  List<RouteModel>? messageData;
+  List<RouteModel> messageData = [];
+  List<Color> colors = AppTheme.lineColors;
 
   @override
   void initState() {
     super.initState();
     clientId = ref.read(naverMapClientIdProvider);
     const origin = String.fromEnvironment('POST_MESSAGE_TARGET');
-    final String routesDataJson = jsonEncode(routesData);
+    final String routesDataJson = jsonEncode({
+      'data': {
+        "routes": routesData,
+        'colors': colors.map((color) => color.value.toRadixString(16)).toList()
+      }
+    });
 
     log('post target origin : $origin');
     ui.platformViewRegistry.registerViewFactory('naver-map', (int viewId) {
@@ -42,7 +49,8 @@ class _NaverMapWidgetState extends ConsumerState<NaverMapWidget> {
         ..style.zIndex = '-1'
         ..onLoad.listen(
           (event) {
-            _iframeElement?.contentWindow?.postMessage(routesDataJson, origin);
+            _iframeElement?.contentWindow
+                ?.postMessage(routesDataJson, origin); // map.html에 데이터 전달
           },
         );
       return _iframeElement!;
@@ -58,7 +66,7 @@ class _NaverMapWidgetState extends ConsumerState<NaverMapWidget> {
       });
     });
 
-    html.window.postMessage(routesDataJson, origin);
+    // html.window.postMessage(routesDataJson, origin); // 현재 웹 페이지의 다른 부분에 데이터 전달
   }
 
   @override
@@ -90,10 +98,13 @@ class _NaverMapWidgetState extends ConsumerState<NaverMapWidget> {
             child: BottomDrawer(
               drawerState: drawerState,
               drawerNotifier: drawerNotifier,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children:
-                    messageData!.map((route) => buildRouteItem(route)).toList(),
+              child: SingleChildScrollView(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: messageData
+                      .map((route) => buildRouteItem(route))
+                      .toList(),
+                ),
               ),
             ),
           ),
@@ -109,11 +120,12 @@ Widget buildRouteItem(RouteModel route) {
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('Route Name: ${route.name}',
-            style: const TextStyle(fontWeight: FontWeight.bold)),
+        Text(
+          'Route Name: ${route.name}',
+          style: const TextStyle(fontWeight: FontWeight.bold),
+        ),
         Text('ID: ${route.id}'),
-        ListView(
-          shrinkWrap: true,
+        Column(
           children: route.departureStations.map((station) {
             return Padding(
               padding: const EdgeInsets.symmetric(vertical: 4.0),
@@ -124,8 +136,10 @@ Widget buildRouteItem(RouteModel route) {
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('Station: ${station.name}',
-                          style: const TextStyle(fontWeight: FontWeight.bold)),
+                      Text(
+                        'Station: ${station.name}',
+                        style: const TextStyle(fontWeight: FontWeight.bold),
+                      ),
                       Text('Latitude: ${station.latitude}'),
                       Text('Longitude: ${station.longitude}'),
                     ],

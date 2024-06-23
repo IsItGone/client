@@ -114,8 +114,8 @@ Map<String, dynamic> createOverlays(List<Map<String, dynamic>> routesData,
         index,
         [
           NMultipartPath(
-            color: AppTheme.lineColor[index],
-            outlineColor: AppTheme.lineColor[index],
+            color: AppTheme.lineColors[index],
+            outlineColor: AppTheme.lineColors[index],
             coords: departureCoords,
           )
         ],
@@ -125,8 +125,8 @@ Map<String, dynamic> createOverlays(List<Map<String, dynamic>> routesData,
     // detailRoutes에 departureCoords와 arrivalCoords 추가
     List<NMultipartPath> detailPaths = [
       NMultipartPath(
-        color: AppTheme.lineColor[index],
-        outlineColor: AppTheme.lineColor[index],
+        color: AppTheme.lineColors[index],
+        outlineColor: AppTheme.lineColors[index],
         coords: departureCoords,
       )
     ];
@@ -134,8 +134,8 @@ Map<String, dynamic> createOverlays(List<Map<String, dynamic>> routesData,
     if (arrivalCoords.isNotEmpty) {
       detailPaths.add(
         NMultipartPath(
-          color: AppTheme.lineColor[index],
-          outlineColor: AppTheme.lineColor[index],
+          color: AppTheme.lineColors[index],
+          outlineColor: AppTheme.lineColors[index],
           coords: arrivalCoords,
         ),
       );

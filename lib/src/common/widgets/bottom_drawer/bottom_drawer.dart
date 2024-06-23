@@ -58,7 +58,10 @@ class BottomDrawer extends StatelessWidget {
                       child: DragHandle(),
                     ),
                   ),
-                  if (child != null) child!,
+                  if (child != null)
+                    Expanded(
+                      child: child!,
+                    ),
                 ],
               ),
             ),
