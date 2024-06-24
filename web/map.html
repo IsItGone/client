@@ -25,64 +25,176 @@
       const params = getQueryParams();
       const clientId = params["clientId"];
       document.write(`
-        <script type="text/javascript" src="https://openapi.map.naver.com/openapi/v3/maps.js?ncpClientId=${clientId}&callback=initMap"><\/script>
+      <script type="text/javascript" src="https://openapi.map.naver.com/openapi/v3/maps.js?ncpClientId=${clientId}&callback=initMap"><\/script>
       `);
     </script>
   </head>
   <body>
     <div id="map" style="width: 100%; height: 100vh"></div>
-    <!-- <div class="input-contianer">
-      <div style="height: 200px"></div>
-      <input type="text" class="text-input" id="text-input" placeholder=" " />
-      <button class="button">전송</button>
-      <p id="message" style="font-size: 15px">메시지가 여기에 표시됩니다.</p>
-    </div> -->
-    <script id="code">
+    <script>
+      let map;
+      let routesData, colorsData;
+
+      // 메시지 수신 이벤트 리스너
       window.addEventListener("message", function (event) {
         try {
           const parsedData = JSON.parse(event.data);
-          drawRoutes(parsedData.data.routes, parsedData.data.colors);
+          routesData = parsedData.data.routes;
+          colorsData = parsedData.data.colors;
+
+          // 위치 정보를 비동기적으로 가져옴
+          getCurrentPosition()
+            .then((location) => {
+              initMap(location);
+            })
+            .catch((error) => {
+              console.error("Geolocation 에러 발생", error);
+              initMap(); // 기본 위치로 초기화
+            });
         } catch (e) {
           console.error("Invalid JSON received:", e);
         }
       });
 
-      var map = new naver.maps.Map("map", {
-        center: new naver.maps.LatLng(36.3553177, 127.2981911), // 대전 삼성화재 연수원
-        mapTypeId: naver.maps.MapTypeId.NORMAL,
-      });
+      // 위치 정보를 비동기적으로 가져오는 함수
+      function getCurrentPosition() {
+        return new Promise((resolve, reject) => {
+          if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(
+              (position) => {
+                const location = new naver.maps.LatLng(
+                  position.coords.latitude,
+                  position.coords.longitude
+                );
+                resolve(location);
+              },
+              (error) => {
+                console.error("Geolocation 에러 발생", error);
+                const defaultLocation = new naver.maps.LatLng(36.3553177, 127.2981911); // 대전 삼성화재 연수원
+                resolve(defaultLocation);
+              }
+            );
+          } else {
+            console.error("Geolocation을 사용할 수 없습니다.");
+            const defaultLocation = new naver.maps.LatLng(36.3553177, 127.2981911); // 대전 삼성화재 연수원
+            resolve(defaultLocation);
+          }
+        });
+      }
 
-      // ////////////////////////////////////////////////
+      function openBottomDrawer() {
+        window.parent.postMessage(JSON.stringify({ action: "openDrawer" }), "*");
+      }
 
-      var infoWindow = new naver.maps.InfoWindow();
+      function closeBottomDrawer() {
+        window.parent.postMessage(JSON.stringify({ action: "closeDrawer" }), "*");
+      }
 
-      var pinkMarker = new naver.maps.Marker({
-        position: new naver.maps.LatLng(36.3553177, 127.2981911),
-        map: map,
-        icon: {
-          url: "assets/icons/bus_station_icon_sm.png",
-        },
-      });
-      pinkMarker.setTitle("Pink Marker");
-      naver.maps.Event.addListener(pinkMarker, "click", function () {
-        infoWindow.setContent(getContentElement("HTML MARKER"));
-        infoWindow.open(map, pinkMarker);
-      });
+      // 지도를 초기화하는 함수
+      function initMap(center) {
+        if (!map) {
+          const defaultLocation = new naver.maps.LatLng(36.3553177, 127.2981911); // 기본 위치
+          map = new naver.maps.Map("map", {
+            zoom: 17,
+            center: center || defaultLocation,
+            mapTypeId: naver.maps.MapTypeId.NORMAL,
+          });
+        }
+        // 지도가 초기화된 후 경로를 그리는 함수 호출
+        if (routesData && colorsData) {
+          drawRoutes(routesData, colorsData);
+        }
 
-      function drawRoutes(routesData, colorsData) {
-        routesData.forEach((route, index) => {
+        // var locationBtnHtml =
+        //   '<a href="#" class="btn_mylct"><span class="spr_trff spr_ico_mylct">NAVER 그린팩토리</span></a>';
+        // naver.maps.Event.once(map, "init", function () {
+        //   // customControl 객체 이용하기
+        //   var customControl = new naver.maps.CustomControl(locationBtnHtml, {
+        //     position: naver.maps.Position.TOP_LEFT,
+        //   });
+
+        //   customControl.setMap(map);
+
+        //   naver.maps.Event.addDOMListener(customControl.getElement(), "click", function () {
+        //     map.setCenter(new naver.maps.LatLng(37.3595953, 127.1053971));
+        //   });
+
+        //   // Map 객체의 controls 활용하기
+        //   var parser = new DOMParser();
+        //   var locationBtnDoc = parser.parseFromString(locationBtnHtml, "text/html");
+        //   var locationBtnEl = locationBtnDoc.body.firstChild;
+
+        //   map.controls[naver.maps.Position.LEFT_CENTER].push(locationBtnEl);
+
+        //   naver.maps.Event.addDOMListener(locationBtnEl, "click", function () {
+        //     map.setCenter(new naver.maps.LatLng(37.3595953, 127.1553971));
+        //   });
+        // });
+
+        naver.maps.Event.addListener(map, "click", function () {
+          closeBottomDrawer();
+        });
+      }
+
+      async function drawRoutes(routesData, colorsData) {
+        console.log(routesData, colorsData);
+        const markerMap = {}; // 중복 방지를 위한 객체
+
+        for (let index = 0; index < routesData.length; index++) {
+          const route = routesData[index];
           const path = [];
+          const markersPosition = [];
+          const iconImageUrl = "assets/icons/bus_station_icon.png";
 
-          // departureStations의 좌표를 path에 추가
+          var markerOptions = {
+            map: map,
+            icon: {
+              scaledSize: new naver.maps.Size(30, 38),
+              url: iconImageUrl,
+            },
+          };
+
+          // departureStations
           route.departureStations.forEach((station) => {
             path.push({ lat: station.latitude, lng: station.longitude });
+            if (!markerMap[station.id]) {
+              markerMap[station.id] = {
+                name: station.name,
+                lat: station.latitude,
+                lng: station.longitude,
+              };
+              markersPosition.push(markerMap[station.id]);
+            }
           });
 
-          // arrivalStations의 좌표를 path에 추가
+          // arrivalStations
           route.arrivalStations.forEach((station) => {
             path.push({ lat: station.latitude, lng: station.longitude });
+            if (!markerMap[station.id]) {
+              markerMap[station.id] = {
+                name: station.name,
+                lat: station.latitude,
+                lng: station.longitude,
+              };
+              markersPosition.push(markerMap[station.id]);
+            }
           });
 
+          // marker - 정류장
+          markersPosition.forEach((marker) => {
+            console.log(marker.name, marker.lat, marker.lng);
+            const station = new naver.maps.Marker({
+              ...markerOptions,
+              name: marker.name,
+              position: new naver.maps.LatLng(marker.lat, marker.lng),
+            });
+
+            naver.maps.Event.addListener(station, "click", function () {
+              openBottomDrawer();
+            });
+          });
+
+          // polyline - 노선
           const polyline = new naver.maps.Polyline({
             path: path,
             strokeColor: "#" + colorsData[index].substring(2, 8),
@@ -95,7 +207,7 @@
 
           naver.maps.Event.addListener(polyline, "mousedown", function () {
             polyline.setOptions({
-              strokeWeight: 20,
+              strokeWeight: 10,
             });
           });
 
@@ -108,53 +220,12 @@
           naver.maps.Event.addListener(polyline, "click", function () {
             alert("polyline click");
           });
-        });
-      }
-      // /////////////////////////////////////////////////////////
-
-      // var infowindow = new naver.maps.InfoWindow();
-
-      function onSuccessGeolocation(position) {
-        var location = new naver.maps.LatLng(position.coords.latitude, position.coords.longitude);
-
-        map.setCenter(location); // 얻은 좌표를 지도의 중심으로 설정합니다.
-
-        // infowindow.setContent(
-        //   '<div style="padding:20px;">' + "geolocation.getCurrentPosition() 위치" + "</div>"
-        // );
-
-        // infowindow.open(map, location);
-        // console.log("Coordinates: " + location.toString());
-      }
-
-      function onErrorGeolocation() {
-        var center = map.getCenter();
-
-        // infowindow.setContent(
-        //   '<div style="padding:20px;">' +
-        //     '<h5 style="margin-bottom:5px;color:#f00;">Geolocation failed!</h5>' +
-        //     "latitude: " +
-        //     center.lat() +
-        //     "<br />longitude: " +
-        //     center.lng() +
-        //     "</div>"
-        // );
-
-        // infowindow.open(map, center);
-      }
-
-      window.addEventListener("load", function () {
-        console.log(navigator.geolocation);
-        if (navigator.geolocation) {
-          navigator.geolocation.getCurrentPosition(onSuccessGeolocation, onErrorGeolocation);
-        } else {
-          // var center = map.getCenter();
-          // infowindow.setContent(
-          //   '<div style="padding:20px;"><h5 style="margin-bottom:5px;color:#f00;">Geolocation not supported</h5></div>'
-          // );
-          // infowindow.open(map, center);
         }
-      });
+      }
+
+      window.onload = function () {
+        initMap();
+      };
     </script>
   </body>
 </html>

@@ -49,7 +49,7 @@ final List<RouteModel> routesData = [
       'name': '1호차',
       'departureStations': [
         {
-          "id": "66730c882cf8fe1f6bcf1c30",
+          "id": "1-1",
           "name": "정부 대전청사",
           "address": "???",
           "latitude": 36.3612482,
@@ -58,7 +58,7 @@ final List<RouteModel> routesData = [
           "isDeparture": true
         },
         {
-          "id": "667316322cf8fe1f6bcf1c32",
+          "id": "1-2",
           "name": "유성구청",
           "address": "??",
           "latitude": 36.36210517519867,
@@ -67,7 +67,7 @@ final List<RouteModel> routesData = [
           "isDeparture": true
         },
         {
-          "id": "667316322cf8fe1f6bcf1c33",
+          "id": "1-3",
           "name": "유성문화원",
           "address": "??",
           "latitude": 36.36017613912628,
@@ -76,7 +76,7 @@ final List<RouteModel> routesData = [
           "isDeparture": true
         },
         {
-          "id": "667316322cf8fe1f6bcf1c35",
+          "id": "1-4",
           "name": "월드컵경기장역",
           "address": "??",
           "latitude": 36.36620032438301,
@@ -85,7 +85,7 @@ final List<RouteModel> routesData = [
           "isDeparture": true
         },
         {
-          "id": "667316322cf8fe1f6bcf1c36",
+          "id": "000",
           "name": "삼성화재 연수원",
           "address": "??",
           "latitude": MapConstants.defaultLatLng.latitude,
@@ -96,7 +96,7 @@ final List<RouteModel> routesData = [
       ],
       'arrivalStations': [
         {
-          "id": "667316322cf8fe1f6bcf1c36",
+          "id": "000",
           "name": "삼성화재 연수원",
           "address": "??",
           "latitude": MapConstants.defaultLatLng.latitude,
@@ -105,7 +105,7 @@ final List<RouteModel> routesData = [
           "isDeparture": false
         },
         {
-          "id": "667316322cf8fe1f6bcf1c35",
+          "id": "1-5",
           "name": "월드컵경기장역",
           "address": "??",
           "latitude": 36.367133366202644,
@@ -114,7 +114,7 @@ final List<RouteModel> routesData = [
           "isDeparture": false
         },
         {
-          "id": "667316322cf8fe1f6bcf1c33",
+          "id": "1-6",
           "name": "유성문화원",
           "address": "??",
           "latitude": 36.36000333899987,
@@ -123,7 +123,7 @@ final List<RouteModel> routesData = [
           "isDeparture": false
         },
         {
-          "id": "667316322cf8fe1f6bcf1c32",
+          "id": "1-7",
           "name": "유성구청",
           "address": "??",
           "latitude": 36.361595426357425,
@@ -132,7 +132,7 @@ final List<RouteModel> routesData = [
           "isDeparture": false
         },
         {
-          "id": "66730c882cf8fe1f6bcf1c30",
+          "id": "1-1",
           "name": "정부 대전청사",
           "address": "???",
           "latitude": 36.3612482,
@@ -149,7 +149,7 @@ final List<RouteModel> routesData = [
       'name': '2호차',
       'departureStations': [
         {
-          "id": "66730c882cf8fe1f6bcf1c30",
+          "id": "2-1",
           "name": "대전역",
           "address": "???",
           "latitude": 36.332326,
@@ -158,7 +158,7 @@ final List<RouteModel> routesData = [
           "isDeparture": true
         },
         {
-          "id": "667316322cf8fe1f6bcf1c32",
+          "id": "2-2",
           "name": "갈마역",
           "address": "??",
           "latitude": 36.35797524955099,
@@ -167,7 +167,7 @@ final List<RouteModel> routesData = [
           "isDeparture": true
         },
         {
-          "id": "667316322cf8fe1f6bcf1c34",
+          "id": "2-3",
           "name": "유성온천역 맥도날드",
           "address": "??",
           "latitude": 36.35438082628037,
@@ -176,7 +176,7 @@ final List<RouteModel> routesData = [
           "isDeparture": true
         },
         {
-          "id": "667316322cf8fe1f6bcf1c35",
+          "id": "2-4",
           "name": "현충원역",
           "address": "??",
           "latitude": 36.35954771869189,
@@ -185,7 +185,7 @@ final List<RouteModel> routesData = [
           "isDeparture": true
         },
         {
-          "id": "667316322cf8fe1f6bcf1c36",
+          "id": "000",
           "name": "삼성화재 연수원",
           "address": "??",
           "latitude": MapConstants.defaultLatLng.latitude,
@@ -196,7 +196,7 @@ final List<RouteModel> routesData = [
       ],
       'arrivalStations': [
         {
-          "id": "667316322cf8fe1f6bcf1c36",
+          "id": "000",
           "name": "삼성화재 연수원",
           "address": "??",
           "latitude": MapConstants.defaultLatLng.latitude,
@@ -205,7 +205,7 @@ final List<RouteModel> routesData = [
           "isDeparture": false
         },
         {
-          "id": "667316322cf8fe1f6bcf1c35",
+          "id": "2-5",
           "name": "현충원역",
           "address": "??",
           "latitude": 36.35912466956739,
@@ -214,7 +214,7 @@ final List<RouteModel> routesData = [
           "isDeparture": false
         },
         {
-          "id": "667316322cf8fe1f6bcf1c34",
+          "id": "2-6",
           "name": "유성온천역 맥도날드",
           "address": "??",
           "latitude": 36.35370816824952,
@@ -223,7 +223,7 @@ final List<RouteModel> routesData = [
           "isDeparture": false
         },
         {
-          "id": "667316322cf8fe1f6bcf1c32",
+          "id": "2-7",
           "name": "갈마역",
           "address": "??",
           "latitude": 36.357560516875424,
@@ -232,7 +232,7 @@ final List<RouteModel> routesData = [
           "isDeparture": false
         },
         {
-          "id": "66730c882cf8fe1f6bcf1c30",
+          "id": "2-1",
           "name": "대전역",
           "address": "???",
           "latitude": 36.332326,

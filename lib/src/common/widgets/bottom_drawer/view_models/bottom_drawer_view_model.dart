@@ -2,7 +2,7 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 
 class BottomDrawerViewModel extends ChangeNotifier {
-  bool _isDrawerOpen = true;
+  bool _isDrawerOpen = false;
   double _drawerHeight = 400;
   final double minHeight;
   final double maxHeight;

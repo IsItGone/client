@@ -6,10 +6,10 @@ import 'dart:ui_web' as ui;
 import 'package:client/src/common/widgets/bottom_drawer/bottom_drawer.dart';
 import 'package:client/src/common/widgets/bottom_drawer/providers/bottom_drawer_provider.dart';
 import 'package:client/src/common/widgets/map/models/route_model.dart';
-import 'package:client/src/common/widgets/map/views/components/app/naver_map_app.dart';
 import 'package:client/src/common/widgets/map_search_bar.dart';
 import 'package:client/src/config/theme.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:client/src/common/widgets/map/providers/naver_map_providers.dart';
 import 'package:pointer_interceptor/pointer_interceptor.dart';
@@ -53,17 +53,18 @@ class _NaverMapWidgetState extends ConsumerState<NaverMapWidget> {
                 ?.postMessage(routesDataJson, origin); // map.html에 데이터 전달
           },
         );
-      return _iframeElement!;
-    });
-
-    html.window.onMessage.listen((event) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (mounted) {
-          setState(() {
-            messageData = RouteModel.fromJsonList(jsonDecode(event.data));
-          });
+      // HTML 메시지 수신 설정
+      html.window.onMessage.listen((event) {
+        final message = jsonDecode(event.data);
+        if (message['action'] == 'openDrawer' &&
+            !ref.read(bottomDrawerProvider.notifier).isDrawerOpen) {
+          ref.read(bottomDrawerProvider).openDrawer();
+        } else if (message['action'] == 'closeDrawer' &&
+            ref.read(bottomDrawerProvider.notifier).isDrawerOpen) {
+          ref.read(bottomDrawerProvider).closeDrawer();
         }
       });
+      return _iframeElement!;
     });
 
     // html.window.postMessage(routesDataJson, origin); // 현재 웹 페이지의 다른 부분에 데이터 전달
