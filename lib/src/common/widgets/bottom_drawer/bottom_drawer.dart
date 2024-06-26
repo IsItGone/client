@@ -62,6 +62,8 @@ class BottomDrawer extends StatelessWidget {
                     Expanded(
                       child: child!,
                     ),
+                  if (drawerState.stationId != null)
+                    Text('Station ID: ${drawerState.stationId}'),
                 ],
               ),
             ),

@@ -56,8 +56,7 @@ class _NaverMapWidgetState extends ConsumerState<NaverMapWidget> {
         );
       // HTML 메시지 수신 설정
       html.window.onMessage.listen((event) {
-        final message = jsonDecode(event.data);
-        log('${event.origin} $origin');
+        final response = jsonDecode(event.data);
         if (event.origin != origin) {
           log('Untrusted origin: ${event.origin}');
           return;
@@ -65,9 +64,18 @@ class _NaverMapWidgetState extends ConsumerState<NaverMapWidget> {
         final provider = ref.read(bottomDrawerProvider);
         final notifier = ref.read(bottomDrawerProvider.notifier);
         log('${notifier.isDrawerOpen}');
-        if (message['action'] == 'openDrawer' && !notifier.isDrawerOpen) {
+
+        // stationId 업데이트
+        if (response['data'] != null) {
+          final stationId = response['data'];
+          notifier.updateStationId(stationId);
+        } else {
+          notifier.updateStationId('');
+        }
+
+        if (response['action'] == 'openDrawer' && !notifier.isDrawerOpen) {
           provider.openDrawer();
-        } else if (message['action'] == 'closeDrawer' &&
+        } else if (response['action'] == 'closeDrawer' &&
             notifier.isDrawerOpen) {
           provider.closeDrawer();
         }

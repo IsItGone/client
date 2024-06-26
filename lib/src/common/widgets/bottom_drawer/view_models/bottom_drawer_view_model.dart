@@ -2,6 +2,7 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 
 class BottomDrawerViewModel extends ChangeNotifier {
+  String? _stationId;
   bool _isDrawerOpen = false;
   double _drawerHeight = 400;
   final double minHeight;
@@ -14,6 +15,7 @@ class BottomDrawerViewModel extends ChangeNotifier {
 
   bool get isDrawerOpen => _isDrawerOpen;
   double get drawerHeight => _drawerHeight;
+  String? get stationId => _stationId;
 
   void toggleDrawer() {
     _isDrawerOpen = !_isDrawerOpen;
@@ -45,6 +47,11 @@ class BottomDrawerViewModel extends ChangeNotifier {
     } else {
       _drawerHeight = height;
     }
+    notifyListeners();
+  }
+
+  void updateStationId(String stationId) {
+    _stationId = stationId;
     notifyListeners();
   }
 }

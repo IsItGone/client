@@ -89,9 +89,9 @@
         }
       });
 
-      function openBottomDrawer() {
-        console.log(origin);
-        if (origin) window.parent.postMessage(JSON.stringify({ action: "openDrawer" }), origin);
+      function openBottomDrawer(id) {
+        if (origin)
+          window.parent.postMessage(JSON.stringify({ action: "openDrawer", data: id }), origin);
       }
 
       function closeBottomDrawer() {
@@ -189,7 +189,8 @@
               naver.maps.Event.once(map, "idle", function () {
                 if (map.getZoom() < 17) map.setZoom(17, { duration: 200 });
               });
-              openBottomDrawer();
+
+              openBottomDrawer(marker.id);
             });
           });
 
@@ -255,6 +256,7 @@
             };
             const marker = new naver.maps.Marker({
               ...markerOptions,
+              id: station.id,
               name: station.name,
               position: new naver.maps.LatLng(station.latitude, station.longitude),
             });
