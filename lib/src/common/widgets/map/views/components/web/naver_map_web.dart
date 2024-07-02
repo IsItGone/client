@@ -73,14 +73,9 @@ class _NaverMapWidgetState extends ConsumerState<NaverMapWidget>
         final notifier = ref.read(bottomSheetProvider.notifier);
 
         if (response['action'] == 'openDrawer') {
-          // stationId 업데이트
-          // if (response['data'] != null) {
           final stationId = response['data'];
           log('stationId : $stationId');
-          // notifier.updateStationId(stationId);
-          // } else {
-          //   notifier.updateStationId('');
-          // }
+
           provider.openDrawer(context, stationId);
         } else if (response['action'] == 'closeDrawer' &&
             notifier.isDrawerOpen) {
@@ -119,44 +114,3 @@ class _NaverMapWidgetState extends ConsumerState<NaverMapWidget>
     );
   }
 }
-
-// Widget buildRouteItem(RouteModel route) {
-//   return Padding(
-//     padding: const EdgeInsets.symmetric(vertical: 8.0),
-//     child: Column(
-//       crossAxisAlignment: CrossAxisAlignment.start,
-//       children: [
-//         Text(
-//           'Route Name: ${route.name}',
-//           style: const TextStyle(fontWeight: FontWeight.bold),
-//         ),
-//         Text('ID: ${route.id}'),
-//         Column(
-//           children: route.departureStations.map((station) {
-//             return Padding(
-//               padding: const EdgeInsets.symmetric(vertical: 4.0),
-//               child: Row(
-//                 children: [
-//                   const Icon(Icons.train, color: Colors.green),
-//                   const SizedBox(width: 8),
-//                   Column(
-//                     crossAxisAlignment: CrossAxisAlignment.start,
-//                     children: [
-//                       Text(
-//                         'Station: ${station.name}',
-//                         style: const TextStyle(fontWeight: FontWeight.bold),
-//                       ),
-//                       Text('Latitude: ${station.latitude}'),
-//                       Text('Longitude: ${station.longitude}'),
-//                     ],
-//                   ),
-//                 ],
-//               ),
-//             );
-//           }).toList(),
-//         ),
-//         const Divider(),
-//       ],
-//     ),
-//   );
-// }
