@@ -1,7 +1,7 @@
 import 'dart:developer';
 
-import 'package:client/src/common/widgets/bottom_drawer/providers/bottom_drawer_provider.dart';
-import 'package:client/src/common/widgets/bottom_drawer/view_models/bottom_drawer_view_model.dart';
+import 'package:client/src/common/widgets/bottom_drawer/providers/bottom_sheet_provider.dart';
+import 'package:client/src/common/widgets/bottom_drawer/view_models/bottom_sheet_view_model.dart';
 import 'package:client/src/common/widgets/map/providers/naver_map_providers.dart';
 import 'package:client/src/common/widgets/map/view_models/naver_map_view_model.dart';
 import 'package:client/src/config/constants.dart';
@@ -26,10 +26,11 @@ class _NaverMapContainerState extends ConsumerState<NaverMapContainer> {
   Widget build(BuildContext context) {
     final initialization = ref.watch(naverMapInitializationProvider);
     final currentLocation = ref.watch(currentLocationProvider);
-    final drawerNotifier = ref.read(bottomDrawerProvider.notifier);
+    final bottomSheetNotifier = ref.read(bottomSheetProvider.notifier);
 
     return initialization.when(
-      data: (_) => _buildCurrentLocationMap(currentLocation, drawerNotifier),
+      data: (_) =>
+          _buildCurrentLocationMap(currentLocation, bottomSheetNotifier),
       loading: () => const LoadingIndicator(),
       error: (error, stack) => ErrorIndicator(error: error),
     );
@@ -37,16 +38,17 @@ class _NaverMapContainerState extends ConsumerState<NaverMapContainer> {
 
   Widget _buildCurrentLocationMap(
     AsyncValue<Position?> currentLocation,
-    BottomDrawerViewModel drawerNotifier,
+    BottomSheetViewModel bottomSheetNotifier,
   ) {
     return currentLocation.when(
-      data: (position) => _buildMap(position, drawerNotifier),
+      data: (position) => _buildMap(position, bottomSheetNotifier),
       loading: () => const LoadingIndicator(),
       error: (error, stack) => ErrorIndicator(error: error),
     );
   }
 
-  Widget _buildMap(Position? position, BottomDrawerViewModel drawerNotifier) {
+  Widget _buildMap(
+      Position? position, BottomSheetViewModel bottomSheetNotifier) {
     final initialPosition = position != null
         ? NLatLng(position.latitude, position.longitude)
         : MapConstants.defaultLatLng;
@@ -63,7 +65,7 @@ class _NaverMapContainerState extends ConsumerState<NaverMapContainer> {
         controller.addOverlayAll(data['routes']!);
       },
       onMapTapped: (point, latLng) {
-        _handleMapTap(drawerNotifier);
+        _handleMapTap(bottomSheetNotifier);
       },
     );
   }
@@ -84,10 +86,11 @@ class _NaverMapContainerState extends ConsumerState<NaverMapContainer> {
     );
   }
 
-  void _handleMapTap(BottomDrawerViewModel drawerNotifier) {
+  void _handleMapTap(BottomSheetViewModel bottomSheetNotifier) {
     log("map tapped");
-    if (drawerNotifier.isDrawerOpen) {
-      drawerNotifier.closeDrawer();
+
+    if (bottomSheetNotifier.isDrawerOpen) {
+      bottomSheetNotifier.closeDrawer();
     }
   }
 }

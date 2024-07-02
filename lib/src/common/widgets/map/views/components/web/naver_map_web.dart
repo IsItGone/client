@@ -3,8 +3,7 @@ import 'dart:convert';
 import 'dart:html' as html;
 import 'dart:ui_web' as ui;
 
-import 'package:client/src/common/widgets/bottom_drawer/bottom_drawer.dart';
-import 'package:client/src/common/widgets/bottom_drawer/providers/bottom_drawer_provider.dart';
+import 'package:client/src/common/widgets/bottom_drawer/providers/bottom_sheet_provider.dart';
 import 'package:client/src/common/widgets/map/models/route_model.dart';
 import 'package:client/src/common/widgets/map_search_bar.dart';
 import 'package:client/src/config/theme.dart';
@@ -20,11 +19,13 @@ class NaverMapWidget extends ConsumerStatefulWidget {
   ConsumerState<NaverMapWidget> createState() => _NaverMapWidgetState();
 }
 
-class _NaverMapWidgetState extends ConsumerState<NaverMapWidget> {
+class _NaverMapWidgetState extends ConsumerState<NaverMapWidget>
+    with SingleTickerProviderStateMixin {
   late String clientId;
   html.IFrameElement? _iframeElement;
   List<RouteModel> messageData = [];
   List<Color> colors = AppTheme.lineColors;
+  late AnimationController _animationController;
 
   @override
   void initState() {
@@ -40,6 +41,13 @@ class _NaverMapWidgetState extends ConsumerState<NaverMapWidget> {
       },
       'origin': origin
     });
+
+    // AnimationController 초기화
+    _animationController = AnimationController(
+      duration: const Duration(milliseconds: 300),
+      vsync: this,
+    );
+    ref.read(bottomSheetProvider).setAnimationController(_animationController);
 
     ui.platformViewRegistry.registerViewFactory('naver-map', (int viewId) {
       _iframeElement = html.IFrameElement()
@@ -61,20 +69,19 @@ class _NaverMapWidgetState extends ConsumerState<NaverMapWidget> {
           log('Untrusted origin: ${event.origin}');
           return;
         }
-        final provider = ref.read(bottomDrawerProvider);
-        final notifier = ref.read(bottomDrawerProvider.notifier);
-        log('${notifier.isDrawerOpen}');
+        final provider = ref.read(bottomSheetProvider);
+        final notifier = ref.read(bottomSheetProvider.notifier);
 
-        // stationId 업데이트
-        if (response['data'] != null) {
+        if (response['action'] == 'openDrawer') {
+          // stationId 업데이트
+          // if (response['data'] != null) {
           final stationId = response['data'];
-          notifier.updateStationId(stationId);
-        } else {
-          notifier.updateStationId('');
-        }
-
-        if (response['action'] == 'openDrawer' && !notifier.isDrawerOpen) {
-          provider.openDrawer();
+          log('stationId : $stationId');
+          // notifier.updateStationId(stationId);
+          // } else {
+          //   notifier.updateStationId('');
+          // }
+          provider.openDrawer(context, stationId);
         } else if (response['action'] == 'closeDrawer' &&
             notifier.isDrawerOpen) {
           provider.closeDrawer();
@@ -82,15 +89,16 @@ class _NaverMapWidgetState extends ConsumerState<NaverMapWidget> {
       });
       return _iframeElement!;
     });
+  }
 
-    // html.window.postMessage(routesDataJson, origin); // 현재 웹 페이지의 다른 부분에 데이터 전달
+  @override
+  void dispose() {
+    _animationController.dispose();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    final drawerState = ref.watch(bottomDrawerProvider);
-    final drawerNotifier = ref.read(bottomDrawerProvider.notifier);
-
     return Stack(
       children: [
         const Positioned.fill(
@@ -107,67 +115,48 @@ class _NaverMapWidgetState extends ConsumerState<NaverMapWidget> {
             ),
           ),
         ),
-        Positioned(
-          bottom: 0,
-          left: 0,
-          right: 0,
-          child: PointerInterceptor(
-            child: BottomDrawer(
-              drawerState: drawerState,
-              drawerNotifier: drawerNotifier,
-              child: SingleChildScrollView(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: messageData
-                      .map((route) => buildRouteItem(route))
-                      .toList(),
-                ),
-              ),
-            ),
-          ),
-        ),
       ],
     );
   }
 }
 
-Widget buildRouteItem(RouteModel route) {
-  return Padding(
-    padding: const EdgeInsets.symmetric(vertical: 8.0),
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          'Route Name: ${route.name}',
-          style: const TextStyle(fontWeight: FontWeight.bold),
-        ),
-        Text('ID: ${route.id}'),
-        Column(
-          children: route.departureStations.map((station) {
-            return Padding(
-              padding: const EdgeInsets.symmetric(vertical: 4.0),
-              child: Row(
-                children: [
-                  const Icon(Icons.train, color: Colors.green),
-                  const SizedBox(width: 8),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Station: ${station.name}',
-                        style: const TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                      Text('Latitude: ${station.latitude}'),
-                      Text('Longitude: ${station.longitude}'),
-                    ],
-                  ),
-                ],
-              ),
-            );
-          }).toList(),
-        ),
-        const Divider(),
-      ],
-    ),
-  );
-}
+// Widget buildRouteItem(RouteModel route) {
+//   return Padding(
+//     padding: const EdgeInsets.symmetric(vertical: 8.0),
+//     child: Column(
+//       crossAxisAlignment: CrossAxisAlignment.start,
+//       children: [
+//         Text(
+//           'Route Name: ${route.name}',
+//           style: const TextStyle(fontWeight: FontWeight.bold),
+//         ),
+//         Text('ID: ${route.id}'),
+//         Column(
+//           children: route.departureStations.map((station) {
+//             return Padding(
+//               padding: const EdgeInsets.symmetric(vertical: 4.0),
+//               child: Row(
+//                 children: [
+//                   const Icon(Icons.train, color: Colors.green),
+//                   const SizedBox(width: 8),
+//                   Column(
+//                     crossAxisAlignment: CrossAxisAlignment.start,
+//                     children: [
+//                       Text(
+//                         'Station: ${station.name}',
+//                         style: const TextStyle(fontWeight: FontWeight.bold),
+//                       ),
+//                       Text('Latitude: ${station.latitude}'),
+//                       Text('Longitude: ${station.longitude}'),
+//                     ],
+//                   ),
+//                 ],
+//               ),
+//             );
+//           }).toList(),
+//         ),
+//         const Divider(),
+//       ],
+//     ),
+//   );
+// }

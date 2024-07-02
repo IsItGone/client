@@ -1,6 +1,6 @@
 import 'dart:developer';
 
-import 'package:client/src/common/widgets/bottom_drawer/providers/bottom_drawer_provider.dart';
+import 'package:client/src/common/widgets/bottom_drawer/providers/bottom_sheet_provider.dart';
 import 'package:client/src/common/widgets/map/models/route_model.dart';
 import 'package:client/src/config/theme.dart';
 import 'package:flutter/material.dart';
@@ -15,10 +15,16 @@ Future<Map<String, Set<NAddableOverlay<NOverlay<void>>>>> loadShuttleData(
     var route = entry.value;
 
     final departureCoords = route.departureStations
-        .map((station) => NLatLng(station.latitude, station.longitude))
+        .map((station) => {
+              'coord': NLatLng(station.latitude, station.longitude),
+              'id': station.id
+            })
         .toList();
     final arrivalCoords = route.arrivalStations
-        .map((station) => NLatLng(station.latitude, station.longitude))
+        .map((station) => {
+              'coord': NLatLng(station.latitude, station.longitude),
+              'id': station.id
+            })
         .toList();
 
     return {
@@ -55,37 +61,39 @@ Map<String, dynamic> createOverlays(List<Map<String, dynamic>> routesData,
   Set<NMarker> overviewStations = {};
   Set<NMarker> detailStations = {};
 
-  final drawerNotifier = ref.read(bottomDrawerProvider.notifier);
+  final bottomSheetNotifier = ref.watch(bottomSheetProvider.notifier);
 
-  void addMarkers(
-      Set<NMarker> markerSet, List<NLatLng> coords, int index, String type) {
-    for (var coord in coords) {
-      final station = NMarker(
-        id: '$index-$type-${coord.latitude}-${coord.longitude}',
-        position: coord,
+  void addMarkers(Set<NMarker> markerSet,
+      List<Map<String, dynamic>> stationList, int index, String type) {
+    for (var station in stationList) {
+      final marker = NMarker(
+        id: station['id'],
+        position: station['coord'],
         icon: iconImage,
         size: const NSize(32, 40),
       );
-      station.setOnTapListener((NMarker station) async {
-        log("마커가 터치되었습니다. id: ${station.info.id} $station");
-        log('$controller');
-        if (!drawerNotifier.isDrawerOpen) {
-          await drawerNotifier.openDrawer();
-        }
+      marker.setOnTapListener((NMarker marker) async {
+        log("마커가 터치되었습니다. id: ${marker.info.id} $marker");
+
+        // bottomSheetNotifier.updateStationId(marker.info.id);
+        // if (!bottomSheetNotifier.isDrawerOpen) {
+        bottomSheetNotifier.openDrawer(context, marker.info.id);
+        // }
         if (controller != null) {
           final cameraUpdate = NCameraUpdate.scrollAndZoomTo(
-            target: coord,
+            target: station['coord'],
+            zoom: 17,
           )
             ..setAnimation(
               animation: NCameraAnimation.easing,
               duration: const Duration(milliseconds: 300),
             )
-            ..setPivot(const NPoint(1 / 2, 1 / 3));
+            ..setPivot(const NPoint(1 / 2, 1 / 2));
 
           await controller.updateCamera(cameraUpdate);
         }
       });
-      markerSet.add(station);
+      markerSet.add(marker);
     }
   }
 
@@ -102,8 +110,8 @@ Map<String, dynamic> createOverlays(List<Map<String, dynamic>> routesData,
 
   for (var route in routesData) {
     int index = route['index'];
-    List<NLatLng> departureCoords = route['departureCoords'];
-    List<NLatLng> arrivalCoords =
+    List<Map<String, dynamic>> departureCoords = route['departureCoords'];
+    List<Map<String, dynamic>> arrivalCoords =
         route.containsKey('arrivalCoords') ? route['arrivalCoords'] : [];
 
     // overviewRoutes와 overviewStations에 departureCoords 추가
@@ -116,7 +124,9 @@ Map<String, dynamic> createOverlays(List<Map<String, dynamic>> routesData,
           NMultipartPath(
             color: AppTheme.lineColors[index],
             outlineColor: AppTheme.lineColors[index],
-            coords: departureCoords,
+            coords: departureCoords
+                .map((item) => item['coord'] as NLatLng)
+                .toList(),
           )
         ],
       ),
@@ -127,7 +137,8 @@ Map<String, dynamic> createOverlays(List<Map<String, dynamic>> routesData,
       NMultipartPath(
         color: AppTheme.lineColors[index],
         outlineColor: AppTheme.lineColors[index],
-        coords: departureCoords,
+        coords:
+            departureCoords.map((item) => item['coord'] as NLatLng).toList(),
       )
     ];
 
@@ -136,7 +147,8 @@ Map<String, dynamic> createOverlays(List<Map<String, dynamic>> routesData,
         NMultipartPath(
           color: AppTheme.lineColors[index],
           outlineColor: AppTheme.lineColors[index],
-          coords: arrivalCoords,
+          coords:
+              arrivalCoords.map((item) => item['coord'] as NLatLng).toList(),
         ),
       );
       // detailStations에 arrivalCoords 추가

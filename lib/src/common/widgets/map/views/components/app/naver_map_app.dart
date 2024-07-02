@@ -1,143 +1,53 @@
-import 'package:client/src/common/widgets/bottom_drawer/providers/bottom_drawer_provider.dart';
-import 'package:client/src/common/widgets/bottom_drawer/bottom_drawer.dart';
+import 'package:client/src/common/widgets/bottom_drawer/providers/bottom_sheet_provider.dart';
 import 'package:client/src/common/widgets/map/views/components/app/naver_map_container.dart';
 import 'package:client/src/common/widgets/map_search_bar.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class NaverMapWidget extends ConsumerWidget {
+class NaverMapWidget extends ConsumerStatefulWidget {
   const NaverMapWidget({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final drawerState = ref.watch(bottomDrawerProvider);
-    final drawerNotifier = ref.read(bottomDrawerProvider.notifier);
-
-    return GestureDetector(
-      onTap: () {
-        if (drawerState.isDrawerOpen) {
-          drawerState.closeDrawer();
-        }
-      },
-      child: Stack(
-        children: [
-          const Stack(
-            children: [
-              NaverMapContainer(),
-              SafeArea(
-                child: Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-                  child: MapSearchBar(),
-                ),
-              ),
-            ],
-          ),
-          BottomDrawer(
-              drawerState: drawerState,
-              drawerNotifier: drawerNotifier,
-              child: const Type4()),
-        ],
-      ),
-    );
-  }
+  ConsumerState<ConsumerStatefulWidget> createState() => _NaverMapWidgetState();
 }
 
-class Type4 extends StatefulWidget {
-  const Type4({super.key});
+class _NaverMapWidgetState extends ConsumerState<NaverMapWidget>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _animationController;
 
   @override
-  State<Type4> createState() => _Type4State();
-}
+  void initState() {
+    super.initState();
+    _animationController = AnimationController(
+      duration: const Duration(milliseconds: 300),
+      vsync: this,
+    );
+    ref.read(bottomSheetProvider).setAnimationController(_animationController);
+  }
 
-class _Type4State extends State<Type4> {
+  @override
+  void dispose() {
+    _animationController.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Expanded(
-      child: ListView.builder(
-        itemCount: 5,
-        padding: const EdgeInsets.symmetric(vertical: 10),
-        itemBuilder: (context, index) {
-          return Container(color: Colors.pink, child: subItem());
-        },
-      ),
-    );
-  }
-
-  Widget subItem() {
-    return InkWell(
-      onTap: () {
-        debugPrint('***** [JHC_DEBUG] 선택');
-      },
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    return const Stack(
+      children: [
+        Stack(
           children: [
-            Container(
-              width: 50,
-              height: 50,
-              decoration: const BoxDecoration(
-                color: Colors.purple,
-                shape: BoxShape.circle,
-              ),
-            ), // 좌측 차량 이미지
-            const Expanded(
+            NaverMapContainer(),
+            SafeArea(
               child: Padding(
-                padding: EdgeInsets.symmetric(horizontal: 16.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Text('넥스트',
-                            style: TextStyle(fontWeight: FontWeight.bold)),
-                        SizedBox(width: 4),
-                        Icon(Icons.person, size: 14),
-                        SizedBox(width: 4),
-                        Text('5',
-                            style: TextStyle(fontWeight: FontWeight.bold)),
-                        SizedBox(width: 4),
-                        Icon(Icons.info_outline, size: 14),
-                      ],
-                    ),
-                    SizedBox(height: 6),
-                    Text(
-                      '대형 RV의 쾌적한 이동',
-                      style: TextStyle(color: Colors.grey),
-                    ),
-                  ],
-                ),
+                padding: EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                child: MapSearchBar(),
               ),
-            ), // 중간 차량 타입
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                Row(
-                  children: [
-                    Icon(Icons.arrow_upward,
-                        size: 12, color: Colors.grey.withOpacity(0.8)),
-                    Text('2.0배',
-                        style: TextStyle(
-                            fontSize: 12, color: Colors.grey.withOpacity(0.8))),
-                  ],
-                ),
-                const SizedBox(height: 2),
-                const Text('예상 17,200원', style: TextStyle(fontSize: 16)),
-                const SizedBox(height: 2),
-                Text(
-                  '예상 23,200원',
-                  style: TextStyle(
-                    decoration: TextDecoration.lineThrough,
-                    fontSize: 14,
-                    color: Colors.grey.withOpacity(0.8),
-                  ),
-                ),
-              ],
-            ) // 오른쪽의 요금
+            ),
           ],
         ),
-      ),
+      ],
     );
   }
 }

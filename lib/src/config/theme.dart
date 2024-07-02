@@ -51,14 +51,80 @@ class AppTheme {
     950: Color(0xff212b4a),
   });
 
+// Define the text theme
+  static const TextTheme textTheme = TextTheme(
+    displayLarge: TextStyle(
+      fontSize: 32.0,
+      fontWeight: FontWeight.bold,
+      color: mainBlack,
+    ),
+    displayMedium: TextStyle(
+      fontSize: 28.0,
+      fontWeight: FontWeight.bold,
+      color: mainBlack,
+    ),
+    displaySmall: TextStyle(
+      fontSize: 24.0,
+      fontWeight: FontWeight.bold,
+      color: mainBlack,
+    ),
+    headlineMedium: TextStyle(
+      fontSize: 20.0,
+      fontWeight: FontWeight.bold,
+      color: mainBlack,
+    ),
+    headlineSmall: TextStyle(
+      fontSize: 18.0,
+      fontWeight: FontWeight.bold,
+      color: mainBlack,
+    ),
+    titleLarge: TextStyle(
+      fontSize: 16.0,
+      fontWeight: FontWeight.bold,
+      color: mainBlack,
+    ),
+    titleMedium: TextStyle(
+      fontSize: 16.0,
+      fontWeight: FontWeight.normal,
+      color: mainGray,
+    ),
+    titleSmall: TextStyle(
+      fontSize: 14.0,
+      fontWeight: FontWeight.normal,
+      color: mainGray,
+    ),
+    bodyLarge: TextStyle(
+      fontSize: 16.0,
+      fontWeight: FontWeight.normal,
+      color: mainBlack,
+    ),
+    bodyMedium: TextStyle(
+      fontSize: 14.0,
+      fontWeight: FontWeight.normal,
+      color: mainBlack,
+    ),
+    bodySmall: TextStyle(
+      fontSize: 12.0,
+      fontWeight: FontWeight.normal,
+      color: mainGray,
+    ),
+    labelLarge: TextStyle(
+      fontSize: 14.0,
+      fontWeight: FontWeight.bold,
+      color: primarySwatch,
+    ),
+    labelSmall: TextStyle(
+      fontSize: 12.0,
+      fontWeight: FontWeight.normal,
+      color: mainWhite,
+    ),
+  );
   static final ThemeData lightTheme = ThemeData(
-      // appBarTheme: const AppBarTheme(),
-      brightness: Brightness.light,
-      colorScheme: ColorScheme.light(
-        primary: primarySwatch[800]!,
-
-        // onPrimary: AppTheme.lightOnPrimary,
-        // surface: AppTheme.lightBackground,
-        // onSurface: AppTheme.lightOnBackground,
-      ));
+    brightness: Brightness.light,
+    colorScheme: ColorScheme.light(
+      primary: primarySwatch[800]!,
+    ),
+    fontFamily: "Pretendard",
+    textTheme: textTheme,
+  );
 }
