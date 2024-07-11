@@ -1,6 +1,6 @@
 import 'dart:developer';
 
-import 'package:client/src/common/widgets/bottom_drawer/providers/bottom_sheet_provider.dart';
+import 'package:client/src/common/widgets/bottom_sheet/providers/bottom_drawer_provider.dart';
 import 'package:client/src/common/widgets/map/models/route_model.dart';
 import 'package:client/src/config/theme.dart';
 import 'package:flutter/material.dart';
@@ -61,7 +61,7 @@ Map<String, dynamic> createOverlays(List<Map<String, dynamic>> routesData,
   Set<NMarker> overviewStations = {};
   Set<NMarker> detailStations = {};
 
-  final bottomSheetNotifier = ref.watch(bottomSheetProvider.notifier);
+  final bottomDrawerNotifier = ref.watch(bottomDrawerProvider.notifier);
 
   void addMarkers(Set<NMarker> markerSet,
       List<Map<String, dynamic>> stationList, int index, String type) {
@@ -75,10 +75,12 @@ Map<String, dynamic> createOverlays(List<Map<String, dynamic>> routesData,
       marker.setOnTapListener((NMarker marker) async {
         log("마커가 터치되었습니다. id: ${marker.info.id} $marker");
 
-        // bottomSheetNotifier.updateStationId(marker.info.id);
-        // if (!bottomSheetNotifier.isDrawerOpen) {
-        bottomSheetNotifier.openDrawer(context, marker.info.id);
-        // }
+        // bottomSheetNotifier.openBottomSheet(context, marker.info.id);
+        bottomDrawerNotifier.updateStationId(marker.info.id);
+
+        if (!bottomDrawerNotifier.isDrawerOpen) {
+          bottomDrawerNotifier.openDrawer();
+        }
         if (controller != null) {
           final cameraUpdate = NCameraUpdate.scrollAndZoomTo(
             target: station['coord'],

@@ -89,12 +89,12 @@
         }
       });
 
-      function openBottomDrawer(id) {
+      function openDrawer(id) {
         if (origin)
           window.parent.postMessage(JSON.stringify({ action: "openDrawer", data: id }), origin);
       }
 
-      function closeBottomDrawer() {
+      function closeDrawer() {
         if (origin) window.parent.postMessage(JSON.stringify({ action: "closeDrawer" }), origin);
       }
 
@@ -132,7 +132,7 @@
           });
 
           naver.maps.Event.addListener(map, "click", function (e) {
-            closeBottomDrawer();
+            closeDrawer();
           });
 
           naver.maps.Event.addListener(map, "zoom_changed", function () {
@@ -190,7 +190,7 @@
                 if (map.getZoom() < 17) map.setZoom(17, { duration: 200 });
               });
 
-              openBottomDrawer(marker.id);
+              openDrawer(marker.id);
             });
           });
 

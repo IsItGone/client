@@ -1,16 +1,21 @@
-import 'package:client/src/common/widgets/bottom_drawer/components/station_info.dart';
+import 'dart:developer';
+
+import 'package:client/src/common/widgets/bottom_sheet/components/station_info.dart';
+import 'package:client/src/common/widgets/bottom_sheet/providers/bottom_drawer_provider.dart';
 import 'package:client/src/config/theme.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
-class StationDetail extends StatefulWidget {
+class StationDetail extends ConsumerStatefulWidget {
   final String stationId;
   const StationDetail(this.stationId, {super.key});
 
   @override
-  State<StatefulWidget> createState() => _StationDetailState();
+  ConsumerState<ConsumerStatefulWidget> createState() => _StationDetailState();
 }
 
-class _StationDetailState extends State<StationDetail> {
+class _StationDetailState extends ConsumerState<StationDetail> {
   final List<String> routes = ['1', '2', '3'];
   int selectedIndex = 0;
 
@@ -79,50 +84,66 @@ class _StationDetailState extends State<StationDetail> {
 
   @override
   Widget build(BuildContext context) {
+    final bottomDrawerNotifier = ref.watch(bottomDrawerProvider.notifier);
+
     return Container(
-      // decoration: BoxDecoration(color: Colors.pink[50]),
       padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 4.0),
       child: Column(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const SizedBox(height: 10),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Row(
-                children: List.generate(
-                  routes.length,
-                  (index) {
-                    return _buildRouteButton(index);
-                  },
-                ),
-              ),
-              TextButton(
-                onPressed: () {},
-                child: Row(
-                  children: [
-                    Image.asset(
-                      'assets/icons/linear_routes.png',
-                      width: 20,
-                      height: 20,
-                    ),
-                    const SizedBox(width: 6),
-                    Text(
-                      "노선표",
-                      style: AppTheme.textTheme.titleLarge,
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 16.0),
           Expanded(
-            child: StationInfo(
-              stationId: widget.stationId,
-              routes: routes,
-              selectedIndex: selectedIndex,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 10),
+                  child: Row(
+                    children: List.generate(
+                      routes.length,
+                      (index) {
+                        return _buildRouteButton(index);
+                      },
+                    ),
+                  ),
+                ),
+                TextButton(
+                  onPressed: () {
+                    final routeId = routes[selectedIndex];
+                    log('$routeId ${widget.stationId} ${bottomDrawerNotifier.stationId}');
+                    context.push('/linear-routes/$routeId', extra: {
+                      'stationId': bottomDrawerNotifier.stationId,
+                    });
+                  },
+                  child: Row(
+                    children: [
+                      Image.asset(
+                        'assets/icons/linear_routes.png',
+                        width: 20,
+                        height: 20,
+                      ),
+                      const SizedBox(width: 6),
+                      Text(
+                        "노선표",
+                        style: AppTheme.textTheme.titleLarge,
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: SingleChildScrollView(
+                child: StationInfo(
+                  stationId: widget.stationId,
+                  routes: routes,
+                  selectedIndex: selectedIndex,
+                ),
+              ),
             ),
           ),
         ],

@@ -1,42 +1,22 @@
-import 'package:client/src/common/widgets/bottom_drawer/providers/bottom_sheet_provider.dart';
+import 'package:client/src/common/widgets/bottom_sheet/bottom_drawer.dart';
+import 'package:client/src/common/widgets/bottom_sheet/components/station_detail.dart';
+import 'package:client/src/common/widgets/bottom_sheet/providers/bottom_drawer_provider.dart';
 import 'package:client/src/common/widgets/map/views/components/app/naver_map_container.dart';
 import 'package:client/src/common/widgets/map_search_bar.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class NaverMapWidget extends ConsumerStatefulWidget {
+class NaverMapWidget extends ConsumerWidget {
   const NaverMapWidget({super.key});
 
   @override
-  ConsumerState<ConsumerStatefulWidget> createState() => _NaverMapWidgetState();
-}
+  Widget build(BuildContext context, WidgetRef ref) {
+    final drawerState = ref.watch(bottomDrawerProvider);
 
-class _NaverMapWidgetState extends ConsumerState<NaverMapWidget>
-    with SingleTickerProviderStateMixin {
-  late AnimationController _animationController;
-
-  @override
-  void initState() {
-    super.initState();
-    _animationController = AnimationController(
-      duration: const Duration(milliseconds: 300),
-      vsync: this,
-    );
-    ref.read(bottomSheetProvider).setAnimationController(_animationController);
-  }
-
-  @override
-  void dispose() {
-    _animationController.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return const Stack(
+    return Stack(
       children: [
-        Stack(
+        const Stack(
           children: [
             NaverMapContainer(),
             SafeArea(
@@ -46,6 +26,19 @@ class _NaverMapWidgetState extends ConsumerState<NaverMapWidget>
               ),
             ),
           ],
+        ),
+        AnimatedPositioned(
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeInOut,
+          bottom: drawerState.isDrawerOpen
+              ? 0
+              : -MediaQuery.of(context).size.height * 0.33,
+          left: 0,
+          right: 0,
+          child: BottomDrawer(
+            isDrawerOpen: drawerState.isDrawerOpen,
+            child: StationDetail(drawerState.stationId),
+          ),
         ),
       ],
     );

@@ -3,7 +3,10 @@ import 'dart:convert';
 import 'dart:html' as html;
 import 'dart:ui_web' as ui;
 
-import 'package:client/src/common/widgets/bottom_drawer/providers/bottom_sheet_provider.dart';
+import 'package:client/src/common/widgets/bottom_sheet/bottom_drawer.dart';
+import 'package:client/src/common/widgets/bottom_sheet/components/station_detail.dart';
+import 'package:client/src/common/widgets/bottom_sheet/providers/bottom_drawer_provider.dart';
+
 import 'package:client/src/common/widgets/map/models/route_model.dart';
 import 'package:client/src/common/widgets/map_search_bar.dart';
 import 'package:client/src/config/theme.dart';
@@ -19,13 +22,11 @@ class NaverMapWidget extends ConsumerStatefulWidget {
   ConsumerState<NaverMapWidget> createState() => _NaverMapWidgetState();
 }
 
-class _NaverMapWidgetState extends ConsumerState<NaverMapWidget>
-    with SingleTickerProviderStateMixin {
+class _NaverMapWidgetState extends ConsumerState<NaverMapWidget> {
   late String clientId;
   html.IFrameElement? _iframeElement;
   List<RouteModel> messageData = [];
   List<Color> colors = AppTheme.lineColors;
-  late AnimationController _animationController;
 
   @override
   void initState() {
@@ -41,13 +42,6 @@ class _NaverMapWidgetState extends ConsumerState<NaverMapWidget>
       },
       'origin': origin
     });
-
-    // AnimationController 초기화
-    _animationController = AnimationController(
-      duration: const Duration(milliseconds: 300),
-      vsync: this,
-    );
-    ref.read(bottomSheetProvider).setAnimationController(_animationController);
 
     ui.platformViewRegistry.registerViewFactory('naver-map', (int viewId) {
       _iframeElement = html.IFrameElement()
@@ -69,31 +63,27 @@ class _NaverMapWidgetState extends ConsumerState<NaverMapWidget>
           log('Untrusted origin: ${event.origin}');
           return;
         }
-        final provider = ref.read(bottomSheetProvider);
-        final notifier = ref.read(bottomSheetProvider.notifier);
+        final notifier = ref.read(bottomDrawerProvider.notifier);
+        log('${notifier.isDrawerOpen}');
 
         if (response['action'] == 'openDrawer') {
           final stationId = response['data'];
-          log('stationId : $stationId');
-
-          provider.openDrawer(context, stationId);
-        } else if (response['action'] == 'closeDrawer' &&
-            notifier.isDrawerOpen) {
-          provider.closeDrawer();
+          notifier.updateStationId(stationId);
+          notifier.openDrawer();
+        } else if (response['action'] == 'closeDrawer') {
+          notifier.closeDrawer();
         }
       });
       return _iframeElement!;
     });
-  }
 
-  @override
-  void dispose() {
-    _animationController.dispose();
-    super.dispose();
+    // html.window.postMessage(routesDataJson, origin); // 현재 웹 페이지의 다른 부분에 데이터 전달
   }
 
   @override
   Widget build(BuildContext context) {
+    final drawState = ref.watch(bottomDrawerProvider);
+
     return Stack(
       children: [
         const Positioned.fill(
@@ -107,6 +97,23 @@ class _NaverMapWidgetState extends ConsumerState<NaverMapWidget>
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
               child: PointerInterceptor(child: const MapSearchBar()),
+            ),
+          ),
+        ),
+        AnimatedPositioned(
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeInOut,
+          bottom: drawState.isDrawerOpen
+              ? 0
+              : -MediaQuery.of(context).size.height * 0.33,
+          left: 0,
+          right: 0,
+          child: PointerInterceptor(
+            child: SingleChildScrollView(
+              child: BottomDrawer(
+                isDrawerOpen: drawState.isDrawerOpen,
+                child: StationDetail(drawState.stationId),
+              ),
             ),
           ),
         ),
