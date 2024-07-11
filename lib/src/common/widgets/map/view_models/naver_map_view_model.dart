@@ -1,6 +1,6 @@
 import 'dart:developer';
 
-import 'package:client/src/common/widgets/bottom_sheet/providers/bottom_drawer_provider.dart';
+import 'package:client/src/common/widgets/bottom_drawer/providers/bottom_drawer_provider.dart';
 import 'package:client/src/common/widgets/map/models/route_model.dart';
 import 'package:client/src/config/theme.dart';
 import 'package:flutter/material.dart';

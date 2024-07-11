@@ -124,7 +124,7 @@ class AppTheme {
     colorScheme: ColorScheme.light(
       primary: primarySwatch[800]!,
     ),
-    // fontFamily: "Pretendard",
+    fontFamily: "Pretendard",
     textTheme: textTheme,
   );
 }

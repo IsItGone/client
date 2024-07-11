@@ -1,7 +1,7 @@
 import 'dart:developer';
 
-import 'package:client/src/common/widgets/bottom_sheet/components/station_info.dart';
-import 'package:client/src/common/widgets/bottom_sheet/providers/bottom_drawer_provider.dart';
+import 'package:client/src/common/widgets/bottom_drawer/components/station_info.dart';
+import 'package:client/src/common/widgets/bottom_drawer/providers/bottom_drawer_provider.dart';
 import 'package:client/src/config/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';

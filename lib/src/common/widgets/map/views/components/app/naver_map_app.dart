@@ -1,6 +1,6 @@
-import 'package:client/src/common/widgets/bottom_sheet/bottom_drawer.dart';
-import 'package:client/src/common/widgets/bottom_sheet/components/station_detail.dart';
-import 'package:client/src/common/widgets/bottom_sheet/providers/bottom_drawer_provider.dart';
+import 'package:client/src/common/widgets/bottom_drawer/bottom_drawer.dart';
+import 'package:client/src/common/widgets/bottom_drawer/components/station_detail.dart';
+import 'package:client/src/common/widgets/bottom_drawer/providers/bottom_drawer_provider.dart';
 import 'package:client/src/common/widgets/map/views/components/app/naver_map_container.dart';
 import 'package:client/src/common/widgets/map_search_bar.dart';
 
