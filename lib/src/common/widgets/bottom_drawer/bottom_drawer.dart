@@ -24,7 +24,7 @@ class BottomDrawer extends StatelessWidget {
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black26,
+            color: Colors.black12,
             blurRadius: 10,
             offset: Offset(0, -5),
           ),

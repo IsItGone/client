@@ -1,8 +1,8 @@
 import 'package:client/src/config/theme.dart';
 import 'package:flutter/material.dart';
 
-class StationInfo extends StatefulWidget {
-  const StationInfo({
+class StationDetailInfo extends StatefulWidget {
+  const StationDetailInfo({
     super.key,
     required this.stationId,
     required this.routes,
@@ -14,10 +14,10 @@ class StationInfo extends StatefulWidget {
   final int selectedIndex;
 
   @override
-  State<StatefulWidget> createState() => _StationInfoState();
+  State<StatefulWidget> createState() => _StationDetailInfoState();
 }
 
-class _StationInfoState extends State<StationInfo> {
+class _StationDetailInfoState extends State<StationDetailInfo> {
   late int _selectedIndex;
 
   @override
@@ -27,7 +27,7 @@ class _StationInfoState extends State<StationInfo> {
   }
 
   @override
-  void didUpdateWidget(covariant StationInfo oldWidget) {
+  void didUpdateWidget(covariant StationDetailInfo oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.selectedIndex != widget.selectedIndex) {
       setState(() {

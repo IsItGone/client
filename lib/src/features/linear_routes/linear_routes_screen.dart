@@ -1,4 +1,5 @@
 import 'package:client/src/config/theme.dart';
+import 'package:client/src/features/linear_routes/components/routes_detail.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -18,7 +19,7 @@ class LinearRoutesScreen extends ConsumerWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          '노선표 - Route: $routeId',
+          '$routeId호차',
         ),
         foregroundColor: AppTheme.mainWhite,
         backgroundColor: AppTheme.lineColors[int.parse(routeId) - 1],
@@ -29,12 +30,16 @@ class LinearRoutesScreen extends ConsumerWidget {
           },
         ),
       ),
-      body: Center(
+      body: const Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Text('Route ID: $routeId'),
-            if (stationId != null) Text('Station ID: $stationId'),
+            Expanded(
+              child: RoutesDetail(),
+            ),
+            // Text('Route ID: $routeId'),
+            // if (stationId != null) Text('Station ID: $stationId'),
           ],
         ),
       ),

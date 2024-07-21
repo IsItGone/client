@@ -1,6 +1,6 @@
 import 'dart:developer';
 
-import 'package:client/src/common/widgets/bottom_drawer/components/station_info.dart';
+import 'package:client/src/common/widgets/bottom_drawer/components/station_detail_info.dart';
 import 'package:client/src/common/widgets/bottom_drawer/providers/bottom_drawer_provider.dart';
 import 'package:client/src/config/theme.dart';
 import 'package:flutter/material.dart';
@@ -95,7 +95,7 @@ class _StationDetailState extends ConsumerState<StationDetail> {
           Expanded(
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              crossAxisAlignment: CrossAxisAlignment.stretch,
+              // crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 10),
@@ -138,7 +138,7 @@ class _StationDetailState extends ConsumerState<StationDetail> {
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: SingleChildScrollView(
-                child: StationInfo(
+                child: StationDetailInfo(
                   stationId: widget.stationId,
                   routes: routes,
                   selectedIndex: selectedIndex,
