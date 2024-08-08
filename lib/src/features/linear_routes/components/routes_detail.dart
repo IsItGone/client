@@ -5,21 +5,14 @@ class RoutesDetail extends StatelessWidget {
   const RoutesDetail({super.key});
   @override
   Widget build(BuildContext context) {
-    // final List<String> stops = [
-    //   '정류장 1',
-    //   '정류장 2',
-    //   '정류장 3',
-    //   '정류장 4',
-    //   '정류장 5',
-    // ];
     List<bool> routeStatus = [
       false,
-      true,
-      false,
-      true,
       false,
       false,
-      true,
+      false,
+      false,
+      false,
+      false,
       false,
       false,
       false
@@ -149,7 +142,7 @@ class RouteStop extends StatelessWidget {
             child: Container(
               margin: EdgeInsets.fromLTRB(
                 0,
-                index == 0 ? barHeight / 2 + 8 : 0, // divider margin까지
+                index == 0 ? barHeight / 2 + 8 : 0, // divider margin 포함
                 0,
                 0,
               ),
