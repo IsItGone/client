@@ -44,7 +44,7 @@
         "--web-browser-flag=--unsafely-treat-insecure-origin-as-secure=http://localhost:8080",
         "--base-href /"
       ],
-      "toolArgs": ["--dart-define-from-file", "./.env.prod"]
+      "toolArgs": ["--dart-define-from-file", "./.env.dev"]
     },
     ////////////////////////////////////////////////////////////////
     {
