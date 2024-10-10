@@ -50,7 +50,7 @@ const RESOURCES = {"flutter.js": "f393d3c16b631f36852323de8e583132",
 "assets/AssetManifest.bin.json": "b15187d18326ba37f7988a446b47d336",
 "index.html": "c69703008997e35be843c50a56303ef3",
 "/": "c69703008997e35be843c50a56303ef3",
-"manifest.json": "b744f22a89e6f1cb4d2dc786995934f8",
+"manifest.json": "ccc5be2b0ea0857d70e92b9178c9167f",
 "canvaskit/canvaskit.js": "66177750aff65a66cb07bb44b8c6422b",
 "canvaskit/canvaskit.js.symbols": "48c83a2ce573d9692e8d970e288d75f7",
 "canvaskit/chromium/canvaskit.js": "671c6b4f8fcc199dcc551c7bb125f239",
@@ -70,7 +70,7 @@ const RESOURCES = {"flutter.js": "f393d3c16b631f36852323de8e583132",
 "icons/apple-touch-icon.png": "2aac3eba13484bc59d14f085c9cb5eed",
 "map.html": "bed1ee360f045888a20df9ce79692e06",
 "version.json": "6dfbd941664e53f6173f53383139b86c",
-"flutter_bootstrap.js": "8aeae0de30496760f276d2bb9a1f6ae3"};
+"flutter_bootstrap.js": "d0f8414b0aec70f1b0f4df9305047abb"};
 // The application shell files that are downloaded before a service worker can
 // start.
 const CORE = ["main.dart.js",
