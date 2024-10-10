@@ -35,7 +35,7 @@ flutter:
 
   assets:
     - assets/icons/
-    - assets/images/
+    # - assets/images/
 
   fonts:
     - family: Pretendard
