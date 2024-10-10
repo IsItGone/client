@@ -35,12 +35,14 @@
       "name": "web (prod)",
       "request": "launch",
       "type": "dart",
+      "flutterMode": "release",
       "args": [
         "-d",
         "chrome",
         "--web-port",
         "8080",
-        "--web-browser-flag=--unsafely-treat-insecure-origin-as-secure=http://localhost:8080"
+        "--web-browser-flag=--unsafely-treat-insecure-origin-as-secure=http://localhost:8080",
+        "--base-href /"
       ],
       "toolArgs": ["--dart-define-from-file", "./.env.prod"]
     },
