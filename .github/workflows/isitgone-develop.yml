@@ -33,29 +33,6 @@ jobs:
       - name: Build Flutter Web
         run: flutter build web --release --dart-define-from-file=.env --base-href /
 
-      - name: Move assets
-        run: |
-          SOURCE_DIR="build/web/assets/assets"
-          DEST_DIR="build/web/assets"
-
-          for dir in "$SOURCE_DIR"/*; do
-            dir_name=$(basename "$dir")
-            target_dir="$DEST_DIR/$dir_name"
-
-            if [ -d "$target_dir" ]; then
-              mv "$dir"/* "$target_dir/"
-            else
-              mkdir -p "$target_dir"
-              mv "$dir"/* "$target_dir/"
-            fi
-          done
-
-          rm -rf "$SOURCE_DIR"
-
-      - name: Update asset paths in main.dart.js
-        run: |
-          sed -i 's/assets\/assets\//assets\//g' build/web/main.dart.js
-
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
         with:
