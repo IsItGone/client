@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>IsItGone Map</title>
+    <style>
+      body {
+        margin: 0;
+      }
+      #map {
+        width: 100%;
+        height: 100vh;
+      }
+      .btn_location {
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        margin: 10px;
+        padding: 8px;
+        background-color: #ffffff;
+        border: none;
+        border-radius: 4px;
+        box-shadow: 0px 2px 3px -1px rgba(0, 0, 0, 0.1), 0px 1px 0px 0px rgba(25, 28, 33, 0.02),
+          0px 0px 0px 1px rgba(25, 28, 33, 0.08);
+      }
+      .bi-crosshair {
+        color: #999898;
+      }
+    </style>
+    <script>
+      function getQueryParams() {
+        const params = {};
+        window.location.search
+          .substring(1)
+          .split("&")
+          .forEach((pair) => {
+            const [key, value] = pair.split("=");
+            params[decodeURIComponent(key)] = decodeURIComponent(value);
+          });
+        return params;
+      }
+
+      const params = getQueryParams();
+      const clientId = params["clientId"];
+      document.write(`
+      <script type="text/javascript" src="https://openapi.map.naver.com/openapi/v3/maps.js?ncpClientId=${clientId}&callback=initMap"><\/script>
+      `);
+    </script>
+    <script>
+      const defaultLocation = new naver.maps.LatLng(36.3553177, 127.2981911); // 대전 삼성화재 연수원
+      const currentEnv = window.localStorage.getItem("env") || "production";
+      const allowedOrigins = {
+        development: "http://localhost:8080",
+        production: "https://isitgone.site",
+      };
+
+      let origin;
+      let map;
+      let routesData, colorsData, userLocation;
+      let stationMarkers = {
+        departure: [],
+        arrival: [],
+      };
+      let arrivalPolylines = [];
+
+      window.onload = async function () {
+        userLocation = await getCurrentPosition();
+        initMap();
+      };
+
+      window.addEventListener("message", function (event) {
+        if (event.origin !== allowedOrigins[currentEnv]) {
+          console.log("Untrusted origin:", event.origin);
+          return;
+        }
+        try {
+          const message = JSON.parse(event.data);
+          if (message.origin) origin = message.origin;
+
+          routesData = message.data.routes;
+          colorsData = message.data.colors;
+
+          if (routesData && colorsData) {
+            drawRoutes(routesData, colorsData);
+          }
+        } catch (e) {
+          console.error("Invalid JSON received:", e);
+        }
+      });
+
+      function openDrawer(id) {
+        if (origin)
+          window.parent.postMessage(JSON.stringify({ action: "openDrawer", data: id }), origin);
+      }
+
+      function closeDrawer() {
+        if (origin) window.parent.postMessage(JSON.stringify({ action: "closeDrawer" }), origin);
+      }
+
+      function initMap() {
+        if (!map) {
+          map = new naver.maps.Map("map", {
+            zoom: 17,
+            mapTypeId: naver.maps.MapTypeId.NORMAL,
+            scaleControl: true,
+            mapDataControl: false,
+            scaleControlOptions: {
+              position: naver.maps.Position.BOTTOM_LEFT,
+            },
+            logoControlOptions: {
+              position: naver.maps.Position.BOTTOM_LEFT,
+            },
+          });
+
+          // 현재 위치 클릭
+          var locationBtnHtml =
+            '<div><button type="button" class="btn_location" aria-pressed="false"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-crosshair" viewBox="0 0 16 16"><path d="M8.5.5a.5.5 0 0 0-1 0v.518A7 7 0 0 0 1.018 7.5H.5a.5.5 0 0 0 0 1h.518A7 7 0 0 0 7.5 14.982v.518a.5.5 0 0 0 1 0v-.518A7 7 0 0 0 14.982 8.5h.518a.5.5 0 0 0 0-1h-.518A7 7 0 0 0 8.5 1.018zm-6.48 7A6 6 0 0 1 7.5 2.02v.48a.5.5 0 0 0 1 0v-.48a6 6 0 0 1 5.48 5.48h-.48a.5.5 0 0 0 0 1h.48a6 6 0 0 1-5.48 5.48v-.48a.5.5 0 0 0-1 0v.48A6 6 0 0 1 2.02 8.5h.48a.5.5 0 0 0 0-1zM8 10a2 2 0 1 0 0-4 2 2 0 0 0 0 4"/></svg></button></div>';
+          naver.maps.Event.once(map, "init", function () {
+            var customControl = new naver.maps.CustomControl(locationBtnHtml, {
+              position: naver.maps.Position.RIGHT_BOTTOM,
+            });
+
+            customControl.setMap(map);
+
+            naver.maps.Event.addDOMListener(customControl.getElement(), "click", function (e) {
+              getCurrentPosition().then((position) => {
+                console.log(position.y, position.x);
+                map.panTo(position);
+              });
+            });
+          });
+
+          naver.maps.Event.addListener(map, "click", function (e) {
+            closeDrawer();
+          });
+
+          naver.maps.Event.addListener(map, "zoom_changed", function () {
+            const zoomLevel = map.getZoom();
+            setVisibilityByZoom(zoomLevel);
+          });
+        }
+
+        if (userLocation) {
+          map.panTo(userLocation);
+        } else map.panTo(defaultLocation);
+      }
+
+      // 현재 위치 받아오기
+      function getCurrentPosition() {
+        return new Promise((resolve, reject) => {
+          if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(
+              (position) => {
+                const location = new naver.maps.LatLng(
+                  position.coords.latitude,
+                  position.coords.longitude
+                );
+                resolve(location);
+              },
+              (error) => {
+                console.error("Geolocation 에러 발생", error);
+                resolve(defaultLocation);
+              }
+            );
+          } else {
+            console.error("Geolocation을 사용할 수 없습니다.");
+            resolve(defaultLocation);
+          }
+        });
+      }
+
+      // 정류장, 노선 그리기
+      function drawRoutes(routesData, colorsData) {
+        const allStations = {};
+
+        routesData.forEach((route, index) => {
+          const departureMarkers = createStationMarker(
+            route.departureStations,
+            allStations,
+            "departure"
+          );
+          const arrivalMarkers = createStationMarker(route.arrivalStations, allStations, "arrival");
+
+          // marker - 정류장
+          [...departureMarkers, ...arrivalMarkers].forEach((marker) => {
+            naver.maps.Event.addListener(marker, "click", function () {
+              map.panTo(marker.getPosition(), { duration: 300 });
+              naver.maps.Event.once(map, "idle", function () {
+                if (map.getZoom() < 17) map.setZoom(17, { duration: 200 });
+              });
+
+              openDrawer(marker.id);
+            });
+          });
+
+          // departureRoute - 노선
+          const departureRoute = createRoutePolyline(
+            route.departureStations,
+            "#" + colorsData[index].substring(2, 8),
+            map
+          );
+          addPolylineEventListeners(departureRoute);
+
+          // arrivalRoute - 노선
+          const arrivalRoute = createRoutePolyline(
+            route.arrivalStations,
+            "#" + colorsData[index].substring(2, 8),
+            map
+          );
+          addPolylineEventListeners(arrivalRoute);
+          arrivalPolylines.push(arrivalRoute);
+        });
+      }
+
+      function createStationMarker(station) {
+        return new naver.maps.Marker({
+          ...markerOptions,
+          name: station.name,
+          position: new naver.maps.LatLng(station.latitude, station.longitude),
+        });
+      }
+
+      function createRoutePolyline(stations, color, map) {
+        const path = stations.map(({ latitude, longitude }) => ({ lat: latitude, lng: longitude }));
+        return new naver.maps.Polyline({
+          path: path,
+          strokeColor: color,
+          strokeOpacity: 0.8,
+          strokeWeight: 8,
+          strokeLineCap: "round",
+          strokeLineJoin: "round",
+          zIndex: 2,
+          clickable: true,
+          visible: true,
+          map: map,
+        });
+      }
+
+      function createStationMarker(stations, allStations, type) {
+        const iconImageUrl = "assets/icons/bus_station_icon.png";
+        const markerOptions = {
+          map: map,
+          icon: {
+            scaledSize: new naver.maps.Size(30, 38),
+            url: iconImageUrl,
+          },
+          visible: true,
+        };
+        const markers = [];
+
+        stations.forEach((station) => {
+          if (!allStations[station.id]) {
+            allStations[station.id] = {
+              name: station.name,
+              lat: station.latitude,
+              lng: station.longitude,
+            };
+            const marker = new naver.maps.Marker({
+              ...markerOptions,
+              id: station.id,
+              name: station.name,
+              position: new naver.maps.LatLng(station.latitude, station.longitude),
+            });
+            markers.push(marker);
+            stationMarkers[type].push(marker);
+          }
+        });
+        return markers;
+      }
+
+      function addPolylineEventListeners(polyline) {
+        naver.maps.Event.addListener(polyline, "mousedown", function () {
+          polyline.setOptions({
+            strokeWeight: 10,
+          });
+        });
+
+        naver.maps.Event.addListener(polyline, "mouseup", function () {
+          polyline.setOptions({
+            strokeWeight: 6,
+          });
+        });
+
+        naver.maps.Event.addListener(polyline, "click", function () {
+          alert("polyline click");
+        });
+      }
+
+      // 줌에 따라 marker, polyline visible 설정
+      function setVisibilityByZoom(zoomLevel) {
+        const setVisibility = (items, minZoom, maxZoom) => {
+          items.forEach((item) => {
+            item.setVisible(minZoom <= zoomLevel && zoomLevel <= maxZoom);
+          });
+        };
+
+        setVisibility(stationMarkers.departure, 12, 21);
+        setVisibility(stationMarkers.arrival, 14, 21);
+        setVisibility(arrivalPolylines, 14, 21);
+      }
+    </script>
+  </head>
+  <body>
+    <div id="map"></div>
+  </body>
+</html>
