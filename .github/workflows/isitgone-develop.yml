@@ -19,7 +19,7 @@ jobs:
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: "3.22.2"
+          flutter-version: "3.24.3"
 
       - name: Set environment variables
         run: |
@@ -32,6 +32,12 @@ jobs:
 
       - name: Build Flutter Web
         run: flutter build web --release --dart-define-from-file=.env --base-href /
+
+      - name: Move assets
+        run: |
+          cd build/web/assets
+          mv assets/* .
+          rm -rf assets
 
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
