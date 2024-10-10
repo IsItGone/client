@@ -45965,7 +45965,7 @@ s=t.N
 p.w=p.guL().nL(0,$.aCP(),s)
 window.localStorage.setItem("env","production")
 r=t.Il
-q=B.bx.T6(A.af(["data",A.af(["routes",$.aCU(),"colors",A.a7(new A.a1(B.dc,new A.ajf(),r),!0,r.i("ax.E"))],s,t.UX),"origin","https://isitgone.site"],s,t.K),null)
+q=B.bx.T6(A.af(["data",A.af(["routes",$.aCU(),"colors",A.a7(new A.a1(B.dc,new A.ajf(),r),!0,r.i("ax.E"))],s,t.UX),"origin","https://isitgone.github.io"],s,t.K),null)
 $.asV()
 $.Gx().HR("naver-map",new A.ajg(p,q),!0)},
 K(a){var s=null,r=this.guL().Im($.aoY(),t.r2),q=A.tv(s,A.aaU(!0,new A.cH(B.DA,A.avZ(B.Ii),s),!0),s,s,0,0,0,s),p=r.b?0:-A.bF(a,s,t.w).w.a.b*0.33
@@ -45997,12 +45997,12 @@ $S:248}
 A.ajd.prototype={
 $1(a){var s=this.a.x
 if(s!=null){s=A.aLM(s.contentWindow)
-if(s!=null)J.aDj(s,this.b,"https://isitgone.site")}},
+if(s!=null)J.aDj(s,this.b,"https://isitgone.github.io")}},
 $S:110}
 A.aje.prototype={
 $1(a){var s,r=B.bx.SA(0,new A.aeW([],[]).agt(a.data,!0),null),q=a.origin
 q.toString
-if(q!=="https://isitgone.site")return
+if(q!=="https://isitgone.github.io")return
 s=this.a.guL().nL(0,$.aoY().gUR(),t.r2)
 q=J.av(r)
 if(J.d(q.h(r,"action"),"openDrawer")){s.a=q.h(r,"data")
