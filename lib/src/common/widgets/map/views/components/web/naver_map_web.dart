@@ -7,7 +7,7 @@ import 'package:client/src/common/widgets/bottom_drawer/bottom_drawer.dart';
 import 'package:client/src/common/widgets/bottom_drawer/components/station_detail.dart';
 import 'package:client/src/common/widgets/bottom_drawer/providers/bottom_drawer_provider.dart';
 import 'package:client/src/common/widgets/map/models/route_model.dart';
-import 'package:client/src/common/widgets/map_search_bar.dart';
+import 'package:client/src/common/widgets/map_search_bar/map_search_bar.dart';
 import 'package:client/src/config/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
