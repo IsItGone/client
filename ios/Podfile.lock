@@ -1,12 +1,12 @@
 PODS:
   - Flutter (1.0.0)
-  - flutter_naver_map (1.2.3):
+  - flutter_naver_map (1.3.0):
     - Flutter
-    - NMapsMap (= 3.18.1)
+    - NMapsMap (= 3.19.0)
   - geolocator_apple (1.2.0):
     - Flutter
   - NMapsGeometry (1.0.2)
-  - NMapsMap (3.18.1):
+  - NMapsMap (3.19.0):
     - NMapsGeometry
   - path_provider_foundation (0.0.1):
     - Flutter
@@ -40,10 +40,10 @@ EXTERNAL SOURCES:
 
 SPEC CHECKSUMS:
   Flutter: e0871f40cf51350855a761d2e70bf5af5b9b5de7
-  flutter_naver_map: 9b36cee8e83421f40782af8a4e7afbdf63ee5f92
-  geolocator_apple: 6cbaf322953988e009e5ecb481f07efece75c450
+  flutter_naver_map: d31b1884517151e7b3121e3b24c18733ef4e4387
+  geolocator_apple: 9bcea1918ff7f0062d98345d238ae12718acfbc1
   NMapsGeometry: 4e02554fa9880ef02ed96b075dc84355d6352479
-  NMapsMap: e879088eeee2d1e3b97f0a609076e1824dce2cad
+  NMapsMap: 99c10429d93340780b6f88d3fc7c0a3850b43664
   path_provider_foundation: 2b6b4c569c0fb62ec74538f866245ac84301af46
   pointer_interceptor_ios: 508241697ff0947f853c061945a8b822463947c1
 

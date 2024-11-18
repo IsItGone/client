@@ -7,6 +7,7 @@ import 'package:client/src/config/theme.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized(); //플러터 엔진 초기화
   runApp(const ProviderScope(child: IsItGoneApp()));
+  
 }
 
 class IsItGoneApp extends ConsumerWidget {

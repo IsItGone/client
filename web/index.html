@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html lang="ko">
   <head>
     <!--
     If you are serving your web app in a path other than the root, change the
@@ -32,8 +32,36 @@
 
     <title>지나갔나요?</title>
     <link rel="manifest" href="manifest.json" />
+    <style>
+      body {
+        margin: 0;
+      }
+      #map {
+        width: 100%;
+        height: 100vh;
+      }
+      #map > * {
+        z-index: 0 !important;
+      }
+      .btn_location {
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        margin: 10px;
+        padding: 8px;
+        background-color: #ffffff;
+        border: none;
+        border-radius: 4px;
+        box-shadow: 0px 2px 3px -1px rgba(0, 0, 0, 0.1), 0px 1px 0px 0px rgba(25, 28, 33, 0.02),
+          0px 0px 0px 1px rgba(25, 28, 33, 0.08);
+      }
+      .bi-crosshair {
+        color: #999898;
+      }
+    </style>
   </head>
   <body>
     <script src="flutter_bootstrap.js" async></script>
+    <script src="map.js"></script>
   </body>
 </html>
