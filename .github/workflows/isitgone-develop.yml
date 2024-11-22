@@ -24,8 +24,6 @@ jobs:
       - name: Set environment variables
         run: |
           echo "NAVER_MAP_CLIENT_ID=${{ secrets.NAVER_MAP_CLIENT_ID }}" >> .env
-          echo "POST_MESSAGE_TARGET=${{ secrets.POST_MESSAGE_TARGET }}" >> .env
-          echo "ENV=${{ secrets.ENV }}" >> .env
 
       - name: Install dependencies
         run: flutter pub get
