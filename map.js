@@ -140,7 +140,10 @@ class NaverMap {
   }
 
   createStationMarkers(stations, allStations, markers, type) {
-    const iconImageUrl = "assets/icons/bus_station_icon.png";
+    const isProduction = window.location.hostname !== "localhost";
+    const iconBasePath = isProduction ? "assets/assets/" : "assets/";
+    const iconImageUrl = `${iconBasePath}icons/bus_station_icon.png`;
+
     for (const station of stations) {
       if (!allStations.has(station.id)) {
         allStations.set(station.id, station);
