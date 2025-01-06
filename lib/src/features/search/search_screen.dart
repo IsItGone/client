@@ -1,5 +1,4 @@
 import 'package:client/src/common/widgets/map_search_bar/map_search_bar.dart';
-import 'package:client/src/config/theme.dart';
 import 'package:client/src/features/search/components/search_result.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';

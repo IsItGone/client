@@ -23,8 +23,10 @@ class RouteModel {
 
   Map<String, dynamic> toJson() => _$RouteModelToJson(this);
 
-  List<StationModel> get allStations =>
-      [...departureStations, ...arrivalStations];
+  List<StationModel> get allStations => [
+        ...departureStations,
+        ...arrivalStations,
+      ];
 }
 
 // mock data

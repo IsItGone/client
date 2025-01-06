@@ -2,6 +2,7 @@ import 'dart:developer';
 import 'dart:js_interop';
 import 'dart:js_interop_unsafe';
 import 'dart:ui_web' as ui_web;
+import 'package:client/src/common/widgets/bottom_drawer/view_models/bottom_drawer_view_model.dart';
 import 'package:web/web.dart' as web;
 
 import 'package:flutter/material.dart';
@@ -38,7 +39,7 @@ class _NaverMapWidgetState extends ConsumerState<NaverMapWidget> {
 
   @JSExport()
   void openDrawerFromJS(String markerId) {
-    ref.read(bottomDrawerProvider.notifier).openDrawer();
+    ref.read(bottomDrawerProvider.notifier).openDrawer(InfoType.station);
   }
 
   @JSExport()

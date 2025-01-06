@@ -3,6 +3,7 @@ import 'dart:developer';
 import 'package:client/src/common/widgets/bottom_drawer/components/station_detail_info.dart';
 import 'package:client/src/common/widgets/bottom_drawer/providers/bottom_drawer_provider.dart';
 import 'package:client/src/config/theme.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -34,7 +35,7 @@ class _StationDetailState extends ConsumerState<StationDetail> {
             shape: const RoundedRectangleBorder(
               borderRadius: BorderRadius.all(Radius.circular(12)),
             ),
-            minimumSize: Size.zero,
+            minimumSize: const Size(0, kIsWeb ? 48 : 36),
           )
         : OutlinedButton.styleFrom(
             padding:
@@ -43,7 +44,7 @@ class _StationDetailState extends ConsumerState<StationDetail> {
               borderRadius: BorderRadius.all(Radius.circular(12)),
             ),
             side: BorderSide(color: AppTheme.lineColors[index]),
-            minimumSize: Size.zero,
+            minimumSize: const Size(0, kIsWeb ? 48 : 36),
           );
 
     final buttonTextStyle = TextStyle(
@@ -89,13 +90,11 @@ class _StationDetailState extends ConsumerState<StationDetail> {
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 4.0),
       child: Column(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Expanded(
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              // crossAxisAlignment: CrossAxisAlignment.stretch,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 10),
@@ -111,9 +110,9 @@ class _StationDetailState extends ConsumerState<StationDetail> {
                 TextButton(
                   onPressed: () {
                     final routeId = routes[selectedIndex];
-                    log('$routeId ${widget.stationId} ${bottomDrawerNotifier.stationId}');
+                    log('$routeId ${widget.stationId} ${bottomDrawerNotifier.infoId}');
                     context.push('/linear-routes/$routeId', extra: {
-                      'stationId': bottomDrawerNotifier.stationId,
+                      'stationId': bottomDrawerNotifier.infoId,
                     });
                   },
                   child: Row(
@@ -135,9 +134,11 @@ class _StationDetailState extends ConsumerState<StationDetail> {
             ),
           ),
           Expanded(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
+            flex: 3,
+            // TODO : SingleChildScrollView + ListView -> Sliver 변경
+            child: Center(
               child: SingleChildScrollView(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
                 child: StationDetailInfo(
                   stationId: widget.stationId,
                   routes: routes,

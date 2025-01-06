@@ -1,7 +1,6 @@
 import 'dart:developer';
 
 import 'package:client/src/common/widgets/bottom_drawer/bottom_drawer.dart';
-import 'package:client/src/common/widgets/bottom_drawer/components/station_detail.dart';
 import 'package:client/src/common/widgets/bottom_drawer/providers/bottom_drawer_provider.dart';
 import 'package:client/src/common/widgets/map_search_bar/map_search_bar.dart';
 import 'package:flutter/material.dart';
@@ -31,9 +30,20 @@ class HomeScreen extends ConsumerWidget {
               ),
               child: kIsWeb
                   ? PointerInterceptor(
-                      child: const MapSearchBar(),
+                      child: drawerState.isDrawerOpen
+                          ? FloatingActionButton(
+                              onPressed: () => drawerState.closeDrawer(),
+                              child:
+                                  const Icon(Icons.arrow_back_ios_new_rounded),
+                            )
+                          : const MapSearchBar(),
                     )
-                  : const MapSearchBar(),
+                  : drawerState.isDrawerOpen
+                      ? FloatingActionButton(
+                          onPressed: () => drawerState.closeDrawer(),
+                          child: const Icon(Icons.arrow_back_ios_new_rounded),
+                        )
+                      : const MapSearchBar(),
             ),
           ),
           AnimatedPositioned(
@@ -46,18 +56,12 @@ class HomeScreen extends ConsumerWidget {
             right: 0,
             child: kIsWeb
                 ? PointerInterceptor(
-                    child: SingleChildScrollView(
-                      child: BottomDrawer(
-                        isDrawerOpen: drawerState.isDrawerOpen,
-                        child: StationDetail(drawerState.stationId),
-                      ),
+                    child: const SingleChildScrollView(
+                      child: BottomDrawer(),
                     ),
                   )
-                : SingleChildScrollView(
-                    child: BottomDrawer(
-                      isDrawerOpen: drawerState.isDrawerOpen,
-                      child: StationDetail(drawerState.stationId),
-                    ),
+                : const SingleChildScrollView(
+                    child: BottomDrawer(),
                   ),
           ),
         ],

@@ -57,13 +57,15 @@ class _NaverMapWidgetState extends ConsumerState<NaverMapWidget> {
         log('current location $position');
         log("onMapReady", name: "onMapReady");
         _controller = controller;
-        final data = await loadShuttleData(context, ref, _controller);
-        controller.addOverlayAll(data['stations']!);
-        controller.addOverlayAll(data['routes']!);
+        final data =
+            await ShuttleDataLoader.loadShuttleData(context, ref, _controller);
+        controller.addOverlayAll(data['stations'] ?? <NAddableOverlay>{});
+        controller.addOverlayAll(data['routes'] ?? <NAddableOverlay>{});
       },
       onMapTapped: (point, latLng) {
         _handleMapTap(drawerNotifier);
       },
+      // onSymbolTapped: (symbol) => log('symbol tapped ${symbol.caption}'),
     );
   }
 
@@ -86,8 +88,14 @@ class _NaverMapWidgetState extends ConsumerState<NaverMapWidget> {
   void _handleMapTap(BottomDrawerViewModel drawerNotifier) {
     log("map tapped");
 
+    log('all routes : ${ShuttleDataLoader.allRoutes}');
+    log('all stations : ${ShuttleDataLoader.allStations}');
     if (drawerNotifier.isDrawerOpen) {
       drawerNotifier.closeDrawer();
+
+      for (var overlay in ShuttleDataLoader.allRoutes) {
+        overlay.setIsVisible(true);
+      }
     }
   }
 }
