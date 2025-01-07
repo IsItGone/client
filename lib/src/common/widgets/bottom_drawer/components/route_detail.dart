@@ -1,4 +1,5 @@
 import 'package:client/src/config/theme.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 class RouteDetail extends StatelessWidget {
@@ -7,10 +8,9 @@ class RouteDetail extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // TODO : refactor code
-    return SingleChildScrollView(
-      child: Padding(
-        padding: const EdgeInsets.all(12.0),
+    return Container(
+      padding: const EdgeInsets.all(12),
+      child: SingleChildScrollView(
         child: Column(
           children: [
             Padding(
@@ -26,32 +26,7 @@ class RouteDetail extends StatelessWidget {
                           style: AppTheme.textTheme.displaySmall,
                         ),
                       ),
-                      FilledButton(
-                        style: ButtonStyle(
-                          padding: const WidgetStatePropertyAll(
-                            EdgeInsets.symmetric(
-                                horizontal: 12.0, vertical: 6.0),
-                          ),
-                          backgroundColor: WidgetStatePropertyAll(
-                              AppTheme.lineColors[int.parse(routeId) - 1]),
-                          shape: const WidgetStatePropertyAll(
-                            RoundedRectangleBorder(
-                              borderRadius:
-                                  BorderRadius.all(Radius.circular(12)),
-                            ),
-                          ),
-                          minimumSize: const WidgetStatePropertyAll(Size.zero),
-                        ),
-                        onPressed: null,
-                        child: Text(
-                          '$routeId호차',
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
+                      RouteNumberButton(routeId: routeId),
                     ],
                   ),
                   Row(
@@ -100,6 +75,41 @@ class RouteDetail extends StatelessWidget {
               ),
             ),
           ],
+        ),
+      ),
+    );
+  }
+}
+
+class RouteNumberButton extends StatelessWidget {
+  final String routeId;
+  const RouteNumberButton({super.key, required this.routeId});
+
+  @override
+  Widget build(BuildContext context) {
+    return FilledButton(
+      style: ButtonStyle(
+        padding: const WidgetStatePropertyAll(
+          EdgeInsets.symmetric(horizontal: 12.0, vertical: 6.0),
+        ),
+        backgroundColor: WidgetStatePropertyAll(
+          AppTheme.lineColors[int.parse(routeId) - 1],
+        ),
+        shape: const WidgetStatePropertyAll(
+          RoundedRectangleBorder(
+            borderRadius: BorderRadius.all(Radius.circular(12)),
+          ),
+        ),
+        minimumSize: const WidgetStatePropertyAll(
+          Size(0, kIsWeb ? 48 : 36),
+        ),
+      ),
+      onPressed: null,
+      child: Text(
+        '$routeId호차',
+        style: AppTheme.textTheme.titleMedium?.copyWith(
+          color: Colors.white,
+          fontWeight: FontWeight.bold,
         ),
       ),
     );

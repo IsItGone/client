@@ -14,30 +14,30 @@ class BottomDrawer extends ConsumerWidget {
     final drawerState = ref.watch(bottomDrawerProvider);
 
     return AnimatedContainer(
-        duration: const Duration(milliseconds: 300),
-        curve: Curves.easeInOut,
-        height: drawerState.isDrawerOpen
-            ? MediaQuery.of(context).size.height * 0.33
-            : 0,
-        decoration: const BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.only(
-            topLeft: Radius.circular(16),
-            topRight: Radius.circular(16),
-          ),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black12,
-              blurRadius: 10,
-              offset: Offset(0, -5),
-            ),
-          ],
+      duration: const Duration(milliseconds: 300),
+      curve: Curves.easeInOut,
+      height: drawerState.isDrawerOpen
+          ? MediaQuery.of(context).size.height * 0.33
+          : 0,
+      decoration: const BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.only(
+          topLeft: Radius.circular(16),
+          topRight: Radius.circular(16),
         ),
-        child: switch (drawerState.infoType) {
-          InfoType.station => StationDetail(drawerState.infoId),
-          InfoType.place => const PlaceDetail(),
-          // InfoType.route => const PlaceDetail(),
-          InfoType.route => RouteDetail(drawerState.infoId),
-        });
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black12,
+            blurRadius: 10,
+            offset: Offset(0, -5),
+          ),
+        ],
+      ),
+      child: switch (drawerState.infoType) {
+        InfoType.station => StationDetail(drawerState.infoId),
+        InfoType.place => const PlaceDetail(),
+        InfoType.route => RouteDetail(drawerState.infoId),
+      },
+    );
   }
 }

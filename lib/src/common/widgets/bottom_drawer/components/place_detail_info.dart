@@ -45,59 +45,81 @@ class PlaceDetailInfo extends StatefulWidget {
 class _PlaceDetailInfoState extends State<PlaceDetailInfo> {
   @override
   Widget build(BuildContext context) {
-    const gap = kIsWeb ? 8.0 : 18.0;
     return SliverList(
-      delegate: SliverChildBuilderDelegate(
-        (context, index) {
-          final station = nearStations[index];
-          return Padding(
-            padding: const EdgeInsets.symmetric(vertical: 10.0),
-            child: Row(
-              children: [
-                Text(
-                  station['name'],
-                  style: AppTheme.textTheme.bodyLarge,
-                ),
-                const SizedBox(width: gap),
-                Expanded(
-                  child: Wrap(
-                    spacing: 8,
-                    runSpacing: 8,
-                    children: station['lines']
-                        .map<Widget>(
-                          (line) => Container(
-                            width: 32,
-                            height: 32,
-                            padding: const EdgeInsets.symmetric(horizontal: 8),
-                            decoration: BoxDecoration(
-                              color: AppTheme.lineColors[int.parse(line) - 1],
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            child: Center(
-                              child: Text(
-                                line,
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ),
-                          ),
-                        )
-                        .toList(),
-                  ),
-                ),
-                const SizedBox(width: gap),
-                Text(
-                  station['distance'],
-                  style: AppTheme.textTheme.labelLarge,
-                ),
-              ],
+      // // builder (대량의 데이터)
+      // delegate: SliverChildBuilderDelegate(
+      //   (context, index) => StationItem(station: nearStations[index]),
+      //   childCount: nearStations.length,
+      // ),
+
+      // list (적은 양의 데이터)
+      delegate: SliverChildListDelegate(
+        nearStations.map((station) => StationItem(station: station)).toList(),
+      ),
+    );
+  }
+}
+
+class StationItem extends StatelessWidget {
+  final Map<String, dynamic> station;
+
+  const StationItem({super.key, required this.station});
+
+  @override
+  Widget build(BuildContext context) {
+    const gap = kIsWeb ? 8.0 : 18.0;
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 10.0),
+      child: Row(
+        children: [
+          Text(
+            station['name'],
+            style: AppTheme.textTheme.bodyLarge,
+          ),
+          const SizedBox(width: gap),
+          Expanded(
+            child: Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: (station['lines'] as List<String>)
+                  .map((line) => LineButton(line: line))
+                  .toList(),
             ),
-          );
-        },
-        childCount: nearStations.length,
+          ),
+          const SizedBox(width: gap),
+          Text(
+            station['distance'],
+            style: AppTheme.textTheme.labelLarge,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class LineButton extends StatelessWidget {
+  final String line;
+
+  const LineButton({super.key, required this.line});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 32,
+      height: 32,
+      decoration: BoxDecoration(
+        color: AppTheme.lineColors[int.parse(line) - 1],
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Center(
+        child: Text(
+          line,
+          style: const TextStyle(
+            color: Colors.white,
+            fontSize: 14,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
       ),
     );
   }

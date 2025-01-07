@@ -135,16 +135,10 @@ class _StationDetailState extends ConsumerState<StationDetail> {
           ),
           Expanded(
             flex: 3,
-            // TODO : SingleChildScrollView + ListView -> Sliver 변경
-            child: Center(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: StationDetailInfo(
-                  stationId: widget.stationId,
-                  routes: routes,
-                  selectedIndex: selectedIndex,
-                ),
-              ),
+            child: StationDetailInfo(
+              stationId: widget.stationId,
+              routes: routes,
+              selectedIndex: selectedIndex,
             ),
           ),
         ],
