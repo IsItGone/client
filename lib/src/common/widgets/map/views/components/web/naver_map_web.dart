@@ -22,13 +22,6 @@ external JSPromise initNaverMap(String elementId, String clientId);
 external void drawRoutesToMap(
     JSArray<JSObject> routesData, JSArray<JSString> colorsData);
 
-@JS()
-external JSPromise initNaverMap(String elementId, String clientId);
-
-@JS()
-external void drawRoutesToMap(
-    JSArray<JSObject> routesData, JSArray<JSString> colorsData);
-
 class NaverMapWidget extends ConsumerStatefulWidget {
   const NaverMapWidget({super.key});
 
