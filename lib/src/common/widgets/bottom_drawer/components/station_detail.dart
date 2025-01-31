@@ -85,7 +85,7 @@ class _StationDetailState extends ConsumerState<StationDetail> {
 
   @override
   Widget build(BuildContext context) {
-    final bottomDrawerNotifier = ref.watch(bottomDrawerProvider.notifier);
+    final drawerState = ref.watch(bottomDrawerProvider);
 
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 4.0),
@@ -110,9 +110,9 @@ class _StationDetailState extends ConsumerState<StationDetail> {
                 TextButton(
                   onPressed: () {
                     final routeId = routes[selectedIndex];
-                    log('$routeId ${widget.stationId} ${bottomDrawerNotifier.infoId}');
+                    log('$routeId ${widget.stationId} ${drawerState.infoId}');
                     context.push('/linear-routes/$routeId', extra: {
-                      'stationId': bottomDrawerNotifier.infoId,
+                      'stationId': drawerState.infoId,
                     });
                   },
                   child: Row(

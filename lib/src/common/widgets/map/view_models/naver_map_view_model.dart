@@ -1,10 +1,11 @@
 import 'dart:developer';
 import 'package:client/src/common/widgets/bottom_drawer/view_models/bottom_drawer_view_model.dart';
-import 'package:flutter/material.dart';
+import 'package:client/src/common/widgets/map/data/models/station_model.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_naver_map/flutter_naver_map.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:client/src/common/widgets/bottom_drawer/providers/bottom_drawer_provider.dart';
-import 'package:client/src/common/widgets/map/models/route_model.dart';
+import 'package:client/src/common/widgets/map/data/models/route_model.dart';
 import 'package:client/src/config/theme.dart';
 
 class ShuttleDataLoader {
@@ -13,37 +14,39 @@ class ShuttleDataLoader {
   static const NOverlayImage iconImage =
       NOverlayImage.fromAssetImage('assets/icons/bus_station_icon.png');
 
-  static Set<NAddableOverlay<NOverlay<void>>> allRoutes = {};
-  static Set<NAddableOverlay<NOverlay<void>>> allStations = {};
+  static Set<NAddableOverlay<NOverlay<void>>> allRoutesOverlay = {};
+  static Set<NAddableOverlay<NOverlay<void>>> allStationsOverlay = {};
 
-  static Future<Map<String, Set<NAddableOverlay<NOverlay<void>>>>>
-      loadShuttleData(
-    BuildContext context,
+  static Map<String, Set<NAddableOverlay<NOverlay<void>>>> loadShuttleData(
     WidgetRef ref,
     NaverMapController? controller,
-  ) async {
-    final List<Map<String, dynamic>> getRoutes = _prepareRouteData();
+    List<RouteModel> routesData,
+    List<StationModel> stationsData,
+  ) {
+    final List<Map<String, dynamic>> getRoutes = _prepareRouteData(routesData);
     final Map<String, Set<NAddableOverlay<NOverlay<void>>>> overlays =
-        _createOverlays(getRoutes, context, ref, controller);
+        _createOverlays(getRoutes, ref, controller);
 
 // TODO : 받아온 데이터처럼 각 노선 정보 안에 지나는 정류장 정보 포함하도록 관리 필요함
-    allRoutes = {
+// TODO : 전체 노선 조회로 polyline, 전체 정류장으로 marker
+    allRoutesOverlay = {
       ...overlays['overviewRoutes']!,
       ...overlays['detailRoutes']!,
     };
 
-    allStations = {
+    allStationsOverlay = {
       ...overlays['overviewStations']!,
       ...overlays['detailStations']!
     };
 
     return {
-      'stations': allStations,
-      'routes': allRoutes,
+      'stations': allStationsOverlay,
+      'routes': allRoutesOverlay,
     };
   }
 
-  static List<Map<String, dynamic>> _prepareRouteData() {
+  static List<Map<String, dynamic>> _prepareRouteData(
+      List<RouteModel> routesData) {
     return routesData.asMap().entries.map((entry) {
       int index = entry.key;
       var route = entry.value;
@@ -68,7 +71,6 @@ class ShuttleDataLoader {
 
   static Map<String, Set<NAddableOverlay<NOverlay<void>>>> _createOverlays(
     List<Map<String, dynamic>> routesData,
-    BuildContext context,
     WidgetRef ref,
     NaverMapController? controller,
   ) {
@@ -157,7 +159,7 @@ class ShuttleDataLoader {
         id: station['id'],
         position: station['coord'],
         icon: iconImage,
-        size: const NSize(32, 40),
+        size: const NSize(24, 32),
       );
 
       marker.setOnTapListener((NMarker marker) async {
@@ -188,7 +190,7 @@ class ShuttleDataLoader {
         .toList();
 
     final overlay = NMultipartPathOverlay(
-      id: '${index + 1}-${isDetail ? 'detail' : 'overview'}',
+      id: '$index-${isDetail ? 'detail' : 'overview'}',
       width: 8,
       patternImage: isDetail ? patternImage : null,
       paths: paths,
@@ -243,13 +245,13 @@ class ShuttleDataLoader {
   }
 
   static void _updateOverlayVisibility(String clickedRouteId) {
-    for (var route in allRoutes) {
-      bool isClicked = route.info.id.split('-')[0] == clickedRouteId;
-      route.setIsVisible(isClicked);
+    for (var route in allRoutesOverlay) {
+      bool isRouteFocused = route.info.id.split('-')[0] == clickedRouteId;
+      route.setIsVisible(isRouteFocused);
     }
 
-    // for (var station in allStations) {
-    //   // route.
+    // for (var station in allStationsOverlay) {
+    //   // station.
     // }
   }
 

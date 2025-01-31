@@ -25,7 +25,9 @@ class BottomDrawerViewModel extends ChangeNotifier {
       _isDrawerOpen = true;
       _animationController?.forward();
       notifyListeners();
-      await Future.delayed(const Duration(milliseconds: 300));
+      await Future.delayed(
+        const Duration(milliseconds: 300),
+      );
     } else {
       updateInfoType(infoType);
     }

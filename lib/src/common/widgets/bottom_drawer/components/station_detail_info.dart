@@ -18,8 +18,9 @@ class StationDetailInfo extends StatelessWidget {
     return LayoutBuilder(
       builder: (context, constraints) {
         final centerWidth = constraints.maxWidth / 3;
+        final centerHeight = constraints.maxHeight / 2.5;
         return Stack(
-          alignment: AlignmentDirectional.center,
+          alignment: const AlignmentDirectional(0, -0.2),
           children: [
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -36,7 +37,9 @@ class StationDetailInfo extends StatelessWidget {
                   ),
                   color: AppTheme.lineColors[selectedIndex],
                 ),
-                SizedBox(width: centerWidth - 5),
+                SizedBox(
+                  width: centerWidth - 5,
+                ),
                 AdjacentStationButton(
                   alignment: MainAxisAlignment.end,
                   icon: Icons.chevron_right,
@@ -51,11 +54,35 @@ class StationDetailInfo extends StatelessWidget {
                 ),
               ],
             ),
-            SizedBox(
-              width: centerWidth,
-              child: CurrentStationButton(
-                text: '유성온천역\n맥도날드 앞',
-                color: AppTheme.lineColors[selectedIndex],
+            Align(
+              alignment: const Alignment(0, -0.2),
+              child: SizedBox(
+                width: centerWidth,
+                height: centerHeight,
+                child: CurrentStationButton(
+                  text: '유성온천역',
+                  color: AppTheme.lineColors[selectedIndex],
+                ),
+              ),
+            ),
+            Positioned(
+              top: centerHeight * 1.75,
+              left: 0,
+              right: 0,
+              child: Column(
+                children: [
+                  Text(
+                    "5번출구 맥도날드 앞",
+                    style: AppTheme.textTheme.bodyMedium,
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    "대전광역시 유성구 계룡로87번길 3",
+                    style: AppTheme.textTheme.bodySmall,
+                    textAlign: TextAlign.center,
+                  ),
+                ],
               ),
             ),
           ],

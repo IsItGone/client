@@ -93,7 +93,7 @@ class RouteNumberButton extends StatelessWidget {
           EdgeInsets.symmetric(horizontal: 12.0, vertical: 6.0),
         ),
         backgroundColor: WidgetStatePropertyAll(
-          AppTheme.lineColors[int.parse(routeId) - 1],
+          AppTheme.lineColors[int.parse(routeId)],
         ),
         shape: const WidgetStatePropertyAll(
           RoundedRectangleBorder(
@@ -106,7 +106,7 @@ class RouteNumberButton extends StatelessWidget {
       ),
       onPressed: null,
       child: Text(
-        '$routeId호차',
+        '${int.parse(routeId) + 1}호차',
         style: AppTheme.textTheme.titleMedium?.copyWith(
           color: Colors.white,
           fontWeight: FontWeight.bold,

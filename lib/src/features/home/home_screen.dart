@@ -11,7 +11,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:pointer_interceptor/pointer_interceptor.dart';
 
 class HomeScreen extends ConsumerWidget {
-  const HomeScreen({super.key});
+  const HomeScreen({
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

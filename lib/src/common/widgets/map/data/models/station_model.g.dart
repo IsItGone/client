@@ -9,20 +9,25 @@ part of 'station_model.dart';
 StationModel _$StationModelFromJson(Map<String, dynamic> json) => StationModel(
       id: json['id'] as String,
       name: json['name'] as String,
+      description: json['description'] as String,
       address: json['address'] as String,
       latitude: (json['latitude'] as num).toDouble(),
       longitude: (json['longitude'] as num).toDouble(),
-      stopTime: json['stopTime'] as String,
+      stopTime: json['stopTime'] as String?,
       isDeparture: json['isDeparture'] as bool,
+      routes:
+          (json['routes'] as List<dynamic>?)?.map((e) => e as String).toList(),
     );
 
 Map<String, dynamic> _$StationModelToJson(StationModel instance) =>
     <String, dynamic>{
       'id': instance.id,
       'name': instance.name,
+      'description': instance.description,
       'address': instance.address,
       'latitude': instance.latitude,
       'longitude': instance.longitude,
       'stopTime': instance.stopTime,
       'isDeparture': instance.isDeparture,
+      'routes': instance.routes,
     };

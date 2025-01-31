@@ -2,6 +2,9 @@ import 'dart:developer';
 
 import 'package:client/src/common/widgets/bottom_drawer/providers/bottom_drawer_provider.dart';
 import 'package:client/src/common/widgets/bottom_drawer/view_models/bottom_drawer_view_model.dart';
+import 'package:client/src/common/widgets/map/data/models/route_model.dart';
+import 'package:client/src/common/widgets/map/data/models/station_model.dart';
+import 'package:client/src/common/widgets/map/data/repositories/map_repository.dart';
 import 'package:client/src/common/widgets/map/providers/naver_map_providers.dart';
 import 'package:client/src/common/widgets/map/view_models/naver_map_view_model.dart';
 import 'package:client/src/config/constants.dart';
@@ -57,8 +60,20 @@ class _NaverMapWidgetState extends ConsumerState<NaverMapWidget> {
         log('current location $position');
         log("onMapReady", name: "onMapReady");
         _controller = controller;
-        final data =
-            await ShuttleDataLoader.loadShuttleData(context, ref, _controller);
+        List<RouteModel> routesData = await loadAllRoutes();
+        // TODO:
+        List<StationModel> stationsData = await loadAllStations();
+
+        if (routesData.isEmpty) {
+          throw Exception("No route data available");
+        }
+
+        final data = ShuttleDataLoader.loadShuttleData(
+          ref,
+          _controller,
+          routesData,
+          stationsData,
+        );
         controller.addOverlayAll(data['stations'] ?? <NAddableOverlay>{});
         controller.addOverlayAll(data['routes'] ?? <NAddableOverlay>{});
       },
@@ -88,12 +103,12 @@ class _NaverMapWidgetState extends ConsumerState<NaverMapWidget> {
   void _handleMapTap(BottomDrawerViewModel drawerNotifier) {
     log("map tapped");
 
-    log('all routes : ${ShuttleDataLoader.allRoutes}');
-    log('all stations : ${ShuttleDataLoader.allStations}');
+    log('all routes : ${ShuttleDataLoader.allRoutesOverlay}');
+    log('all stations : ${ShuttleDataLoader.allStationsOverlay}');
     if (drawerNotifier.isDrawerOpen) {
       drawerNotifier.closeDrawer();
 
-      for (var overlay in ShuttleDataLoader.allRoutes) {
+      for (var overlay in ShuttleDataLoader.allRoutesOverlay) {
         overlay.setIsVisible(true);
       }
     }
