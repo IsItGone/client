@@ -1,26 +1,35 @@
 import 'dart:developer';
 import 'package:flutter/material.dart';
 
+enum InfoType { place, station, route }
+
 class BottomDrawerViewModel extends ChangeNotifier {
-  String _stationId = "";
+  String _infoId = "";
   bool _isDrawerOpen = false;
+  InfoType _infoType = InfoType.station;
   AnimationController? _animationController;
 
+  InfoType get infoType => _infoType;
   bool get isDrawerOpen => _isDrawerOpen;
-  String get stationId => _stationId;
+  String get infoId => _infoId;
 
   // void toggleDrawer() {
   //   _isDrawerOpen = !_isDrawerOpen;
   //   notifyListeners();
   // }
 
-  Future<void> openDrawer() async {
+  Future<void> openDrawer(InfoType infoType) async {
     if (!_isDrawerOpen) {
       log('open drawer');
+      _infoType = infoType;
       _isDrawerOpen = true;
       _animationController?.forward();
       notifyListeners();
-      await Future.delayed(const Duration(milliseconds: 300));
+      await Future.delayed(
+        const Duration(milliseconds: 300),
+      );
+    } else {
+      updateInfoType(infoType);
     }
   }
 
@@ -33,8 +42,15 @@ class BottomDrawerViewModel extends ChangeNotifier {
     }
   }
 
-  void updateStationId(String stationId) {
-    _stationId = stationId;
+  void updateInfoId(String infoId) {
+    _infoId = infoId;
     notifyListeners();
+  }
+
+  void updateInfoType(InfoType infoType) {
+    if (_infoType != infoType) {
+      _infoType = infoType;
+      notifyListeners();
+    }
   }
 }

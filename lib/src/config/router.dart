@@ -1,6 +1,6 @@
 import 'package:client/src/features/home/home_screen.dart';
 import 'package:client/src/features/linear_routes/linear_routes_screen.dart';
-import 'package:client/src/features/linear_routes/timeline_screen.dart';
+import 'package:client/src/features/search/search_screen.dart';
 
 import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -14,10 +14,9 @@ final routerProvider = Provider<GoRouter>((ref) {
         builder: (context, state) => const HomeScreen(),
       ),
       GoRoute(
-        path: '/timeline',
-        builder: (context, state) => TimelineScreen(),
+        path: '/search',
+        builder: (context, state) => const SearchScreen(),
       ),
-
       GoRoute(
         path: '/linear-routes/:routeId',
         builder: (context, state) {
@@ -26,7 +25,6 @@ final routerProvider = Provider<GoRouter>((ref) {
           final stationId =
               extra != null ? extra['stationId'] as String? : null;
           return LinearRoutesScreen(routeId: routeId, stationId: stationId);
-          // return const TestScreen();
         },
       ),
       // Add more routes here

@@ -2,13 +2,16 @@ import 'dart:developer';
 import 'dart:js_interop';
 import 'dart:js_interop_unsafe';
 import 'dart:ui_web' as ui_web;
+import 'package:client/src/common/widgets/bottom_drawer/view_models/bottom_drawer_view_model.dart';
+import 'package:client/src/common/widgets/map/data/repositories/map_repository.dart';
+import 'package:client/src/common/widgets/map/view_models/naver_map_view_model.dart';
 import 'package:web/web.dart' as web;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:client/src/common/widgets/bottom_drawer/providers/bottom_drawer_provider.dart';
-import 'package:client/src/common/widgets/map/models/route_model.dart';
+import 'package:client/src/common/widgets/map/data/models/route_model.dart';
 import 'package:client/src/common/widgets/map/providers/naver_map_providers.dart';
 import 'package:client/src/config/theme.dart';
 
@@ -28,6 +31,7 @@ class NaverMapWidget extends ConsumerStatefulWidget {
 
 class _NaverMapWidgetState extends ConsumerState<NaverMapWidget> {
   late String clientId;
+  late List<RouteModel> routesData;
 
   @override
   void initState() {
@@ -38,7 +42,7 @@ class _NaverMapWidgetState extends ConsumerState<NaverMapWidget> {
 
   @JSExport()
   void openDrawerFromJS(String markerId) {
-    ref.read(bottomDrawerProvider.notifier).openDrawer();
+    ref.read(bottomDrawerProvider.notifier).openDrawer(InfoType.station);
   }
 
   @JSExport()
@@ -48,6 +52,7 @@ class _NaverMapWidgetState extends ConsumerState<NaverMapWidget> {
 
   Future<void> initializeMap() async {
     await initNaverMap('map', clientId).toDart;
+    routesData = await loadAllRoutes();
     _drawRoutes();
     _setupJSInterop();
   }
