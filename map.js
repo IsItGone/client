@@ -151,7 +151,7 @@ class NaverMap {
           position: this.getLatLng(station.latitude, station.longitude),
           icon: {
             url: iconImageUrl,
-            scaledSize: new naver.maps.Size(30, 38),
+            scaledSize: new naver.maps.Size(20, 28),
           },
           map: this.map,
         });
