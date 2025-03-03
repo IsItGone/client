@@ -2,8 +2,8 @@ import 'dart:developer';
 
 import 'package:client/src/common/widgets/bottom_drawer/components/station_detail_info.dart';
 import 'package:client/src/common/widgets/bottom_drawer/providers/bottom_drawer_provider.dart';
+import 'package:client/src/common/widgets/route_button.dart';
 import 'package:client/src/config/theme.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -25,62 +25,10 @@ class _StationDetailState extends ConsumerState<StationDetail> {
     super.initState();
   }
 
-  Widget _buildRouteButton(int index) {
-    final isSelected = selectedIndex == index;
-    final buttonStyle = isSelected
-        ? FilledButton.styleFrom(
-            padding:
-                const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-            backgroundColor: AppTheme.lineColors[index],
-            shape: const RoundedRectangleBorder(
-              borderRadius: BorderRadius.all(Radius.circular(12)),
-            ),
-            minimumSize: const Size(0, kIsWeb ? 48 : 36),
-          )
-        : OutlinedButton.styleFrom(
-            padding:
-                const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-            shape: const RoundedRectangleBorder(
-              borderRadius: BorderRadius.all(Radius.circular(12)),
-            ),
-            side: BorderSide(color: AppTheme.lineColors[index]),
-            minimumSize: const Size(0, kIsWeb ? 48 : 36),
-          );
-
-    final buttonTextStyle = TextStyle(
-      color: isSelected ? Colors.white : AppTheme.lineColors[index],
-      fontSize: 16,
-      fontWeight: FontWeight.bold,
-    );
-
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 4.0), // 버튼 사이 간격
-      child: isSelected
-          ? FilledButton(
-              onPressed: () {
-                setState(() {
-                  selectedIndex = index;
-                });
-              },
-              style: buttonStyle,
-              child: Text(
-                routes[index],
-                style: buttonTextStyle,
-              ),
-            )
-          : OutlinedButton(
-              onPressed: () {
-                setState(() {
-                  selectedIndex = index;
-                });
-              },
-              style: buttonStyle,
-              child: Text(
-                routes[index],
-                style: buttonTextStyle,
-              ),
-            ),
-    );
+  void _onRouteButtonPressed(int index) {
+    setState(() {
+      selectedIndex = index;
+    });
   }
 
   @override
@@ -102,7 +50,13 @@ class _StationDetailState extends ConsumerState<StationDetail> {
                     children: List.generate(
                       routes.length,
                       (index) {
-                        return _buildRouteButton(index);
+                        return RouteButton(
+                          index: index,
+                          isSelected: selectedIndex == index,
+                          onPressed: () => _onRouteButtonPressed(index),
+                          text: routes[index],
+                          size: ButtonSize.md,
+                        );
                       },
                     ),
                   ),

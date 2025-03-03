@@ -1,21 +1,24 @@
 import 'dart:developer';
 import 'package:client/src/common/widgets/bottom_drawer/view_models/bottom_drawer_view_model.dart';
 import 'package:client/src/common/widgets/map/data/models/station_model.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_naver_map/flutter_naver_map.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:client/src/common/widgets/bottom_drawer/providers/bottom_drawer_provider.dart';
 import 'package:client/src/common/widgets/map/data/models/route_model.dart';
 import 'package:client/src/config/theme.dart';
 
+// TODO : 최적화
 class ShuttleDataLoader {
   static const NOverlayImage patternImage =
       NOverlayImage.fromAssetImage('assets/icons/chevron_up.png');
   static const NOverlayImage iconImage =
       NOverlayImage.fromAssetImage('assets/icons/bus_station_icon.png');
 
-  static Set<NAddableOverlay<NOverlay<void>>> allRoutesOverlay = {};
-  static Set<NAddableOverlay<NOverlay<void>>> allStationsOverlay = {};
+  static Map<String, Map<String, NMultipartPathOverlay>> allRoutesOverlay = {};
+  static Set<NAddableOverlay<NOverlay<void>>> overviewStationsOverlay = {};
+  static Set<NAddableOverlay<NOverlay<void>>> detailStationsOverlay = {};
+  static String? clickedRouteId;
+  static NaverMapController? _controller;
 
   static Map<String, Set<NAddableOverlay<NOverlay<void>>>> loadShuttleData(
     WidgetRef ref,
@@ -23,25 +26,35 @@ class ShuttleDataLoader {
     List<RouteModel> routesData,
     List<StationModel> stationsData,
   ) {
+    _controller = controller;
+
     final List<Map<String, dynamic>> getRoutes = _prepareRouteData(routesData);
     final Map<String, Set<NAddableOverlay<NOverlay<void>>>> overlays =
         _createOverlays(getRoutes, ref, controller);
 
-// TODO : 받아온 데이터처럼 각 노선 정보 안에 지나는 정류장 정보 포함하도록 관리 필요함
-// TODO : 전체 노선 조회로 polyline, 전체 정류장으로 marker
+    // 전체 노선 정보로 polyline 생성
     allRoutesOverlay = {
-      ...overlays['overviewRoutes']!,
-      ...overlays['detailRoutes']!,
+      for (var overlay in overlays['overviewRoutes']!)
+        overlay.info.id.split('-')[0]: {
+          'overview': overlay as NMultipartPathOverlay,
+          'detail': overlays['detailRoutes']!.firstWhere((o) =>
+                  o.info.id.split('-')[0] == overlay.info.id.split('-')[0])
+              as NMultipartPathOverlay,
+        },
     };
 
-    allStationsOverlay = {
-      ...overlays['overviewStations']!,
-      ...overlays['detailStations']!
-    };
+    log('allRoutesOverlay: $allRoutesOverlay');
+    // 전체 정류장 정보로 marker 생성
+    final stationOverlays =
+        _createStationMarkers(stationsData, ref, controller);
 
+    overviewStationsOverlay = stationOverlays['overviewStations']!;
+    detailStationsOverlay = stationOverlays['detailStations']!;
+
+    log('allRoutesOverlay: $overlays');
     return {
-      'stations': allStationsOverlay,
-      'routes': allRoutesOverlay,
+      'stations': {...overviewStationsOverlay, ...detailStationsOverlay},
+      'routes': allRoutesOverlay.values.expand((map) => map.values).toSet(),
     };
   }
 
@@ -106,14 +119,6 @@ class ShuttleDataLoader {
     List<Map<String, dynamic>> departureCoords = route['departureCoords'];
     List<Map<String, dynamic>> arrivalCoords = route['arrivalCoords'] ?? [];
 
-    _addMarkers(
-      overlays['overviewStations'],
-      departureCoords,
-      index,
-      'departure',
-      drawerNotifier,
-      controller,
-    );
     _addRoutes(
       overlays['overviewRoutes'],
       index,
@@ -126,14 +131,6 @@ class ShuttleDataLoader {
     List<List<Map<String, dynamic>>> detailCoords = [departureCoords];
     if (arrivalCoords.isNotEmpty) {
       detailCoords.add(arrivalCoords);
-      _addMarkers(
-        overlays['detailStations'],
-        arrivalCoords,
-        index,
-        'arrival',
-        drawerNotifier,
-        controller,
-      );
     }
 
     _addRoutes(
@@ -146,31 +143,42 @@ class ShuttleDataLoader {
     );
   }
 
-  static void _addMarkers(
-    Set<NAddableOverlay<NOverlay<void>>>? markerSet,
-    List<Map<String, dynamic>> stationList,
-    int index,
-    String type,
-    BottomDrawerViewModel drawerNotifier,
+  static Map<String, Set<NAddableOverlay<NOverlay<void>>>>
+      _createStationMarkers(
+    List<StationModel> stationsData,
+    WidgetRef ref,
     NaverMapController? controller,
   ) {
-    for (var station in stationList) {
+    final Set<NAddableOverlay<NOverlay<void>>> overviewStations = {};
+    final Set<NAddableOverlay<NOverlay<void>>> detailStations = {};
+    final bottomDrawerNotifier = ref.read(bottomDrawerProvider.notifier);
+
+    for (var station in stationsData) {
       final marker = NMarker(
-        id: station['id'],
-        position: station['coord'],
+        id: station.id,
+        position: NLatLng(station.latitude, station.longitude),
         icon: iconImage,
         size: const NSize(24, 32),
       );
 
       marker.setOnTapListener((NMarker marker) async {
         log("마커가 터치되었습니다. id: ${marker.info.id} $marker");
-        drawerNotifier.updateInfoId(marker.info.id);
-        drawerNotifier.openDrawer(InfoType.station);
-        await _moveCamera(controller, station['coord'], 17);
+        bottomDrawerNotifier.updateInfoId(marker.info.id);
+        bottomDrawerNotifier.openDrawer(InfoType.station);
+        await _moveCamera(NLatLng(station.latitude, station.longitude), 17);
       });
 
-      markerSet?.add(marker);
+      if (station.isDeparture) {
+        overviewStations.add(marker);
+      } else {
+        detailStations.add(marker);
+      }
     }
+
+    return {
+      'overviewStations': overviewStations,
+      'detailStations': detailStations,
+    };
   }
 
   static void _addRoutes(
@@ -197,14 +205,14 @@ class ShuttleDataLoader {
     );
 
     overlay.setOnTapListener((NMultipartPathOverlay tappedOverlay) async {
-      if (controller != null && _checkZoomLevel(controller, 10)) {
-        log('zoom: ${controller.nowCameraPosition.zoom}');
+      if (_controller != null && _checkZoomLevel(_controller!, 10)) {
+        log('zoom: ${_controller!.nowCameraPosition.zoom}');
         log('노선 클릭됨: ${tappedOverlay.info.id}');
 
-        _updateOverlayVisibility(tappedOverlay.info.id.split('-')[0]);
+        clickedRouteId = tappedOverlay.info.id.split('-')[0];
+        _updateOverlayVisibility(clickedRouteId!);
 
         await _moveCamera(
-          controller,
           const NLatLng(36.35467885768207, 127.36340320598653), // center
           10.5,
         );
@@ -245,22 +253,153 @@ class ShuttleDataLoader {
   }
 
   static void _updateOverlayVisibility(String clickedRouteId) {
-    for (var route in allRoutesOverlay) {
-      bool isRouteFocused = route.info.id.split('-')[0] == clickedRouteId;
-      route.setIsVisible(isRouteFocused);
+    // 클릭된 노선만 가시화하고 나머지 노선은 숨김
+    for (var routeId in allRoutesOverlay.keys) {
+      for (var route in allRoutesOverlay[routeId]?.values ?? []) {
+        (route as NMultipartPathOverlay)
+            .setIsVisible(routeId == clickedRouteId);
+      }
     }
 
-    // for (var station in allStationsOverlay) {
-    //   // station.
-    // }
+    for (var station in overviewStationsOverlay) {
+      bool isStationInRoute = false;
+      for (var route in allRoutesOverlay[clickedRouteId]?.values ?? []) {
+        final paths = (route as NMultipartPathOverlay).paths;
+        for (var path in paths) {
+          if (path.coords.contains((station as NMarker).position)) {
+            isStationInRoute = true;
+            break;
+          }
+        }
+      }
+      station.setIsVisible(isStationInRoute);
+    }
+
+    for (var station in detailStationsOverlay) {
+      bool isStationInRoute = false;
+      for (var route in allRoutesOverlay[clickedRouteId]?.values ?? []) {
+        final paths = (route as NMultipartPathOverlay).paths;
+        for (var path in paths) {
+          if (path.coords.contains((station as NMarker).position)) {
+            isStationInRoute = true;
+            break;
+          }
+        }
+      }
+      station.setIsVisible(isStationInRoute);
+    }
+  }
+
+  static void handleZoomLevelChange() {
+    if (_controller == null) return;
+
+    final zoomLevel = _controller!.nowCameraPosition.zoom;
+
+    if (clickedRouteId != null) {
+      if (zoomLevel >= 14) {
+        // 줌 레벨이 14 이상일 때 detailRoutes와 detailStations를 가시화
+        for (var route in allRoutesOverlay[clickedRouteId]?.values ?? []) {
+          (route as NMultipartPathOverlay).setIsVisible(true);
+        }
+
+        for (var station in detailStationsOverlay) {
+          bool isStationInRoute = false;
+          for (var route in allRoutesOverlay[clickedRouteId]?.values ?? []) {
+            final paths = (route as NMultipartPathOverlay).paths;
+            for (var path in paths) {
+              if (path.coords.contains((station as NMarker).position)) {
+                isStationInRoute = true;
+                break;
+              }
+            }
+          }
+          station.setIsVisible(isStationInRoute);
+        }
+      } else if (zoomLevel >= 12) {
+        // 줌 레벨이 12 이상일 때 overviewRoutes와 overviewStations를 가시화
+        for (var route in allRoutesOverlay[clickedRouteId]?.values ?? []) {
+          (route as NMultipartPathOverlay)
+              .setIsVisible(!route.info.id.contains('detail'));
+        }
+
+        for (var station in overviewStationsOverlay) {
+          bool isStationInRoute = false;
+          for (var route in allRoutesOverlay[clickedRouteId]?.values ?? []) {
+            final paths = (route as NMultipartPathOverlay).paths;
+            for (var path in paths) {
+              if (path.coords.contains((station as NMarker).position)) {
+                isStationInRoute = true;
+                break;
+              }
+            }
+          }
+          station.setIsVisible(isStationInRoute);
+        }
+      }
+    } else {
+      // 클릭된 노선이 없을 때 기본 줌 설정 적용
+      _setZoomSettings({
+        'overviewRoutes': allRoutesOverlay.values
+            .expand((map) => map.values)
+            .where((overlay) => overlay.info.id.contains('overview'))
+            .toSet(),
+        'detailRoutes': allRoutesOverlay.values
+            .expand((map) => map.values)
+            .where((overlay) => overlay.info.id.contains('detail'))
+            .toSet(),
+        'overviewStations': overviewStationsOverlay,
+        'detailStations': detailStationsOverlay,
+      });
+    }
+  }
+
+  static void resetOverlayVisibility() {
+    clickedRouteId = null; // 클릭된 노선 ID 초기화
+    for (var route in allRoutesOverlay.values.expand((map) => map.values)) {
+      (route).setIsVisible(true);
+    }
+
+    for (var station in overviewStationsOverlay) {
+      station.setIsVisible(true);
+    }
+
+    for (var station in detailStationsOverlay) {
+      station.setIsVisible(true);
+    }
+  }
+
+  static NMultipartPathOverlay? getRouteOverlayById(
+      String routeId, String type) {
+    return allRoutesOverlay[routeId]?[type];
+  }
+
+  static Future<void> triggerRouteClick(
+      String routeId, BottomDrawerViewModel drawerNotifier) async {
+    final routeOverlay = getRouteOverlayById(routeId, 'overview');
+    if (routeOverlay != null &&
+        _controller != null &&
+        _checkZoomLevel(_controller!, 10)) {
+      log('zoom: ${_controller!.nowCameraPosition.zoom}');
+      log('노선 클릭됨: ${routeOverlay.info.id}');
+
+      clickedRouteId = routeOverlay.info.id.split('-')[0];
+      _updateOverlayVisibility(clickedRouteId!);
+
+      await _moveCamera(
+        const NLatLng(36.35467885768207, 127.36340320598653), // center
+        10.5,
+      );
+
+      drawerNotifier.updateInfoId(routeOverlay.info.id.split('-')[0]);
+      drawerNotifier.openDrawer(InfoType.route);
+    }
   }
 
   static Future<void> _moveCamera(
-    NaverMapController? controller,
     NLatLng target,
     double zoom,
   ) async {
-    if (controller != null) {
+    if (_controller != null) {
       final cameraUpdate = NCameraUpdate.scrollAndZoomTo(
         target: target,
         zoom: zoom,
@@ -270,7 +409,7 @@ class ShuttleDataLoader {
             duration: const Duration(milliseconds: 300))
         ..setPivot(const NPoint(1 / 2, 1 / 2));
 
-      await controller.updateCamera(cameraUpdate);
+      await _controller!.updateCamera(cameraUpdate);
     }
   }
 }

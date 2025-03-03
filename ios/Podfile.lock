@@ -40,13 +40,13 @@ EXTERNAL SOURCES:
 
 SPEC CHECKSUMS:
   Flutter: e0871f40cf51350855a761d2e70bf5af5b9b5de7
-  flutter_naver_map: d31b1884517151e7b3121e3b24c18733ef4e4387
-  geolocator_apple: 9bcea1918ff7f0062d98345d238ae12718acfbc1
+  flutter_naver_map: b7ccf21ee350a34381ec92d0bfdad1e8714af9bc
+  geolocator_apple: 1560c3c875af2a412242c7a923e15d0d401966ff
   NMapsGeometry: 4e02554fa9880ef02ed96b075dc84355d6352479
   NMapsMap: 99c10429d93340780b6f88d3fc7c0a3850b43664
-  path_provider_foundation: 2b6b4c569c0fb62ec74538f866245ac84301af46
-  pointer_interceptor_ios: 508241697ff0947f853c061945a8b822463947c1
+  path_provider_foundation: 080d55be775b7414fd5a5ef3ac137b97b097e564
+  pointer_interceptor_ios: ec847ef8b0915778bed2b2cef636f4d177fa8eed
 
 PODFILE CHECKSUM: 4bb0d5af7b0a7a18570b26cd09a55bf9a905f81f
 
-COCOAPODS: 1.15.2
+COCOAPODS: 1.16.2

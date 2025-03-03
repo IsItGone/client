@@ -2,9 +2,11 @@ import 'dart:developer';
 
 import 'package:client/src/common/widgets/bottom_drawer/bottom_drawer.dart';
 import 'package:client/src/common/widgets/bottom_drawer/providers/bottom_drawer_provider.dart';
+import 'package:client/src/common/widgets/map/view_models/naver_map_view_model.dart';
 import 'package:client/src/common/widgets/map_search_bar/map_search_bar.dart';
+import 'package:client/src/common/widgets/route_button.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:flutter/foundation.dart';
 import 'package:client/src/common/widgets/map/views/naver_map_widget.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -18,6 +20,7 @@ class HomeScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final drawerState = ref.watch(bottomDrawerProvider);
+    final drawerNotifier = ref.read(bottomDrawerProvider.notifier);
 
     log('isWeb : $kIsWeb');
     return Scaffold(
@@ -25,27 +28,51 @@ class HomeScreen extends ConsumerWidget {
         children: [
           const NaverMapWidget(),
           SafeArea(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 12,
-                vertical: 10,
-              ),
-              child: kIsWeb
-                  ? PointerInterceptor(
-                      child: drawerState.isDrawerOpen
-                          ? FloatingActionButton(
-                              onPressed: () => drawerState.closeDrawer(),
-                              child:
-                                  const Icon(Icons.arrow_back_ios_new_rounded),
-                            )
-                          : const MapSearchBar(),
-                    )
-                  : drawerState.isDrawerOpen
-                      ? FloatingActionButton(
-                          onPressed: () => drawerState.closeDrawer(),
-                          child: const Icon(Icons.arrow_back_ios_new_rounded),
+            child: Column(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 10,
+                  ),
+                  child: drawerState.isDrawerOpen
+                      ? Align(
+                          alignment: Alignment.centerLeft,
+                          child: FloatingActionButton(
+                            onPressed: () => drawerState.closeDrawer(),
+                            child: const Icon(Icons.arrow_back_ios_new_rounded),
+                          ),
                         )
                       : const MapSearchBar(),
+                ),
+                if (!drawerState.isDrawerOpen)
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      child: Row(
+                        children: [
+                          const SizedBox(width: 8),
+                          ...List.generate(
+                            6,
+                            (index) {
+                              return RouteButton(
+                                index: index,
+                                isSelected: false,
+                                onPressed: () {
+                                  ShuttleDataLoader.triggerRouteClick(
+                                      index.toString(), drawerNotifier);
+                                },
+                                text: "${index + 1}호차",
+                                size: ButtonSize.lg,
+                              );
+                            },
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+              ],
             ),
           ),
           AnimatedPositioned(

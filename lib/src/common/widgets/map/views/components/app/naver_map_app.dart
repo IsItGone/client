@@ -80,6 +80,9 @@ class _NaverMapWidgetState extends ConsumerState<NaverMapWidget> {
       onMapTapped: (point, latLng) {
         _handleMapTap(drawerNotifier);
       },
+      onCameraChange: (reason, isAnimated) {
+        ShuttleDataLoader.handleZoomLevelChange();
+      },
       // onSymbolTapped: (symbol) => log('symbol tapped ${symbol.caption}'),
     );
   }
@@ -103,14 +106,8 @@ class _NaverMapWidgetState extends ConsumerState<NaverMapWidget> {
   void _handleMapTap(BottomDrawerViewModel drawerNotifier) {
     log("map tapped");
 
-    log('all routes : ${ShuttleDataLoader.allRoutesOverlay}');
-    log('all stations : ${ShuttleDataLoader.allStationsOverlay}');
     if (drawerNotifier.isDrawerOpen) {
       drawerNotifier.closeDrawer();
-
-      for (var overlay in ShuttleDataLoader.allRoutesOverlay) {
-        overlay.setIsVisible(true);
-      }
     }
   }
 }

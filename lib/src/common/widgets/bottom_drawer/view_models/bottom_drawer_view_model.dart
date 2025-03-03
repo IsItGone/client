@@ -1,4 +1,5 @@
 import 'dart:developer';
+import 'package:client/src/common/widgets/map/view_models/naver_map_view_model.dart';
 import 'package:flutter/material.dart';
 
 enum InfoType { place, station, route }
@@ -39,6 +40,7 @@ class BottomDrawerViewModel extends ChangeNotifier {
       _isDrawerOpen = false;
       _animationController?.reverse();
       notifyListeners();
+      ShuttleDataLoader.resetOverlayVisibility();
     }
   }
 

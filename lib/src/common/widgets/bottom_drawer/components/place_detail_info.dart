@@ -1,3 +1,4 @@
+import 'package:client/src/common/widgets/route_button.dart';
 import 'package:client/src/config/theme.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -82,7 +83,14 @@ class StationItem extends StatelessWidget {
               spacing: 8,
               runSpacing: 8,
               children: (station['lines'] as List<String>)
-                  .map((line) => LineButton(line: line))
+                  .map(
+                    (line) => RouteButton(
+                      index: int.parse(line),
+                      isSelected: true,
+                      text: line,
+                      size: ButtonSize.sm,
+                    ),
+                  )
                   .toList(),
             ),
           ),
@@ -92,34 +100,6 @@ class StationItem extends StatelessWidget {
             style: AppTheme.textTheme.labelLarge,
           ),
         ],
-      ),
-    );
-  }
-}
-
-class LineButton extends StatelessWidget {
-  final String line;
-
-  const LineButton({super.key, required this.line});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: 32,
-      height: 32,
-      decoration: BoxDecoration(
-        color: AppTheme.lineColors[int.parse(line) - 1],
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: Center(
-        child: Text(
-          line,
-          style: const TextStyle(
-            color: Colors.white,
-            fontSize: 14,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
       ),
     );
   }

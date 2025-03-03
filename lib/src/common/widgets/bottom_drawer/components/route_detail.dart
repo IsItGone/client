@@ -1,5 +1,5 @@
+import 'package:client/src/common/widgets/route_button.dart';
 import 'package:client/src/config/theme.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 class RouteDetail extends StatelessWidget {
@@ -26,7 +26,12 @@ class RouteDetail extends StatelessWidget {
                           style: AppTheme.textTheme.displaySmall,
                         ),
                       ),
-                      RouteNumberButton(routeId: routeId),
+                      RouteButton(
+                        index: int.parse(routeId),
+                        isSelected: true,
+                        text: '${int.parse(routeId) + 1}호차',
+                        size: ButtonSize.lg,
+                      ),
                     ],
                   ),
                   Row(
@@ -75,41 +80,6 @@ class RouteDetail extends StatelessWidget {
               ),
             ),
           ],
-        ),
-      ),
-    );
-  }
-}
-
-class RouteNumberButton extends StatelessWidget {
-  final String routeId;
-  const RouteNumberButton({super.key, required this.routeId});
-
-  @override
-  Widget build(BuildContext context) {
-    return FilledButton(
-      style: ButtonStyle(
-        padding: const WidgetStatePropertyAll(
-          EdgeInsets.symmetric(horizontal: 12.0, vertical: 6.0),
-        ),
-        backgroundColor: WidgetStatePropertyAll(
-          AppTheme.lineColors[int.parse(routeId)],
-        ),
-        shape: const WidgetStatePropertyAll(
-          RoundedRectangleBorder(
-            borderRadius: BorderRadius.all(Radius.circular(12)),
-          ),
-        ),
-        minimumSize: const WidgetStatePropertyAll(
-          Size(0, kIsWeb ? 48 : 36),
-        ),
-      ),
-      onPressed: null,
-      child: Text(
-        '${int.parse(routeId) + 1}호차',
-        style: AppTheme.textTheme.titleMedium?.copyWith(
-          color: Colors.white,
-          fontWeight: FontWeight.bold,
         ),
       ),
     );
