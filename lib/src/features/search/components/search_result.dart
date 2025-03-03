@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 
 const List<String> busStop = ['유성온천역 맥도날드 앞', '유성문화원'];
 const List<String> places = ['유성온천역 맥도날드', '유성문화원', '유성온천역', '스타벅스 유성온천역점'];
-const List<String> lines = [];
+// const List<String> lines = ["1호차", "2호차", "3호차", "4호차"];
 
 const List<Map<String, dynamic>> searchList = [
   {
@@ -18,12 +18,12 @@ const List<Map<String, dynamic>> searchList = [
     'color': Colors.blue,
     'items': places,
   },
-  {
-    'title': '노선',
-    'icon': Icons.linear_scale_sharp,
-    'color': AppTheme.primarySwatch,
-    'items': lines,
-  }
+  // {
+  //   'title': '노선',
+  //   'icon': Icons.linear_scale_sharp,
+  //   'color': AppTheme.primarySwatch,
+  //   'items': lines,
+  // }
 ];
 
 class SearchResult extends StatelessWidget {

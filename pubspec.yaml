@@ -19,10 +19,10 @@ dependencies:
   flutter_dotenv: ^5.1.0
   geolocator: ^12.0.0
   widgetbook_annotation: ^3.1.0
-  pointer_interceptor: ^0.10.1+1
   js: ^0.7.1
   web: ^1.1.0
   json_annotation: ^4.9.0
+  pointer_interceptor: ^0.10.1+2
 
 dev_dependencies:
   flutter_test:
