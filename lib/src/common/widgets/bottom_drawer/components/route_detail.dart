@@ -1,9 +1,7 @@
-import 'dart:developer';
-
+import 'package:client/src/common/widgets/linear_route_button.dart';
 import 'package:client/src/common/widgets/route_button.dart';
 import 'package:client/src/config/theme.dart';
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 
 class RouteDetail extends StatelessWidget {
   final String routeId;
@@ -21,42 +19,27 @@ class RouteDetail extends StatelessWidget {
               child: Column(
                 children: [
                   Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Padding(
-                        padding: const EdgeInsets.only(right: 12.0),
-                        child: Text(
-                          "노선 정보",
-                          style: AppTheme.textTheme.displaySmall,
-                        ),
-                      ),
-                      RouteButton(
-                        index: int.parse(routeId),
-                        isSelected: true,
-                        text: '$routeId호차',
-                        size: ButtonSize.lg,
-                      ),
-                      // TODO: 노선표 보기 버튼 (station detail과 같은)
-                      TextButton(
-                        onPressed: () {
-                          log(' $routeId');
-                          context.push(
-                            '/linear-routes/$routeId',
-                          );
-                        },
-                        child: Row(
-                          children: [
-                            Image.asset(
-                              'assets/icons/linear_routes.png',
-                              width: 20,
-                              height: 20,
+                      Row(
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.only(right: 12.0),
+                            child: Text(
+                              "노선 정보",
+                              style: AppTheme.textTheme.displaySmall,
                             ),
-                            const SizedBox(width: 6),
-                            Text(
-                              "노선표",
-                              style: AppTheme.textTheme.titleLarge,
-                            ),
-                          ],
-                        ),
+                          ),
+                          RouteButton(
+                            index: int.parse(routeId),
+                            isSelected: true,
+                            text: '$routeId호차',
+                            size: ButtonSize.lg,
+                          ),
+                        ],
+                      ),
+                      LinearRouteButton(
+                        routeId: routeId,
                       ),
                     ],
                   ),
