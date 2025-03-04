@@ -7,7 +7,6 @@ import 'package:client/src/common/widgets/bottom_drawer/providers/bottom_drawer_
 import 'package:client/src/common/widgets/map/data/models/route_model.dart';
 import 'package:client/src/config/theme.dart';
 
-// TODO : 최적화
 class ShuttleDataLoader {
   static const NOverlayImage patternImage =
       NOverlayImage.fromAssetImage('assets/icons/chevron_up.png');
@@ -30,7 +29,7 @@ class ShuttleDataLoader {
 
     final List<Map<String, dynamic>> getRoutes = _prepareRouteData(routesData);
     final Map<String, Set<NAddableOverlay<NOverlay<void>>>> overlays =
-        _createOverlays(getRoutes, ref, controller);
+        _createOverlays(getRoutes, ref);
 
     // 전체 노선 정보로 polyline 생성
     allRoutesOverlay = {
@@ -45,8 +44,7 @@ class ShuttleDataLoader {
 
     log('allRoutesOverlay: $allRoutesOverlay');
     // 전체 정류장 정보로 marker 생성
-    final stationOverlays =
-        _createStationMarkers(stationsData, ref, controller);
+    final stationOverlays = _createStationMarkers(stationsData, ref);
 
     overviewStationsOverlay = stationOverlays['overviewStations']!;
     detailStationsOverlay = stationOverlays['detailStations']!;
@@ -61,7 +59,7 @@ class ShuttleDataLoader {
   static List<Map<String, dynamic>> _prepareRouteData(
       List<RouteModel> routesData) {
     return routesData.asMap().entries.map((entry) {
-      int index = entry.key;
+      int index = entry.key + 1;
       var route = entry.value;
 
       return {
@@ -85,13 +83,12 @@ class ShuttleDataLoader {
   static Map<String, Set<NAddableOverlay<NOverlay<void>>>> _createOverlays(
     List<Map<String, dynamic>> routesData,
     WidgetRef ref,
-    NaverMapController? controller,
   ) {
     final overlays = _initializeOverlays();
     final bottomDrawerNotifier = ref.read(bottomDrawerProvider.notifier);
 
     for (var route in routesData) {
-      _processRoute(route, overlays, bottomDrawerNotifier, controller);
+      _processRoute(route, overlays, bottomDrawerNotifier);
     }
 
     _setZoomSettings(overlays);
@@ -113,7 +110,6 @@ class ShuttleDataLoader {
     Map<String, dynamic> route,
     Map<String, Set<NAddableOverlay<NOverlay<void>>>> overlays,
     BottomDrawerViewModel drawerNotifier,
-    NaverMapController? controller,
   ) {
     int index = route['index'];
     List<Map<String, dynamic>> departureCoords = route['departureCoords'];
@@ -125,7 +121,6 @@ class ShuttleDataLoader {
       [departureCoords],
       false,
       drawerNotifier,
-      controller,
     );
 
     List<List<Map<String, dynamic>>> detailCoords = [departureCoords];
@@ -139,7 +134,6 @@ class ShuttleDataLoader {
       detailCoords,
       true,
       drawerNotifier,
-      controller,
     );
   }
 
@@ -147,7 +141,6 @@ class ShuttleDataLoader {
       _createStationMarkers(
     List<StationModel> stationsData,
     WidgetRef ref,
-    NaverMapController? controller,
   ) {
     final Set<NAddableOverlay<NOverlay<void>>> overviewStations = {};
     final Set<NAddableOverlay<NOverlay<void>>> detailStations = {};
@@ -187,7 +180,6 @@ class ShuttleDataLoader {
     List<List<Map<String, dynamic>>> coordsList,
     bool isDetail,
     BottomDrawerViewModel drawerNotifier,
-    NaverMapController? controller,
   ) {
     List<NMultipartPath> paths = coordsList
         .map((coords) => NMultipartPath(
@@ -356,7 +348,7 @@ class ShuttleDataLoader {
   static void resetOverlayVisibility() {
     clickedRouteId = null; // 클릭된 노선 ID 초기화
     for (var route in allRoutesOverlay.values.expand((map) => map.values)) {
-      (route).setIsVisible(true);
+      route.setIsVisible(true);
     }
 
     for (var station in overviewStationsOverlay) {
@@ -371,6 +363,24 @@ class ShuttleDataLoader {
   static NMultipartPathOverlay? getRouteOverlayById(
       String routeId, String type) {
     return allRoutesOverlay[routeId]?[type];
+  }
+
+  static Future<void> _moveCamera(
+    NLatLng target,
+    double zoom,
+  ) async {
+    if (_controller != null) {
+      final cameraUpdate = NCameraUpdate.scrollAndZoomTo(
+        target: target,
+        zoom: zoom,
+      )
+        ..setAnimation(
+            animation: NCameraAnimation.easing,
+            duration: const Duration(milliseconds: 300))
+        ..setPivot(const NPoint(1 / 2, 1 / 2));
+
+      await _controller!.updateCamera(cameraUpdate);
+    }
   }
 
   static Future<void> triggerRouteClick(
@@ -392,24 +402,6 @@ class ShuttleDataLoader {
 
       drawerNotifier.updateInfoId(routeOverlay.info.id.split('-')[0]);
       drawerNotifier.openDrawer(InfoType.route);
-    }
-  }
-
-  static Future<void> _moveCamera(
-    NLatLng target,
-    double zoom,
-  ) async {
-    if (_controller != null) {
-      final cameraUpdate = NCameraUpdate.scrollAndZoomTo(
-        target: target,
-        zoom: zoom,
-      )
-        ..setAnimation(
-            animation: NCameraAnimation.easing,
-            duration: const Duration(milliseconds: 300))
-        ..setPivot(const NPoint(1 / 2, 1 / 2));
-
-      await _controller!.updateCamera(cameraUpdate);
     }
   }
 }

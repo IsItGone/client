@@ -51,7 +51,7 @@ class _StationDetailState extends ConsumerState<StationDetail> {
                       routes.length,
                       (index) {
                         return RouteButton(
-                          index: index,
+                          index: int.parse(routes[index]),
                           isSelected: selectedIndex == index,
                           onPressed: () => _onRouteButtonPressed(index),
                           text: routes[index],
@@ -91,8 +91,7 @@ class _StationDetailState extends ConsumerState<StationDetail> {
             flex: 3,
             child: StationDetailInfo(
               stationId: widget.stationId,
-              routes: routes,
-              selectedIndex: selectedIndex,
+              selectedIndex: int.parse(routes[selectedIndex]),
             ),
           ),
         ],

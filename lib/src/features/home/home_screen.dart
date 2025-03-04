@@ -57,11 +57,11 @@ class HomeScreen extends ConsumerWidget {
                             6,
                             (index) {
                               return RouteButton(
-                                index: index,
+                                index: index + 1,
                                 isSelected: false,
                                 onPressed: () {
                                   ShuttleDataLoader.triggerRouteClick(
-                                      index.toString(), drawerNotifier);
+                                      (index + 1).toString(), drawerNotifier);
                                 },
                                 text: "${index + 1}호차",
                                 size: ButtonSize.lg,
