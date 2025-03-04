@@ -1,12 +1,8 @@
-import 'dart:developer';
-
 import 'package:client/src/common/widgets/bottom_drawer/components/station_detail_info.dart';
-import 'package:client/src/common/widgets/bottom_drawer/providers/bottom_drawer_provider.dart';
+import 'package:client/src/common/widgets/linear_route_button.dart';
 import 'package:client/src/common/widgets/route_button.dart';
-import 'package:client/src/config/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 
 class StationDetail extends ConsumerStatefulWidget {
   final String stationId;
@@ -17,7 +13,7 @@ class StationDetail extends ConsumerStatefulWidget {
 }
 
 class _StationDetailState extends ConsumerState<StationDetail> {
-  final List<String> routes = ['1', '2', '3'];
+  final List<String> routes = ['1', '4', '5'];
   int selectedIndex = 0;
 
   @override
@@ -33,8 +29,6 @@ class _StationDetailState extends ConsumerState<StationDetail> {
 
   @override
   Widget build(BuildContext context) {
-    final drawerState = ref.watch(bottomDrawerProvider);
-
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 4.0),
       child: Column(
@@ -61,28 +55,9 @@ class _StationDetailState extends ConsumerState<StationDetail> {
                     ),
                   ),
                 ),
-                TextButton(
-                  onPressed: () {
-                    final routeId = routes[selectedIndex];
-                    log('$routeId ${widget.stationId} ${drawerState.infoId}');
-                    context.push('/linear-routes/$routeId', extra: {
-                      'stationId': drawerState.infoId,
-                    });
-                  },
-                  child: Row(
-                    children: [
-                      Image.asset(
-                        'assets/icons/linear_routes.png',
-                        width: 20,
-                        height: 20,
-                      ),
-                      const SizedBox(width: 6),
-                      Text(
-                        "노선표",
-                        style: AppTheme.textTheme.titleLarge,
-                      ),
-                    ],
-                  ),
+                LinearRouteButton(
+                  routeId: routes[selectedIndex],
+                  stationId: widget.stationId,
                 ),
               ],
             ),
