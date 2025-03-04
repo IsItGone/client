@@ -22,7 +22,7 @@ class LinearRoutesScreen extends ConsumerWidget {
           '$routeId호차',
         ),
         foregroundColor: AppTheme.mainWhite,
-        backgroundColor: AppTheme.lineColors[int.parse(routeId) - 1],
+        backgroundColor: AppTheme.lineColors[int.parse(routeId)],
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () {

@@ -5,12 +5,10 @@ class StationDetailInfo extends StatelessWidget {
   const StationDetailInfo({
     super.key,
     required this.stationId,
-    required this.routes,
     required this.selectedIndex,
   });
 
   final String stationId;
-  final List<String> routes;
   final int selectedIndex;
 
   @override

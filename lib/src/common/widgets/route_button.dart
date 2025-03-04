@@ -40,7 +40,6 @@ class RouteButton extends StatelessWidget {
             const EdgeInsets.symmetric(horizontal: 12.0, vertical: 6.0);
         break;
       case ButtonSize.md:
-      default:
         width = 48;
         height = 48;
         defaultPadding =
