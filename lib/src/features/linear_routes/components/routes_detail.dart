@@ -58,7 +58,7 @@ class RouteStop extends StatelessWidget {
   Widget build(BuildContext context) {
     Color lineColor = isHighlighted
         ? AppTheme.primarySwatch
-        : AppTheme.primarySwatch.withOpacity(0.3);
+        : AppTheme.primarySwatch.withAlpha(77);
 
     const double barHeight = 65;
     const double iconWidth = 50;

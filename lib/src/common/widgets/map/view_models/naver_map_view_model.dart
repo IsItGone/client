@@ -1,12 +1,14 @@
 import 'dart:developer';
 import 'package:client/src/common/widgets/bottom_drawer/view_models/bottom_drawer_view_model.dart';
 import 'package:client/src/common/widgets/map/data/models/station_model.dart';
+import 'package:client/src/config/constants.dart';
 import 'package:flutter_naver_map/flutter_naver_map.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:client/src/common/widgets/bottom_drawer/providers/bottom_drawer_provider.dart';
 import 'package:client/src/common/widgets/map/data/models/route_model.dart';
 import 'package:client/src/config/theme.dart';
 
+// TODO : 인스턴스 전역적으로 사용하도록 수정
 class ShuttleDataLoader {
   static const NOverlayImage patternImage =
       NOverlayImage.fromAssetImage('assets/icons/chevron_up.png');
@@ -49,7 +51,7 @@ class ShuttleDataLoader {
     overviewStationsOverlay = stationOverlays['overviewStations']!;
     detailStationsOverlay = stationOverlays['detailStations']!;
 
-    log('allRoutesOverlay: $overlays');
+    log('allOverlay: $overlays');
     return {
       'stations': {...overviewStationsOverlay, ...detailStationsOverlay},
       'routes': allRoutesOverlay.values.expand((map) => map.values).toSet(),
@@ -197,7 +199,8 @@ class ShuttleDataLoader {
     );
 
     overlay.setOnTapListener((NMultipartPathOverlay tappedOverlay) async {
-      if (_controller != null && _checkZoomLevel(_controller!, 10)) {
+      if (_controller != null &&
+          _checkZoomLevel(_controller!, MapConstants.minZoomOverview)) {
         log('zoom: ${_controller!.nowCameraPosition.zoom}');
         log('노선 클릭됨: ${tappedOverlay.info.id}');
 
@@ -205,7 +208,7 @@ class ShuttleDataLoader {
         _updateOverlayVisibility(clickedRouteId!);
 
         await _moveCamera(
-          const NLatLng(36.35467885768207, 127.36340320598653), // center
+          MapConstants.defaultCameraPosition,
           10.5,
         );
 
@@ -288,7 +291,7 @@ class ShuttleDataLoader {
     final zoomLevel = _controller!.nowCameraPosition.zoom;
 
     if (clickedRouteId != null) {
-      if (zoomLevel >= 14) {
+      if (zoomLevel >= MapConstants.minZoomDetail) {
         // 줌 레벨이 14 이상일 때 detailRoutes와 detailStations를 가시화
         for (var route in allRoutesOverlay[clickedRouteId]?.values ?? []) {
           (route as NMultipartPathOverlay).setIsVisible(true);
@@ -346,7 +349,7 @@ class ShuttleDataLoader {
   }
 
   static void resetOverlayVisibility() {
-    clickedRouteId = null; // 클릭된 노선 ID 초기화
+    clickedRouteId = null;
     for (var route in allRoutesOverlay.values.expand((map) => map.values)) {
       route.setIsVisible(true);
     }
@@ -388,17 +391,14 @@ class ShuttleDataLoader {
     final routeOverlay = getRouteOverlayById(routeId, 'overview');
     if (routeOverlay != null &&
         _controller != null &&
-        _checkZoomLevel(_controller!, 10)) {
+        _checkZoomLevel(_controller!, MapConstants.minZoomOverview)) {
       log('zoom: ${_controller!.nowCameraPosition.zoom}');
       log('노선 클릭됨: ${routeOverlay.info.id}');
 
       clickedRouteId = routeOverlay.info.id.split('-')[0];
       _updateOverlayVisibility(clickedRouteId!);
 
-      await _moveCamera(
-        const NLatLng(36.35467885768207, 127.36340320598653), // center
-        10.5,
-      );
+      await _moveCamera(MapConstants.defaultCameraPosition, 10.5);
 
       drawerNotifier.updateInfoId(routeOverlay.info.id.split('-')[0]);
       drawerNotifier.openDrawer(InfoType.route);
