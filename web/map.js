@@ -116,7 +116,7 @@ class NaverMap {
 
     for (let i = 0; i < routesData.length; i++) {
       const route = routesData[i];
-      const color = `#${colorsData[i].substring(2, 8)}`;
+      const color = `#${colorsData[i + 1].substring(2, 8)}`;
 
       this.createStationMarkers(route.departureStations, allStations, markers, "departure");
       this.createStationMarkers(route.arrivalStations, allStations, markers, "arrival");

@@ -3,7 +3,7 @@ import 'dart:js_interop';
 import 'dart:js_interop_unsafe';
 import 'dart:ui_web' as ui_web;
 import 'package:client/src/common/widgets/bottom_drawer/view_models/bottom_drawer_view_model.dart';
-import 'package:client/src/common/widgets/map/data/repositories/map_repository.dart';
+import 'package:client/src/common/widgets/map/providers/data_provider.dart';
 import 'package:web/web.dart' as web;
 
 import 'package:flutter/material.dart';
@@ -51,16 +51,17 @@ class _NaverMapWidgetState extends ConsumerState<NaverMapWidget> {
 
   Future<void> initializeMap() async {
     await initNaverMap('map', clientId).toDart;
-    routesData = await loadAllRoutes();
+    routesData = await ref.read(routeDataProvider.future);
+
     _drawRoutes();
     _setupJSInterop();
   }
 
   void _setupJSInterop() {
     globalContext.setProperty(
-        'openDrawerFromJS' as JSAny, openDrawerFromJS.toJS);
+        'openDrawerFromJS'.jsify() as JSAny, openDrawerFromJS.toJS);
     globalContext.setProperty(
-        'closeDrawerFromJS' as JSAny, closeDrawerFromJS.toJS);
+        'closeDrawerFromJS'.jsify() as JSAny, closeDrawerFromJS.toJS);
   }
 
   void _drawRoutes() {
@@ -69,7 +70,7 @@ class _NaverMapWidgetState extends ConsumerState<NaverMapWidget> {
         .toList()
         .jsify() as JSArray<JSObject>;
     final jsColorsData = AppTheme.lineColors
-        .map((color) => color.value.toRadixString(16))
+        .map((color) => color.toARGB32().toRadixString(16))
         .toList()
         .jsify() as JSArray<JSString>;
 
