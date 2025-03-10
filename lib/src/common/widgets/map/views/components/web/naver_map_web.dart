@@ -2,7 +2,7 @@ import 'dart:developer';
 import 'dart:js_interop';
 import 'dart:js_interop_unsafe';
 import 'dart:ui_web' as ui_web;
-import 'package:client/src/common/widgets/bottom_drawer/view_models/bottom_drawer_view_model.dart';
+import 'package:client/src/common/widgets/bottom_drawer/models/info_type.dart';
 import 'package:client/src/common/widgets/map/providers/data_provider.dart';
 import 'package:web/web.dart' as web;
 

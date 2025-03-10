@@ -4,7 +4,6 @@ import 'package:client/src/common/widgets/bottom_drawer/providers/bottom_drawer_
 import 'package:client/src/common/widgets/bottom_drawer/view_models/bottom_drawer_view_model.dart';
 import 'package:client/src/common/widgets/map/providers/data_provider.dart';
 import 'package:client/src/common/widgets/map/providers/naver_map_providers.dart';
-import 'package:client/src/common/widgets/map/view_models/naver_map_view_model.dart';
 import 'package:client/src/config/constants.dart';
 
 import 'package:flutter/material.dart';
@@ -66,20 +65,36 @@ class _NaverMapWidgetState extends ConsumerState<NaverMapWidget> {
           throw Exception("No route data available");
         }
 
-        final data = ShuttleDataLoader.loadShuttleData(
-          ref,
-          _controller,
+        final mapViewModel = ref.read(naverMapViewModelProvider.notifier);
+        // 지도 초기화 및 오버레이 생성
+        mapViewModel.initializeMap(
+          controller,
           routesData,
           stationsData,
+          drawerNotifier,
         );
-        controller.addOverlayAll(data['stations'] ?? <NAddableOverlay>{});
-        controller.addOverlayAll(data['routes'] ?? <NAddableOverlay>{});
+
+        // 생성된 오버레이 추가
+        final overlays = mapViewModel.getAllOverlays();
+        controller.addOverlayAll(overlays);
+
+        // final data = ShuttleDataLoader.loadShuttleData(
+        //   ref,
+        //   _controller,
+        //   routesData,
+        //   stationsData,
+        // );
+        // controller.addOverlayAll(data['stations'] ?? <NAddableOverlay>{});
+        // controller.addOverlayAll(data['routes'] ?? <NAddableOverlay>{});
       },
       onMapTapped: (point, latLng) {
         _handleMapTap(drawerNotifier);
       },
       onCameraChange: (reason, isAnimated) {
-        ShuttleDataLoader.handleZoomLevelChange();
+        // 줌 레벨 변경 처리를 ViewModel로 위임
+        final mapViewModel = ref.read(naverMapViewModelProvider.notifier);
+        mapViewModel.updateZoomLevel(_controller?.nowCameraPosition.zoom ?? 0);
+        // ShuttleDataLoader.handleZoomLevelChange();
       },
       // onSymbolTapped: (symbol) => log('symbol tapped ${symbol.caption}'),
     );
@@ -107,6 +122,7 @@ class _NaverMapWidgetState extends ConsumerState<NaverMapWidget> {
     if (drawerNotifier.isDrawerOpen) {
       drawerNotifier.closeDrawer();
     }
+    ref.read(naverMapViewModelProvider.notifier).resetSelection();
   }
 }
 

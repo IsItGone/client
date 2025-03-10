@@ -1,8 +1,8 @@
 import 'package:client/src/common/widgets/bottom_drawer/components/place_detail.dart';
 import 'package:client/src/common/widgets/bottom_drawer/components/route_detail.dart';
 import 'package:client/src/common/widgets/bottom_drawer/components/station_detail.dart';
+import 'package:client/src/common/widgets/bottom_drawer/models/info_type.dart';
 import 'package:client/src/common/widgets/bottom_drawer/providers/bottom_drawer_provider.dart';
-import 'package:client/src/common/widgets/bottom_drawer/view_models/bottom_drawer_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
