@@ -2,5 +2,5 @@ import 'package:client/src/common/widgets/bottom_drawer/view_models/bottom_drawe
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 final bottomDrawerProvider = ChangeNotifierProvider(
-  (ref) => BottomDrawerViewModel(),
+  (ref) => BottomDrawerViewModel(ref),
 );

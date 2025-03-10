@@ -1,8 +1,9 @@
 import 'dart:developer';
 
 import 'package:client/src/common/widgets/bottom_drawer/bottom_drawer.dart';
+import 'package:client/src/common/widgets/bottom_drawer/models/info_type.dart';
 import 'package:client/src/common/widgets/bottom_drawer/providers/bottom_drawer_provider.dart';
-import 'package:client/src/common/widgets/map/view_models/naver_map_view_model.dart';
+import 'package:client/src/common/widgets/map/providers/naver_map_providers.dart';
 import 'package:client/src/common/widgets/map_search_bar/map_search_bar.dart';
 import 'package:client/src/common/widgets/route_button.dart';
 import 'package:flutter/material.dart';
@@ -60,8 +61,13 @@ class HomeScreen extends ConsumerWidget {
                                 index: index + 1,
                                 isSelected: false,
                                 onPressed: () {
-                                  ShuttleDataLoader.triggerRouteClick(
-                                      (index + 1).toString(), drawerNotifier);
+                                  final mapViewModel = ref
+                                      .read(naverMapViewModelProvider.notifier);
+                                  mapViewModel
+                                      .selectRoute((index + 1).toString());
+                                  drawerNotifier
+                                      .updateInfoId((index + 1).toString());
+                                  drawerNotifier.openDrawer(InfoType.route);
                                 },
                                 text: "${index + 1}호차",
                                 size: ButtonSize.lg,

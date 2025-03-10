@@ -1,58 +1,68 @@
 import 'dart:developer';
-import 'package:client/src/common/widgets/map/view_models/naver_map_view_model.dart';
+import 'package:client/src/common/widgets/bottom_drawer/models/info_type.dart';
+import 'package:client/src/common/widgets/bottom_drawer/models/drawer_state.dart';
+import 'package:client/src/common/widgets/map/providers/naver_map_providers.dart';
 import 'package:flutter/material.dart';
-
-enum InfoType { place, station, route }
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class BottomDrawerViewModel extends ChangeNotifier {
-  String _infoId = "";
-  bool _isDrawerOpen = false;
-  InfoType _infoType = InfoType.station;
-  AnimationController? _animationController;
+  final Ref _ref;
+  DrawerState _state;
 
-  InfoType get infoType => _infoType;
-  bool get isDrawerOpen => _isDrawerOpen;
-  String get infoId => _infoId;
+  BottomDrawerViewModel(this._ref) : _state = const DrawerState();
 
-  // void toggleDrawer() {
-  //   _isDrawerOpen = !_isDrawerOpen;
-  //   notifyListeners();
-  // }
+  InfoType get infoType => _state.type;
+  bool get isDrawerOpen => _state.isOpen;
+  String get infoId => _state.infoId;
 
-  Future<void> openDrawer(InfoType infoType) async {
-    if (!_isDrawerOpen) {
-      log('open drawer');
-      _infoType = infoType;
-      _isDrawerOpen = true;
-      _animationController?.forward();
-      notifyListeners();
-      await Future.delayed(
-        const Duration(milliseconds: 300),
+  void setAnimationController(AnimationController controller) {
+    _state = _state.copyWith(animationController: controller);
+  }
+
+  Future<void> openDrawer(InfoType type) async {
+    if (!_state.isOpen) {
+      log('opening drawer with type: $type');
+      _state = _state.copyWith(
+        type: type,
+        isOpen: true,
       );
+      _state.animationController?.forward();
+      notifyListeners();
+      await Future.delayed(const Duration(milliseconds: 300));
     } else {
-      updateInfoType(infoType);
+      updateInfoType(type);
     }
   }
 
   void closeDrawer() {
-    log('close drawer');
-    if (_isDrawerOpen) {
-      _isDrawerOpen = false;
-      _animationController?.reverse();
+    if (_state.isOpen) {
+      log('closing drawer');
+      _state = _state.copyWith(isOpen: false);
+      _state.animationController?.reverse();
+
+      // 선택 상태 초기화
+      _ref.read(naverMapViewModelProvider.notifier).resetSelection();
       notifyListeners();
-      ShuttleDataLoader.resetOverlayVisibility();
     }
   }
 
-  void updateInfoId(String infoId) {
-    _infoId = infoId;
-    notifyListeners();
-  }
-
-  void updateInfoType(InfoType infoType) {
-    if (_infoType != infoType) {
-      _infoType = infoType;
+  void updateInfoId(String id) {
+    if (_state.infoId != id) {
+      _state = _state.copyWith(infoId: id);
       notifyListeners();
     }
+  }
+
+  void updateInfoType(InfoType type) {
+    if (_state.type != type) {
+      _state = _state.copyWith(type: type);
+      notifyListeners();
+    }
+  }
+
+  @override
+  void dispose() {
+    _state.animationController?.dispose();
+    super.dispose();
   }
 }
