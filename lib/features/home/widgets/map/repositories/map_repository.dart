@@ -1,0 +1,24 @@
+import 'package:client/data/models/route_model.dart';
+import 'package:client/data/models/station_model.dart';
+import 'package:flutter/services.dart';
+
+class MapRepository {
+  final String baseUrl;
+
+  MapRepository({required this.baseUrl});
+
+  Future<List<RouteModel>> loadAllRoutes() async {
+    final String response =
+        await rootBundle.loadString("assets/data/routesData.json");
+    final data = RouteListModel.fromJson(response).routeList ?? <RouteModel>[];
+    return data;
+  }
+
+  Future<List<StationModel>> loadAllStations() async {
+    final String response =
+        await rootBundle.loadString("assets/data/stationsData.json");
+    final data =
+        StationListModel.fromJson(response).stationList ?? <StationModel>[];
+    return data;
+  }
+}
