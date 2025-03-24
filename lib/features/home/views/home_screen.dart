@@ -8,7 +8,7 @@ import 'package:client/shared/widgets/map_search_bar.dart';
 import 'package:client/shared/widgets/route_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
-import 'package:client/features/home/widgets/map/views/naver_map_widget.dart';
+import 'package:client/features/home/widgets/map/naver_map_widget.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:pointer_interceptor/pointer_interceptor.dart';
