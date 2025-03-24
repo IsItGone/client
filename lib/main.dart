@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'package:client/src/config/router.dart';
-import 'package:client/src/config/theme.dart';
+import 'package:client/core/router/router.dart';
+import 'package:client/core/theme/theme.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized(); //플러터 엔진 초기화
