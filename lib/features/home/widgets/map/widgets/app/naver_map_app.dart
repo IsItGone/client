@@ -77,24 +77,13 @@ class _NaverMapWidgetState extends ConsumerState<NaverMapWidget> {
         // 생성된 오버레이 추가
         final overlays = mapViewModel.getAllOverlays();
         controller.addOverlayAll(overlays);
-
-        // final data = ShuttleDataLoader.loadShuttleData(
-        //   ref,
-        //   _controller,
-        //   routesData,
-        //   stationsData,
-        // );
-        // controller.addOverlayAll(data['stations'] ?? <NAddableOverlay>{});
-        // controller.addOverlayAll(data['routes'] ?? <NAddableOverlay>{});
       },
       onMapTapped: (point, latLng) {
         _handleMapTap(drawerNotifier);
       },
       onCameraChange: (reason, isAnimated) {
-        // 줌 레벨 변경 처리를 ViewModel로 위임
         final mapViewModel = ref.read(naverMapViewModelProvider.notifier);
         mapViewModel.updateZoomLevel(_controller?.nowCameraPosition.zoom ?? 0);
-        // ShuttleDataLoader.handleZoomLevelChange();
       },
       // onSymbolTapped: (symbol) => log('symbol tapped ${symbol.caption}'),
     );

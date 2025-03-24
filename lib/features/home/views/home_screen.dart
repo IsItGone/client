@@ -64,7 +64,7 @@ class HomeScreen extends ConsumerWidget {
                                   final mapViewModel = ref
                                       .read(naverMapViewModelProvider.notifier);
                                   mapViewModel
-                                      .selectRoute((index + 1).toString());
+                                      .onRouteSelected((index + 1).toString());
                                   drawerNotifier
                                       .updateInfoId((index + 1).toString());
                                   drawerNotifier.openDrawer(InfoType.route);
