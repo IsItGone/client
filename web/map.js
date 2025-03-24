@@ -220,18 +220,18 @@ class NaverMap {
   }
 
   openDrawer(id) {
-    if (typeof window.openDrawerFromJS === "function") {
-      window.openDrawerFromJS(id);
+    if (typeof globalThis.openDrawer === "function") {
+      globalThis.openDrawer(id);
     } else {
-      console.error("openDrawerFromJS function is not available");
+      console.error("openDrawer function is not available");
     }
   }
 
   closeDrawer() {
-    if (typeof window.closeDrawerFromJS === "function") {
-      window.closeDrawerFromJS();
+    if (typeof globalThis.closeDrawer === "function") {
+      globalThis.closeDrawer();
     } else {
-      console.error("closeDrawerFromJS function is not available");
+      console.error("closeDrawer function is not available");
     }
   }
 }
@@ -248,3 +248,10 @@ function drawRoutesToMap(routesData, colorsData) {
 
 window.initNaverMap = initNaverMap;
 window.drawRoutesToMap = drawRoutesToMap;
+
+window.addEventListener("resize", () => {
+  if (window.naverMap && window.naverMap.map) {
+    const size = new naver.maps.Size(window.innerWidth, window.innerHeight);
+    window.naverMap.map.setSize(size);
+  }
+});

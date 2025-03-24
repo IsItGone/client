@@ -1,6 +1,5 @@
 import 'dart:developer';
 import 'dart:js_interop';
-import 'dart:js_interop_unsafe';
 import 'dart:ui_web' as ui_web;
 import 'package:client/features/home/widgets/bottom_drawer/models/info_type.dart';
 import 'package:client/features/home/widgets/map/providers/data_provider.dart';
@@ -13,6 +12,12 @@ import 'package:client/features/home/widgets/bottom_drawer/providers/bottom_draw
 import 'package:client/data/models/route_model.dart';
 import 'package:client/features/home/widgets/map/providers/naver_map_providers.dart';
 import 'package:client/core/theme/theme.dart';
+
+@JS()
+external set openDrawer(JSFunction value);
+
+@JS()
+external set closeDrawer(JSFunction value);
 
 @JS()
 external JSPromise initNaverMap(String elementId, String clientId);
@@ -39,12 +44,10 @@ class _NaverMapWidgetState extends ConsumerState<NaverMapWidget> {
     _registerViewFactory();
   }
 
-  @JSExport()
   void openDrawerFromJS(String markerId) {
     ref.read(bottomDrawerProvider.notifier).openDrawer(InfoType.station);
   }
 
-  @JSExport()
   void closeDrawerFromJS() {
     ref.read(bottomDrawerProvider.notifier).closeDrawer();
   }
@@ -54,14 +57,8 @@ class _NaverMapWidgetState extends ConsumerState<NaverMapWidget> {
     routesData = await ref.read(routeDataProvider.future);
 
     _drawRoutes();
-    _setupJSInterop();
-  }
-
-  void _setupJSInterop() {
-    globalContext.setProperty(
-        'openDrawerFromJS'.jsify() as JSAny, openDrawerFromJS.toJS);
-    globalContext.setProperty(
-        'closeDrawerFromJS'.jsify() as JSAny, closeDrawerFromJS.toJS);
+    openDrawer = openDrawerFromJS.toJS;
+    closeDrawer = closeDrawerFromJS.toJS;
   }
 
   void _drawRoutes() {
