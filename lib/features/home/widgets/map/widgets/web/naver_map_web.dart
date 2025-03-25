@@ -1,14 +1,10 @@
 import 'dart:developer';
 import 'dart:js_interop';
 import 'dart:ui_web' as ui_web;
-import 'package:client/data/graphql/queries/route/__generated__/get_routes.data.gql.dart';
-import 'package:client/data/graphql/queries/station/__generated__/get_stations.data.gql.dart';
-import 'package:client/features/home/widgets/map/providers/data_provider.dart';
 import 'package:web/web.dart' as web;
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-
+import 'package:client/features/home/widgets/map/providers/data_provider.dart';
 import 'package:client/features/home/widgets/bottom_drawer/providers/bottom_drawer_provider.dart';
 import 'package:client/features/home/widgets/map/providers/naver_map_providers.dart';
 import 'package:client/core/theme/theme.dart';
@@ -24,9 +20,9 @@ external JSPromise initNaverMap(String elementId, String clientId);
 
 @JS()
 external void drawDataToMap(
-  JSArray<JSAny?> routesData,
-  JSArray<JSAny?> stationsData,
-  JSArray<JSAny?> colorsData,
+  JSArray routesData,
+  JSArray stationsData,
+  JSArray colorsData,
 );
 
 class NaverMapWidget extends ConsumerStatefulWidget {
@@ -66,10 +62,9 @@ class _NaverMapWidgetState extends ConsumerState<NaverMapWidget> {
   }
 
   Future<void> initializeMap() async {
-    await initNaverMap('map', clientId).toDart;
-
     try {
-      _drawData();
+      await initNaverMap('map', clientId).toDart;
+      await _drawData();
 
       openDrawer = openDrawerFromJS.toJS;
       closeDrawer = closeDrawerFromJS.toJS;
@@ -80,28 +75,26 @@ class _NaverMapWidgetState extends ConsumerState<NaverMapWidget> {
     }
   }
 
-  void _drawData() async {
+  Future<void> _drawData() async {
     try {
       final routesData = await ref.read(routeDataProvider.future);
       final stationsData = await ref.read(stationDataProvider.future);
 
-      // GraphQL 데이터를 JavaScript 객체로 직접 변환
+      // 모델 객체를 JavaScript 객체로 변환
       final jsRoutesData = routesData
-          .whereType<GGetRoutesData_routes>()
-          .map(_convertRouteToJs)
+          .map((route) => route.toJSObject())
           .toList()
-          .jsify() as JSArray<JSAny?>;
+          .jsify() as JSArray;
 
       final jsStationsData = stationsData
-          .whereType<GGetStationsData_stations>()
-          .map(_convertStationToJs)
+          .map((station) => station.toJSObject())
           .toList()
-          .jsify() as JSArray<JSAny?>;
+          .jsify() as JSArray;
 
       final jsColorsData = AppTheme.lineColors
           .map((color) => color.toARGB32().toRadixString(16))
           .toList()
-          .jsify() as JSArray<JSAny?>;
+          .jsify() as JSArray;
 
       drawDataToMap(jsRoutesData, jsStationsData, jsColorsData);
     } catch (e) {
@@ -109,51 +102,6 @@ class _NaverMapWidgetState extends ConsumerState<NaverMapWidget> {
       log('데이터 로딩 오류: $e');
       // TODO : 사용자에게 오류 메시지 표시
     }
-  }
-
-  Map<String, dynamic> _convertRouteToJs(GGetRoutesData_routes route) {
-    return {
-      'id': route.id,
-      'name': route.name,
-      'departureStations':
-          _convertStationsList(route.departureStations as List?),
-      'arrivalStations': _convertStationsList(route.arrivalStations as List?),
-    };
-  }
-
-// 범용 스테이션 변환 함수로 수정
-  List<Map<String, dynamic>> _convertStationsList(List? stationsList) {
-    if (stationsList == null) return [];
-    return stationsList
-        .where((station) => station != null)
-        .map((station) => {
-              'id': station.id,
-              'name': station.name,
-              'description': station.description,
-              'address': station.address,
-              'latitude': station.latitude,
-              'longitude': station.longitude,
-              'stopTime': station.stopTime,
-              'isDeparture': station.isDeparture,
-              'routes':
-                  (station.routes as List? ?? []).map((e) => e ?? '').toList(),
-            })
-        .toList();
-  }
-
-// 일반 스테이션 변환 함수 (직접 사용)
-  Map<String, dynamic> _convertStationToJs(GGetStationsData_stations station) {
-    return {
-      'id': station.id,
-      'name': station.name,
-      'description': station.description,
-      'address': station.address,
-      'latitude': station.latitude,
-      'longitude': station.longitude,
-      'stopTime': station.stopTime,
-      'isDeparture': station.isDeparture,
-      'routes': (station.routes as List? ?? []).map((e) => e ?? '').toList(),
-    };
   }
 
   void _registerViewFactory() {

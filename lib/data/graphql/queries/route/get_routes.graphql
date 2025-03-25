@@ -1,5 +1,5 @@
 query GetRoutes {
-  routes {
+  getRoutes {
     id
     name
     departureStations {

@@ -10,6 +10,7 @@ class RouteRepository extends GraphQLRepository {
   Stream<OperationResponse<GGetRoutesData, GGetRoutesVars>> getRoutes() {
     try {
       final request = GGetRoutesReq();
+
       return executeQuery(request).handleError((error) {
         log('노선 정보 조회 중 오류 발생: $error');
         throw Exception('노선 데이터를 불러오는데 실패했습니다.');

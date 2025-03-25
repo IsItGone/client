@@ -1,12 +1,12 @@
 type Query {
-  routes: [Route]
-  route(id: ID!): Route
-  route(name: String!): Route
-  routes(stationId: ID!): [Route]
+  getRoutes: [Route]
+  getRouteById(id: ID!): Route
+  getRouteByName(name: String!): Route
+  getRoutesByStationId(stationId: ID!): [Route]
 
-  stations: [Station]
-  station(id: ID!): Station
-  stations(keyword: String!): [Station]
+  getStations: [Station]
+  getStationById(id: ID!): Station
+  searchStationsByKeyword(keyword: String!): [Station]
 }
 
 type Route {
