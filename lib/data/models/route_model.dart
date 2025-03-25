@@ -1,5 +1,3 @@
-import 'dart:js_interop';
-
 import 'package:client/data/graphql/queries/route/index.dart';
 import 'package:client/data/models/station_model.dart';
 
@@ -30,15 +28,4 @@ class RouteModel {
           .toList(),
     );
   }
-
-  // JavaScript 변환을 위한 메서드 추가
-  Map<String, dynamic> toJson() => {
-        'id': id,
-        'name': name,
-        'departureStations': departureStations.map((s) => s.toJson()).toList(),
-        'arrivalStations': arrivalStations.map((s) => s.toJson()).toList(),
-      };
-
-  // JS 객체로 직접 변환하는 메서드
-  JSObject toJSObject() => toJson().jsify() as JSObject;
 }
