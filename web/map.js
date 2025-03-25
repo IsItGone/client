@@ -334,7 +334,6 @@ async function initNaverMap(elementId, clientId) {
 
 function drawDataToMap(routesData, stationsData, colorsData) {
   window.naverMap.drawData(routesData, stationsData, colorsData);
-  console.log("?? ?", routesData, stationsData, colorsData);
 }
 
 window.initNaverMap = initNaverMap;
