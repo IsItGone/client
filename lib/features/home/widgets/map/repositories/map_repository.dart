@@ -1,24 +1,39 @@
 import 'package:client/data/models/route_model.dart';
 import 'package:client/data/models/station_model.dart';
-import 'package:flutter/services.dart';
+import 'package:client/data/repositories/route_repository.dart';
+import 'package:client/data/repositories/station_repository.dart';
 
 class MapRepository {
-  final String baseUrl;
+  final RouteRepository _routeRepository;
+  final StationRepository _stationRepository;
 
-  MapRepository({required this.baseUrl});
+  MapRepository({
+    required RouteRepository routeRepository,
+    required StationRepository stationRepository,
+  })  : _routeRepository = routeRepository,
+        _stationRepository = stationRepository;
 
   Future<List<RouteModel>> loadAllRoutes() async {
-    final String response =
-        await rootBundle.loadString("assets/data/routesData.json");
-    final data = RouteListModel.fromJson(response).routeList ?? <RouteModel>[];
-    return data;
+    final response = await _routeRepository.getRoutes().first;
+
+    if (response.hasErrors || response.data == null) {
+      throw Exception('노선 데이터를 불러오는데 실패했습니다.');
+    }
+
+    return response.data!.routes!
+        .map((routeData) => RouteModel.fromGraphQL(routeData!))
+        .toList();
   }
 
   Future<List<StationModel>> loadAllStations() async {
-    final String response =
-        await rootBundle.loadString("assets/data/stationsData.json");
-    final data =
-        StationListModel.fromJson(response).stationList ?? <StationModel>[];
-    return data;
+    final response = await _stationRepository.getStations().first;
+
+    if (response.hasErrors || response.data == null) {
+      throw Exception('정류장 데이터를 불러오는데 실패했습니다.');
+    }
+
+    return response.data!.stations!
+        .map((stationData) => StationModel.fromGraphQL(stationData!))
+        .toList();
   }
 }

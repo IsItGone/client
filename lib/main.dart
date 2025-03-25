@@ -1,3 +1,4 @@
+import 'package:client/core/graphql/client.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -6,8 +7,9 @@ import 'package:client/core/theme/theme.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized(); //플러터 엔진 초기화
+  // GraphQL 클라이언트 초기화
+  await GraphQLClient.initClient();
   runApp(const ProviderScope(child: IsItGoneApp()));
-  
 }
 
 class IsItGoneApp extends ConsumerWidget {

@@ -1,0 +1,29 @@
+type Query {
+  routes: [Route]
+  route(id: ID!): Route
+  route(name: String!): Route
+  routes(stationId: ID!): [Route]
+
+  stations: [Station]
+  station(id: ID!): Station
+  stations(keyword: String!): [Station]
+}
+
+type Route {
+  id: ID!
+  name: String!
+  departureStations: [Station]
+  arrivalStations: [Station]
+}
+
+type Station {
+  id: ID!
+  name: String
+  description: String
+  address: String
+  latitude: Float
+  longitude: Float
+  stopTime: String
+  isDeparture: Boolean
+  routes: [String]
+}

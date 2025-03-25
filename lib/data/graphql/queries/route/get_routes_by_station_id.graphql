@@ -1,0 +1,28 @@
+query GetRoutesByStationId($stationId: ID!) {
+  routes(stationId: $stationId) {
+    id
+    name
+    departureStations {
+      id
+      name
+      description
+      address
+      latitude
+      longitude
+      stopTime
+      isDeparture
+      routes
+    }
+    arrivalStations {
+      id
+      name
+      description
+      address
+      latitude
+      longitude
+      stopTime
+      isDeparture
+      routes
+    }
+  }
+}

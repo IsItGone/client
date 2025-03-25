@@ -1,10 +1,7 @@
-import 'dart:convert';
-
-import 'package:json_annotation/json_annotation.dart';
+import 'package:client/data/graphql/queries/route/index.dart';
+import 'package:client/data/graphql/queries/station/__generated__/get_stations.data.gql.dart';
 import 'package:client/data/models/station_model.dart';
-part 'route_model.g.dart';
 
-@JsonSerializable(explicitToJson: true)
 class RouteModel {
   final String id;
   final String name;
@@ -18,27 +15,18 @@ class RouteModel {
     required this.arrivalStations,
   });
 
-  factory RouteModel.fromJson(Map<String, dynamic> json) =>
-      _$RouteModelFromJson(json);
-
-  Map<String, dynamic> toJson() => _$RouteModelToJson(this);
-
-  List<StationModel> get allStations => [
-        ...departureStations,
-        ...arrivalStations,
-      ];
-}
-
-class RouteListModel {
-  final List<RouteModel>? routeList;
-  RouteListModel({this.routeList});
-
-  factory RouteListModel.fromJson(String jsonString) {
-    List<dynamic> listFromJson = json.decode(jsonString);
-    List<RouteModel> routeList = <RouteModel>[];
-
-    routeList =
-        listFromJson.map((route) => RouteModel.fromJson(route)).toList();
-    return RouteListModel(routeList: routeList);
+  factory RouteModel.fromGraphQL(GGetRoutesData_routes routeData) {
+    return RouteModel(
+      id: routeData.id,
+      name: routeData.name,
+      departureStations: (routeData.departureStations as List<dynamic>? ?? [])
+          .map((station) =>
+              StationModel.fromGraphQL(station as GGetStationsData_stations))
+          .toList(),
+      arrivalStations: (routeData.arrivalStations as List<dynamic>? ?? [])
+          .map((station) =>
+              StationModel.fromGraphQL(station as GGetStationsData_stations))
+          .toList(),
+    );
   }
 }

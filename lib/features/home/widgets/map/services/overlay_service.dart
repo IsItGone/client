@@ -1,6 +1,6 @@
-import 'package:client/features/home/widgets/bottom_drawer/view_models/bottom_drawer_view_model.dart';
 import 'package:client/data/models/route_model.dart';
 import 'package:client/data/models/station_model.dart';
+import 'package:client/features/home/widgets/bottom_drawer/view_models/bottom_drawer_view_model.dart';
 import 'package:client/core/theme/theme.dart';
 import 'package:flutter_naver_map/flutter_naver_map.dart';
 
@@ -175,15 +175,17 @@ class OverlayService {
     final extendedStations = <NAddableOverlay<NOverlay<void>>>{};
 
     for (var station in stations) {
-      final marker = _createStationMarker(
-        station,
-        drawerNotifier,
-      );
+      if (station.latitude != null && station.longitude != null) {
+        final marker = _createStationMarker(
+          station,
+          drawerNotifier,
+        );
 
-      if (station.isDeparture) {
-        baseStations.add(marker);
-      } else {
-        extendedStations.add(marker);
+        if (station.isDeparture != null && station.isDeparture == true) {
+          baseStations.add(marker);
+        } else {
+          extendedStations.add(marker);
+        }
       }
     }
 
@@ -202,7 +204,7 @@ class OverlayService {
   ) {
     final marker = NMarker(
       id: station.id,
-      position: NLatLng(station.latitude, station.longitude),
+      position: NLatLng(station.latitude!, station.longitude!),
       icon: stationMarkerImage,
       size: const NSize(24, 32),
     );

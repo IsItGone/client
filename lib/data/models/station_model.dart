@@ -1,17 +1,14 @@
-import 'dart:convert';
-import 'package:json_annotation/json_annotation.dart';
-part 'station_model.g.dart';
+import 'package:client/data/graphql/queries/station/index.dart';
 
-@JsonSerializable()
 class StationModel {
   final String id;
-  final String name;
-  final String description;
-  final String address;
-  final double latitude;
-  final double longitude;
+  final String? name;
+  final String? description;
+  final String? address;
+  final double? latitude;
+  final double? longitude;
   final String? stopTime;
-  final bool isDeparture;
+  final bool? isDeparture;
   final List<String>? routes;
 
   StationModel({
@@ -25,27 +22,18 @@ class StationModel {
     required this.isDeparture,
     this.routes,
   });
-
-  factory StationModel.fromJson(Map<String, dynamic> json) =>
-      _$StationModelFromJson(json);
-
-  Map<String, dynamic> toJson() => _$StationModelToJson(this);
-
-  static List<StationModel> fromJsonList(List<dynamic> jsonList) => jsonList
-      .map((json) => StationModel.fromJson(json as Map<String, dynamic>))
-      .toList();
-}
-
-class StationListModel {
-  final List<StationModel>? stationList;
-  StationListModel({this.stationList});
-
-  factory StationListModel.fromJson(String jsonString) {
-    List<dynamic> listFromJson = json.decode(jsonString);
-    List<StationModel> stationList = <StationModel>[];
-
-    stationList =
-        listFromJson.map((route) => StationModel.fromJson(route)).toList();
-    return StationListModel(stationList: stationList);
+  // station_model.dart에 추가
+  factory StationModel.fromGraphQL(GGetStationsData_stations stationData) {
+    return StationModel(
+      id: stationData.id,
+      name: stationData.name,
+      description: stationData.description,
+      address: stationData.address,
+      latitude: stationData.latitude,
+      longitude: stationData.longitude,
+      stopTime: stationData.stopTime,
+      isDeparture: stationData.isDeparture,
+      routes: stationData.routes?.map((e) => e ?? '').toList(),
+    );
   }
 }
