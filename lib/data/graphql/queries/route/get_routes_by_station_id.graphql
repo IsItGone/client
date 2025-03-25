@@ -1,5 +1,5 @@
 query GetRoutesByStationId($stationId: ID!) {
-  routes(stationId: $stationId) {
+  getRoutesByStationId(stationId: $stationId) {
     id
     name
     departureStations {

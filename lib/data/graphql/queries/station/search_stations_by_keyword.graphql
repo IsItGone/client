@@ -1,5 +1,5 @@
 query SearchStationsByKeyword($keyword: String!) {
-  stations(keyword: $keyword) {
+  searchStationsByKeyword(keyword: $keyword) {
     id
     name
     description

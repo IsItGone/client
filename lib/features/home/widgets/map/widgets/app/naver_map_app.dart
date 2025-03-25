@@ -62,6 +62,7 @@ class _NaverMapWidgetState extends ConsumerState<NaverMapWidget> {
           final routesData = await ref.read(routeDataProvider.future);
           final stationsData = await ref.read(stationDataProvider.future);
 
+          log('$routesData');
           if (routesData.isEmpty) {
             throw Exception("No route data available");
           }

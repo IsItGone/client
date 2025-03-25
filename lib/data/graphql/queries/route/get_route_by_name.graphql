@@ -1,5 +1,5 @@
 query GetRouteByName($name: String!) {
-  route(name: $name) {
+  getRouteByName(name: $name) {
     id
     name
     departureStations {

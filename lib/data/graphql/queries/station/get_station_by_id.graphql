@@ -1,5 +1,5 @@
 query GetStationById($id: ID!) {
-  station(id: $id) {
+  getStationById(id: $id) {
     id
     name
     description

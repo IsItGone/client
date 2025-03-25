@@ -59,10 +59,10 @@ class OverlayService {
   }
 
   // 좌표 데이터 준비
-  List<Map<String, dynamic>> _prepareCoordinates(List<dynamic> stations) {
+  List<Map<String, dynamic>> _prepareCoordinates(List<StationModel> stations) {
     return stations
         .map((station) => {
-              'coord': NLatLng(station.latitude, station.longitude),
+              'coord': NLatLng(station.latitude!, station.longitude!),
               'id': station.id
             })
         .toList();

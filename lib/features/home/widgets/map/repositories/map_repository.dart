@@ -20,7 +20,7 @@ class MapRepository {
       throw Exception('노선 데이터를 불러오는데 실패했습니다.');
     }
 
-    return response.data!.routes!
+    return response.data!.getRoutes!
         .map((routeData) => RouteModel.fromGraphQL(routeData!))
         .toList();
   }
@@ -32,7 +32,7 @@ class MapRepository {
       throw Exception('정류장 데이터를 불러오는데 실패했습니다.');
     }
 
-    return response.data!.stations!
+    return response.data!.getStations!
         .map((stationData) => StationModel.fromGraphQL(stationData!))
         .toList();
   }

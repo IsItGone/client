@@ -329,11 +329,12 @@ async function initNaverMap(elementId, clientId) {
   const defaultLocation = { lat: 36.3553177, lng: 127.2981911 };
   window.naverMap = new NaverMap(elementId, clientId, defaultLocation);
   await window.naverMap.init();
+  console.log("init naver map");
 }
 
 function drawDataToMap(routesData, stationsData, colorsData) {
   window.naverMap.drawData(routesData, stationsData, colorsData);
-  console.log(routesData, stationsData, colorsData);
+  console.log("?? ?", routesData, stationsData, colorsData);
 }
 
 window.initNaverMap = initNaverMap;
