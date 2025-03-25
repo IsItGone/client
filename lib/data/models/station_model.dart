@@ -1,5 +1,3 @@
-import 'dart:js_interop';
-
 import 'package:client/data/graphql/queries/station/index.dart';
 
 class StationModel {
@@ -54,20 +52,4 @@ class StationModel {
           : null,
     );
   }
-
-  // JavaScript 변환을 위한 메서드 추가
-  Map<String, dynamic> toJson() => {
-        'id': id,
-        'name': name,
-        'description': description,
-        'address': address,
-        'latitude': latitude,
-        'longitude': longitude,
-        'stopTime': stopTime,
-        'isDeparture': isDeparture,
-        'routes': routes,
-      };
-
-  // JS 객체로 직접 변환하는 메서드
-  JSObject toJSObject() => toJson().jsify() as JSObject;
 }

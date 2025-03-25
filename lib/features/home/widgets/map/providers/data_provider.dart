@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:client/data/models/route_model.dart';
 import 'package:client/data/models/station_model.dart';
 import 'package:client/data/repositories/route_repository.dart';
@@ -24,7 +22,7 @@ final routesProvider =
   return repository.getRoutes();
 });
 
-// 역 정보 제공
+// 정류장 정보 제공
 final stationsProvider =
     StreamProvider<OperationResponse<GGetStationsData, GGetStationsVars>>(
         (ref) {
@@ -32,7 +30,7 @@ final stationsProvider =
   return repository.getStations();
 });
 
-// 가공된 노선 데이터 제공 (UI에서 사용하기 쉬운 형태로)
+// 가공된 노선 데이터 제공
 final routeDataProvider = FutureProvider<List<RouteModel>>((ref) async {
   final response = await ref.watch(routesProvider.future);
 

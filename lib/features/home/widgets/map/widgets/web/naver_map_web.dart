@@ -1,6 +1,8 @@
 import 'dart:developer';
 import 'dart:js_interop';
 import 'dart:ui_web' as ui_web;
+import 'package:client/data/models/route_model.dart';
+import 'package:client/data/models/station_model.dart';
 import 'package:web/web.dart' as web;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -8,6 +10,35 @@ import 'package:client/features/home/widgets/map/providers/data_provider.dart';
 import 'package:client/features/home/widgets/bottom_drawer/providers/bottom_drawer_provider.dart';
 import 'package:client/features/home/widgets/map/providers/naver_map_providers.dart';
 import 'package:client/core/theme/theme.dart';
+
+// RouteModel 웹 확장
+extension RouteModelWebExtension on RouteModel {
+  Map<String, dynamic> toJson() => {
+        'id': id,
+        'name': name,
+        'departureStations': departureStations.map((s) => s.toJson()).toList(),
+        'arrivalStations': arrivalStations.map((s) => s.toJson()).toList(),
+      };
+
+  JSObject toJSObject() => toJson().jsify() as JSObject;
+}
+
+// StationModel 웹 확장
+extension StationModelWebExtension on StationModel {
+  Map<String, dynamic> toJson() => {
+        'id': id,
+        'name': name,
+        'description': description,
+        'address': address,
+        'latitude': latitude,
+        'longitude': longitude,
+        'stopTime': stopTime,
+        'isDeparture': isDeparture,
+        'routes': routes,
+      };
+
+  JSObject toJSObject() => toJson().jsify() as JSObject;
+}
 
 @JS()
 external set openDrawer(JSFunction value);
