@@ -1,16 +1,14 @@
 import 'dart:developer';
 
 import 'package:client/features/home/widgets/bottom_drawer/bottom_drawer.dart';
-import 'package:client/features/home/widgets/bottom_drawer/models/info_type.dart';
 import 'package:client/features/home/widgets/bottom_drawer/providers/bottom_drawer_provider.dart';
 import 'package:client/features/home/widgets/map/providers/naver_map_providers.dart';
+import 'package:client/features/home/widgets/map/naver_map_widget.dart';
 import 'package:client/shared/widgets/map_search_bar.dart';
 import 'package:client/shared/widgets/route_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
-import 'package:client/features/home/widgets/map/naver_map_widget.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-
 import 'package:pointer_interceptor/pointer_interceptor.dart';
 
 class HomeScreen extends ConsumerWidget {
@@ -21,7 +19,6 @@ class HomeScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final drawerState = ref.watch(bottomDrawerProvider);
-    final drawerNotifier = ref.read(bottomDrawerProvider.notifier);
 
     log('isWeb : $kIsWeb');
     return Scaffold(
@@ -60,15 +57,9 @@ class HomeScreen extends ConsumerWidget {
                               return RouteButton(
                                 index: index + 1,
                                 isSelected: false,
-                                onPressed: () {
-                                  final mapViewModel = ref
-                                      .read(naverMapViewModelProvider.notifier);
-                                  mapViewModel
-                                      .onRouteSelected((index + 1).toString());
-                                  drawerNotifier
-                                      .updateInfoId((index + 1).toString());
-                                  drawerNotifier.openDrawer(InfoType.route);
-                                },
+                                onPressed: () => ref
+                                    .read(naverMapViewModelProvider.notifier)
+                                    .onRouteSelected((index + 1).toString()),
                                 text: "${index + 1}호차",
                                 size: ButtonSize.lg,
                               );

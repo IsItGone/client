@@ -58,25 +58,30 @@ class _NaverMapWidgetState extends ConsumerState<NaverMapWidget> {
         log("onMapReady", name: "onMapReady");
         _controller = controller;
 
-        final routesData = await ref.read(routeDataProvider.future);
-        final stationsData = await ref.read(stationDataProvider.future);
+        try {
+          final routesData = await ref.read(routeDataProvider.future);
+          final stationsData = await ref.read(stationDataProvider.future);
 
-        if (routesData.isEmpty) {
-          throw Exception("No route data available");
+          if (routesData.isEmpty) {
+            throw Exception("No route data available");
+          }
+
+          final mapViewModel = ref.read(naverMapViewModelProvider.notifier);
+          // 지도 초기화 및 오버레이 생성
+          mapViewModel.initializeMap(
+            controller,
+            routesData,
+            stationsData,
+            drawerNotifier,
+          );
+          // 생성된 오버레이 추가
+          final overlays = mapViewModel.getAllOverlays();
+          controller.addOverlayAll(overlays);
+        } catch (e) {
+          // 에러 처리
+          log('데이터 로딩 오류: $e');
+          // TODO : 사용자에게 오류 알림
         }
-
-        final mapViewModel = ref.read(naverMapViewModelProvider.notifier);
-        // 지도 초기화 및 오버레이 생성
-        mapViewModel.initializeMap(
-          controller,
-          routesData,
-          stationsData,
-          drawerNotifier,
-        );
-
-        // 생성된 오버레이 추가
-        final overlays = mapViewModel.getAllOverlays();
-        controller.addOverlayAll(overlays);
       },
       onMapTapped: (point, latLng) {
         _handleMapTap(drawerNotifier);

@@ -113,6 +113,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "8.9.4"
+  built_value_generator:
+    dependency: transitive
+    description:
+      name: built_value_generator
+      sha256: be8640bd52d67a5e6747379778b81ca2e6a40f61df475f81beb72fde62e32524
+      url: "https://pub.dev"
+    source: hosted
+    version: "8.9.5"
   characters:
     dependency: transitive
     description:
@@ -201,6 +209,62 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.3.2"
+  ferry:
+    dependency: "direct main"
+    description:
+      name: ferry
+      sha256: cb7e80fdc81ee24f1861bc8d5c176590cc317ac7052718ed0305cda129afc9e6
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.16.1+2"
+  ferry_cache:
+    dependency: transitive
+    description:
+      name: ferry_cache
+      sha256: "6716f5a81371d2f3a67ad7ec592af3747365a8616b63e48631690f0673a58bbc"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.10.1"
+  ferry_exec:
+    dependency: transitive
+    description:
+      name: ferry_exec
+      sha256: f7fead110937ef05031d7f81d476a65c0a813193865f027d86ee3c89c21b755c
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.7.0"
+  ferry_flutter:
+    dependency: "direct main"
+    description:
+      name: ferry_flutter
+      sha256: "5affe39c76945e5efb30d84c82d4d8ac276c5fb62cbd98987b595a9b445ceed3"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.9.1+1"
+  ferry_generator:
+    dependency: "direct dev"
+    description:
+      name: ferry_generator
+      sha256: "19f8ef6e85628789b9c10a2002e4c2680a61215e79447521c3057290bf724e0f"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.12.1-dev.2"
+  ferry_hive_store:
+    dependency: "direct main"
+    description:
+      name: ferry_hive_store
+      sha256: "83f8d6341dccda0ea2fe905ad5fbc5603e42ddbfd96ddc88412454108ad17a40"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.6.0+1"
+  ferry_store:
+    dependency: transitive
+    description:
+      name: ferry_store
+      sha256: "04edad00113cf209407f66cbe61938301fc807667d6d814871785120017fba51"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.6.1"
   ffi:
     dependency: transitive
     description:
@@ -352,6 +416,62 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "14.8.1"
+  gql:
+    dependency: transitive
+    description:
+      name: gql
+      sha256: "994e0c530b5ca9fce716945031b90c7925eb00bd37624c43ad4cb51883f383b3"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.0.0+1"
+  gql_code_builder:
+    dependency: transitive
+    description:
+      name: gql_code_builder
+      sha256: ce60e637b7b5250bebd6a136e5fd784bc94b860ecdcb745163ce27201023816e
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.13.1"
+  gql_code_builder_serializers:
+    dependency: transitive
+    description:
+      name: gql_code_builder_serializers
+      sha256: "5344091f97afb44b15840e32889cacc18116e095105d07671ba762e897c465d4"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.1.0"
+  gql_exec:
+    dependency: transitive
+    description:
+      name: gql_exec
+      sha256: "957db95ba37028001f76c1904e18b848f57cfef878e572ce77c6d898fafecf8f"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.0.0+1"
+  gql_http_link:
+    dependency: "direct main"
+    description:
+      name: gql_http_link
+      sha256: ef6ad24d31beb5a30113e9b919eec20876903cc4b0ee0d31550047aaaba7d5dd
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.1.0"
+  gql_link:
+    dependency: transitive
+    description:
+      name: gql_link
+      sha256: "4aa288a1e67c899b0d746a2209e949fd0dc87e56d9b759a5cdc46a7069722cf3"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.0.0+1"
+  gql_tristate_value:
+    dependency: transitive
+    description:
+      name: gql_tristate_value
+      sha256: ae045e7e272fbfd030084315140c683c9b032a9861a37165f68c2ecd8a759664
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.0.0"
   graphs:
     dependency: transitive
     description:
@@ -360,6 +480,22 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.3.2"
+  hive:
+    dependency: transitive
+    description:
+      name: hive
+      sha256: "8dcf6db979d7933da8217edcec84e9df1bdb4e4edc7fc77dbd5aa74356d6d941"
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.2.3"
+  hive_flutter:
+    dependency: "direct main"
+    description:
+      name: hive_flutter
+      sha256: dca1da446b1d808a51689fb5d0c6c9510c0a2ba01e22805d492c73b68e33eecc
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.1.0"
   http:
     dependency: transitive
     description:
@@ -416,14 +552,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "4.9.0"
-  json_serializable:
-    dependency: "direct dev"
-    description:
-      name: json_serializable
-      sha256: "81f04dee10969f89f604e1249382d46b97a1ccad53872875369622b5bfc9e58a"
-      url: "https://pub.dev"
-    source: hosted
-    version: "6.9.4"
   leak_tracker:
     dependency: transitive
     description:
@@ -504,6 +632,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.0.0"
+  normalize:
+    dependency: transitive
+    description:
+      name: normalize
+      sha256: "703f0af9e6f43a5a71536e977b945238bc89f1a941347e7ba467865a20cc1a9f"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.10.0"
   package_config:
     dependency: transitive
     description:
@@ -568,6 +704,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.3.0"
+  pedantic:
+    dependency: transitive
+    description:
+      name: pedantic
+      sha256: "67fc27ed9639506c856c840ccce7594d0bdcd91bc8d53d6e52359449a1d50602"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.11.1"
   platform:
     dependency: transitive
     description:
@@ -656,6 +800,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.6.1"
+  rxdart:
+    dependency: transitive
+    description:
+      name: rxdart
+      sha256: "5c3004a4a8dbb94bd4bf5412a4def4acdaa12e12f269737a5751369e12d1a962"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.28.0"
   shelf:
     dependency: transitive
     description:
@@ -685,14 +837,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.0.0"
-  source_helper:
-    dependency: transitive
-    description:
-      name: source_helper
-      sha256: "86d247119aedce8e63f4751bd9626fc9613255935558447569ad42f9f5b48b3c"
-      url: "https://pub.dev"
-    source: hosted
-    version: "1.3.5"
   source_span:
     dependency: transitive
     description:

@@ -1,0 +1,28 @@
+query GetRouteByName($name: String!) {
+  route(name: $name) {
+    id
+    name
+    departureStations {
+      id
+      name
+      description
+      address
+      latitude
+      longitude
+      stopTime
+      isDeparture
+      routes
+    }
+    arrivalStations {
+      id
+      name
+      description
+      address
+      latitude
+      longitude
+      stopTime
+      isDeparture
+      routes
+    }
+  }
+}

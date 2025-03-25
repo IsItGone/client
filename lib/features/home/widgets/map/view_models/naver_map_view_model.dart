@@ -4,6 +4,7 @@ import 'package:client/data/models/station_model.dart';
 import 'package:client/features/home/widgets/map/services/overlay_service.dart';
 import 'package:client/features/home/widgets/map/models/map_state.dart';
 import 'package:client/core/constants/constants.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_naver_map/flutter_naver_map.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:client/data/models/route_model.dart';
@@ -20,20 +21,25 @@ class NaverMapViewModel extends StateNotifier<MapState>
 
   @override
   void onRouteSelected(String routeId) {
-    if (state.mapController != null &&
-        state.currentZoom >= MapConstants.minZoomBase) {
-      _drawerNotifier.updateInfoId(routeId);
-      _drawerNotifier.openDrawer(InfoType.route);
-      selectRoute(routeId);
-      moveCamera(MapConstants.defaultCameraPosition, 10.5);
+    //TODO  routeId: 호차 번호 -> 노선 ID
+    _drawerNotifier.updateInfoId(routeId);
+    _drawerNotifier.openDrawer(InfoType.route);
+    if (!kIsWeb) {
+      if (state.mapController != null &&
+          state.currentZoom >= MapConstants.minZoomBase) {
+        selectRoute(routeId);
+        moveCamera(MapConstants.defaultCameraPosition, 10.5);
+      }
     }
   }
 
   @override
-  void onStationSelected(String stationId, NLatLng position) {
+  void onStationSelected(String stationId, NLatLng? position) {
     _drawerNotifier.updateInfoId(stationId);
     _drawerNotifier.openDrawer(InfoType.station);
-    moveCamera(position, 17);
+    if (!kIsWeb) {
+      moveCamera(position!, 17);
+    }
   }
 
   void initializeMap(
