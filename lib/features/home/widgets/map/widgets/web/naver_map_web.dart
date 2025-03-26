@@ -3,10 +3,11 @@ import 'dart:js_interop';
 import 'dart:ui_web' as ui_web;
 import 'package:client/data/models/route_model.dart';
 import 'package:client/data/models/station_model.dart';
+import 'package:client/features/home/widgets/map/providers/route_providers.dart';
 import 'package:web/web.dart' as web;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:client/features/home/widgets/map/providers/data_provider.dart';
+import 'package:client/features/home/widgets/map/providers/station_providers.dart';
 import 'package:client/features/home/widgets/bottom_drawer/providers/bottom_drawer_provider.dart';
 import 'package:client/features/home/widgets/map/providers/naver_map_providers.dart';
 import 'package:client/core/theme/theme.dart';
@@ -32,7 +33,7 @@ extension StationModelWebExtension on StationModel {
         'address': address,
         'latitude': latitude,
         'longitude': longitude,
-        'stopTime': stopTime,
+        // 'stopTime': stopTime,
         'isDeparture': isDeparture,
         'routes': routes,
       };
@@ -108,8 +109,10 @@ class _NaverMapWidgetState extends ConsumerState<NaverMapWidget> {
 
   Future<void> _drawData() async {
     try {
-      final routesData = await ref.read(routeDataProvider.future);
-      final stationsData = await ref.read(stationDataProvider.future);
+      final routesData =
+          await ref.read(RouteProviders.routesDataProvider.future);
+      final stationsData =
+          await ref.read(StationProviders.stationDataProvider.future);
 
       // 모델 객체를 JavaScript 객체로 변환
       final jsRoutesData = routesData
@@ -122,6 +125,7 @@ class _NaverMapWidgetState extends ConsumerState<NaverMapWidget> {
           .toList()
           .jsify() as JSArray;
 
+//TODO:
       final jsColorsData = AppTheme.lineColors
           .map((color) => color.toARGB32().toRadixString(16))
           .toList()

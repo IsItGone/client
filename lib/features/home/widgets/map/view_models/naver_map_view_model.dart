@@ -1,9 +1,11 @@
+import 'dart:developer';
+
+import 'package:client/core/constants/constants.dart';
 import 'package:client/features/home/widgets/bottom_drawer/models/info_type.dart';
 import 'package:client/features/home/widgets/bottom_drawer/view_models/bottom_drawer_view_model.dart';
 import 'package:client/data/models/station_model.dart';
 import 'package:client/features/home/widgets/map/services/overlay_service.dart';
 import 'package:client/features/home/widgets/map/models/map_state.dart';
-import 'package:client/core/constants/constants.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_naver_map/flutter_naver_map.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -22,6 +24,7 @@ class NaverMapViewModel extends StateNotifier<MapState>
   @override
   void onRouteSelected(String routeId) {
     //TODO  routeId: 호차 번호 -> 노선 ID
+    log('clicked : $routeId');
     _drawerNotifier.updateInfoId(routeId);
     _drawerNotifier.openDrawer(InfoType.route);
     if (!kIsWeb) {

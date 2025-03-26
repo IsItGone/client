@@ -6,15 +6,41 @@ import 'package:client/data/repositories/graphql_repository.dart';
 import 'package:ferry/ferry.dart';
 
 class RouteRepository extends GraphQLRepository {
-  // 노선 데이터 가져오기
-  Stream<OperationResponse<GGetRoutesData, GGetRoutesVars>> getRoutes() {
+  // getRoutes
+  Future<OperationResponse<GGetRoutesData, GGetRoutesVars>> getRoutes() async {
     try {
       final request = GGetRoutesReq();
 
-      return executeQuery(request).handleError((error) {
-        log('노선 정보 조회 중 오류 발생: $error');
-        throw Exception('노선 데이터를 불러오는데 실패했습니다.');
-      });
+      final response = await executeQuery(request);
+      return response;
+    } catch (e) {
+      log('예상치 못한 오류: $e');
+      throw Exception('서비스 연결에 문제가 발생했습니다.');
+    }
+  }
+
+  // getRouteById
+  Future<OperationResponse<GGetRouteByIdData, GGetRouteByIdVars>> getRouteById(
+      String id) async {
+    try {
+      final request = GGetRouteByIdReq((b) => b..vars.id = id);
+
+      final response = await executeQuery(request);
+      return response;
+    } catch (e) {
+      log('예상치 못한 오류: $e');
+      throw Exception('서비스 연결에 문제가 발생했습니다.');
+    }
+  }
+
+  // getRouteByName
+  Future<OperationResponse<GGetRouteByNameData, GGetRouteByNameVars>>
+      getRouteByName(String name) async {
+    try {
+      final request = GGetRouteByNameReq((b) => b..vars.name = name);
+
+      final response = await executeQuery(request);
+      return response;
     } catch (e) {
       log('예상치 못한 오류: $e');
       throw Exception('서비스 연결에 문제가 발생했습니다.');

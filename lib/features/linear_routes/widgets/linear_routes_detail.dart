@@ -1,35 +1,50 @@
 import 'package:client/core/theme/theme.dart';
+import 'package:client/data/models/station_model.dart';
 import 'package:flutter/material.dart';
 
-class RoutesDetail extends StatelessWidget {
-  const RoutesDetail({super.key});
+class LinearRoutesDetail extends StatefulWidget {
+  final String? stationId;
+  final List<StationModel> departureStations, arrivalStations;
+
+  const LinearRoutesDetail(
+    this.stationId, {
+    super.key,
+    required this.departureStations,
+    required this.arrivalStations,
+  });
+
+  @override
+  State<LinearRoutesDetail> createState() => _LinearRoutesDetailState();
+}
+
+class _LinearRoutesDetailState extends State<LinearRoutesDetail> {
   @override
   Widget build(BuildContext context) {
-    List<bool> routeStatus = [
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false
+    final allStations = [
+      ...widget.departureStations,
+      ...widget.departureStations.isNotEmpty &&
+              widget.arrivalStations.isNotEmpty &&
+              widget.departureStations.last.name ==
+                  widget.arrivalStations.first.name
+          ? widget.arrivalStations.sublist(1)
+          : widget.arrivalStations,
     ];
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(20, 50, 20, 0),
       child: ListView.builder(
-        itemCount: 10,
+        itemCount: allStations.length,
         itemBuilder: (context, index) {
+          final station = allStations[index];
+
           return RouteStop(
-            isHighlighted: routeStatus[index],
-            stopName: '정류장 ${index + 1}',
+            isHighlighted: false, // TODO: 실시간 위치
+            stopName: station.name ?? '정류장 정보 없음',
             isFirst: index == 0,
-            isTurnAround: index == 5,
-            isLast: index == 9,
+            isTurnAround: index == widget.departureStations.length - 1,
+            isLast: index == allStations.length - 1,
             index: index,
+            stopTime: station.stopTime,
           );
         },
       ),
@@ -44,6 +59,7 @@ class RouteStop extends StatelessWidget {
   final bool isLast;
   final int index;
   final bool isHighlighted;
+  final String? stopTime;
 
   const RouteStop({
     super.key,
@@ -53,7 +69,9 @@ class RouteStop extends StatelessWidget {
     this.isLast = false,
     required this.index,
     required this.isHighlighted,
+    this.stopTime,
   });
+
   @override
   Widget build(BuildContext context) {
     Color lineColor = isHighlighted
@@ -156,8 +174,8 @@ class RouteStop extends StatelessWidget {
                         stopName,
                         style: AppTheme.textTheme.titleLarge,
                       ),
-                      const Text(
-                        "도착 시간 :",
+                      Text(
+                        "도착 시간 : ${stopTime ?? '정보 없음'}",
                         style: TextStyle(fontSize: 14),
                       ),
                     ],
