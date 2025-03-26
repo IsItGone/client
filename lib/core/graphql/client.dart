@@ -17,7 +17,17 @@ class GraphQLClient {
     // 캐시 스토어 설정
     final box = await Hive.openBox('graphql');
     final store = HiveStore(box);
-    final cache = Cache(store: store);
+    final cache = Cache(
+      store: store,
+      typePolicies: {
+        'Station': TypePolicy(
+          keyFields: {
+            'id': true,
+            'compositeId': true
+          }, // ID와 compositeId를 함께 사용하여 캐시 키 생성
+        ),
+      },
+    );
 
     // HTTP 링크 설정
     final httpLink = HttpLink(GraphQLConfig.apiUrl,

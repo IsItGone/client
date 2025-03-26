@@ -36,18 +36,27 @@ class RouteModel {
   }
 
   factory RouteModel.fromRoute(GGetRouteByIdData_getRouteById routeData) {
+    final routeId = routeData.id;
+
     return RouteModel(
-      id: routeData.id,
+      id: routeId,
       name: routeData.name,
       departureStations: (routeData.departureStations?.toList() ?? [])
           .where((station) => station != null)
-          .map((station) => StationModel.fromStation(station))
-          .toList(),
+          .map((station) {
+        final compositeId = "${station?.id}_$routeId";
+        final stationModel =
+            StationModel.fromStation(station, routeId: routeId);
+        // ...
+        return stationModel.copyWith(id: compositeId);
+      }).toList(),
+      // .map((station) => StationModel.fromStation(station))
+      // .toList(),
       arrivalStations: (routeData.arrivalStations?.toList() ?? [])
           .where((station) => station != null)
           .map((station) => StationModel.fromStation(station))
           .toList(),
-      color: RouteColors.getColor(routeData.id),
+      color: RouteColors.getColor(routeId),
     );
   }
 }

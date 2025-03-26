@@ -1,14 +1,18 @@
+import 'dart:developer';
+
 import 'package:client/core/theme/theme.dart';
 import 'package:client/data/models/station_model.dart';
 import 'package:flutter/material.dart';
 
 class LinearRoutesDetail extends StatefulWidget {
   final String? stationId;
+  final String routeId;
   final List<StationModel> departureStations, arrivalStations;
 
   const LinearRoutesDetail(
     this.stationId, {
     super.key,
+    required this.routeId,
     required this.departureStations,
     required this.arrivalStations,
   });
@@ -36,7 +40,6 @@ class _LinearRoutesDetailState extends State<LinearRoutesDetail> {
         itemCount: allStations.length,
         itemBuilder: (context, index) {
           final station = allStations[index];
-
           return RouteStop(
             isHighlighted: false, // TODO: 실시간 위치
             stopName: station.name ?? '정류장 정보 없음',
