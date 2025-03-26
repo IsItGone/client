@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:client/data/models/route_model.dart';
 import 'package:client/data/models/station_model.dart';
 import 'package:client/features/home/widgets/bottom_drawer/view_models/bottom_drawer_view_model.dart';
@@ -52,6 +54,7 @@ class OverlayService {
 
       return {
         'index': index,
+        'id': entry.value.id,
         'departureCoords': _prepareCoordinates(route.departureStations),
         'arrivalCoords': _prepareCoordinates(route.arrivalStations),
       };
@@ -108,6 +111,7 @@ class OverlayService {
     BottomDrawerViewModel drawerNotifier,
   ) {
     int index = route['index'];
+    String id = route['id'];
     List<Map<String, dynamic>> departureCoords = route['departureCoords'];
     List<Map<String, dynamic>> arrivalCoords = route['arrivalCoords'] ?? [];
 
@@ -115,6 +119,7 @@ class OverlayService {
     _addRoutes(
       overlays['baseRoutes'],
       index,
+      id,
       [departureCoords],
       false,
       drawerNotifier,
@@ -129,6 +134,7 @@ class OverlayService {
     _addRoutes(
       overlays['extendedRoutes'],
       index,
+      id,
       extendedCoords,
       true,
       drawerNotifier,
@@ -139,6 +145,7 @@ class OverlayService {
   void _addRoutes(
     Set<NAddableOverlay<NOverlay<void>>>? routeSet,
     int index,
+    String id,
     List<List<Map<String, dynamic>>> coordsList,
     bool isExtended,
     BottomDrawerViewModel drawerNotifier,
@@ -152,13 +159,14 @@ class OverlayService {
         .toList();
 
     final overlay = NMultipartPathOverlay(
-      id: '$index-${isExtended ? 'extended' : 'base'}',
+      id: '$id-${isExtended ? 'extended' : 'base'}',
       width: 8,
       patternImage: isExtended ? routePatternImage : null,
       paths: paths,
     );
 
     overlay.setOnTapListener((NMultipartPathOverlay tappedOverlay) {
+      log('$tappedOverlay');
       final routeId = tappedOverlay.info.id.split('-')[0];
       _mapCallback?.onRouteSelected(routeId);
     });

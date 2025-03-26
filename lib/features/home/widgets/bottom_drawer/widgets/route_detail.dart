@@ -1,96 +1,137 @@
+import 'dart:developer';
+import 'package:client/features/home/widgets/map/providers/route_providers.dart';
 import 'package:client/shared/widgets/linear_route_button.dart';
 import 'package:client/shared/widgets/route_button.dart';
 import 'package:client/core/theme/theme.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class RouteDetail extends StatelessWidget {
+class RouteDetail extends ConsumerWidget {
   final String routeId;
   const RouteDetail(this.routeId, {super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final routeAsync = ref.watch(RouteProviders.routeByIdProvider(routeId));
+
     return Container(
-      padding: const EdgeInsets.all(12),
-      child: SingleChildScrollView(
-        child: Column(
-          children: [
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        padding: const EdgeInsets.all(12),
+        child: SingleChildScrollView(
+          child: routeAsync.when(
+            data: (route) => Column(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
                     children: [
                       Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Padding(
-                            padding: const EdgeInsets.only(right: 12.0),
-                            child: Text(
-                              "노선 정보",
-                              style: AppTheme.textTheme.displaySmall,
-                            ),
+                          Row(
+                            children: [
+                              Padding(
+                                padding: const EdgeInsets.only(right: 12.0),
+                                child: Text(
+                                  "노선 정보",
+                                  style: AppTheme.textTheme.displaySmall,
+                                ),
+                              ),
+                              RouteButton(
+                                isSelected: true,
+                                text: route.name,
+                                size: ButtonSize.lg,
+                                color: route.color,
+                              ),
+                            ],
                           ),
-                          RouteButton(
-                            index: int.parse(routeId),
-                            isSelected: true,
-                            text: '$routeId호차',
-                            size: ButtonSize.lg,
+                          LinearRouteButton(
+                            routeId: route.id,
                           ),
                         ],
                       ),
-                      LinearRouteButton(
-                        routeId: routeId,
+                      Row(
+                        children: [
+                          if (route.departureStations.isEmpty ||
+                              route.departureStations.first.name == null ||
+                              route.departureStations.last.name == null)
+                            Text(
+                              "정보 없음",
+                              style: AppTheme.textTheme.titleSmall,
+                            )
+                          else ...[
+                            Flexible(
+                              child: Text(
+                                "${route.departureStations.first.name}",
+                                style: AppTheme.textTheme.titleSmall,
+                                softWrap: true,
+                                maxLines: 2,
+                                overflow: TextOverflow.visible,
+                              ),
+                            ),
+                            const Padding(
+                              padding: EdgeInsets.all(8.0),
+                              child: Icon(
+                                color: AppTheme.mainGray,
+                                Icons.sync_alt_rounded,
+                              ),
+                            ),
+                            Flexible(
+                              child: Text(
+                                "${route.departureStations.last.name}",
+                                style: AppTheme.textTheme.titleSmall,
+                                softWrap: true,
+                                maxLines: 2,
+                                overflow: TextOverflow.visible,
+                              ),
+                            )
+                          ],
+                        ],
                       ),
                     ],
                   ),
-                  Row(
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
                     children: [
-                      Text(
-                        "출발지",
-                        style: AppTheme.textTheme.titleSmall,
-                      ),
                       const Padding(
-                        padding: EdgeInsets.all(8.0),
-                        child: Icon(
-                          color: AppTheme.mainGray,
-                          Icons.sync_alt_rounded,
+                        padding: EdgeInsets.symmetric(vertical: 4.0),
+                        child: Row(
+                          children: [
+                            Text("승차 운행 시간"),
+                          ],
                         ),
                       ),
-                      Text(
-                        "도착지",
-                        style: AppTheme.textTheme.titleSmall,
+                      Row(
+                        children: [
+                          Text(
+                            // route.departureStations.isEmpty ||
+                            //         route.departureStations.first.stopTime ==
+                            //             null ||
+                            //         route.departureStations.last.stopTime ==
+                            //             null
+                            //     ?
+                            '-'
+                            // : '${route.departureStations.first.stopTime}~ ${route.departureStations.last.stopTime}'
+                            ,
+                            style: AppTheme.textTheme.titleLarge,
+                          ),
+                        ],
                       ),
                     ],
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                children: [
-                  const Padding(
-                    padding: EdgeInsets.symmetric(vertical: 4.0),
-                    child: Row(
-                      children: [
-                        Text("승차 운행 시간"),
-                      ],
-                    ),
-                  ),
-                  Row(
-                    children: [
-                      Text(
-                        "07:35 ~ 08:30",
-                        style: AppTheme.textTheme.titleLarge,
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
+            loading: () {
+              log('loading');
+              return null;
+            },
+            error: (Object error, StackTrace stackTrace) {
+              log('error: $error, stackTrace: $stackTrace');
+              return null;
+            },
+          ),
+        ));
   }
 }

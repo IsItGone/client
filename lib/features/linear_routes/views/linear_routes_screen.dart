@@ -1,9 +1,12 @@
+import 'package:client/core/constants/route_colors.dart';
 import 'package:client/core/theme/theme.dart';
-import 'package:client/features/linear_routes/widgets/routes_detail.dart';
+import 'package:client/features/home/widgets/map/providers/route_providers.dart';
+import 'package:client/features/linear_routes/widgets/linear_routes_detail.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+// TODO: routeId, routeName, this.stationId
 class LinearRoutesScreen extends ConsumerWidget {
   final String routeId;
   final String? stationId;
@@ -16,32 +19,47 @@ class LinearRoutesScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(
-          '$routeId호차',
-        ),
-        foregroundColor: AppTheme.mainWhite,
-        backgroundColor: AppTheme.lineColors[int.parse(routeId)],
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () {
-            context.pop();
-          },
-        ),
-      ),
-      body: const Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Expanded(
-              child: RoutesDetail(),
+    final routebyIdAsync = ref.watch(RouteProviders.routeByIdProvider(routeId));
+
+    return routebyIdAsync.when(
+      data: (route) {
+        return Scaffold(
+            appBar: AppBar(
+              title: Text(
+                route.name,
+              ),
+              foregroundColor: AppTheme.mainWhite,
+              backgroundColor: RouteColors.getColor(routeId),
+              leading: IconButton(
+                icon: const Icon(Icons.arrow_back),
+                onPressed: () {
+                  context.pop();
+                },
+              ),
             ),
-            // Text('Route ID: $routeId'),
-            // if (stationId != null) Text('Station ID: $stationId'),
-          ],
-        ),
+            body: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Expanded(
+                    child: LinearRoutesDetail(
+                      stationId,
+                      departureStations: route.departureStations,
+                      arrivalStations: route.arrivalStations,
+                    ),
+                  ),
+                  // Text('Route ID: $routeId'),
+                  // if (stationId != null) Text('Station ID: $stationId'),
+                ],
+              ),
+            ));
+      },
+      loading: () => const Center(
+        child: CircularProgressIndicator(),
+      ),
+      error: (error, stack) => Center(
+        child: Text('오류가 발생했습니다: $error'),
       ),
     );
   }

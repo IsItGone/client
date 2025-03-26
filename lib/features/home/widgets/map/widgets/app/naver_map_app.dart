@@ -1,10 +1,11 @@
 import 'dart:developer';
 
+import 'package:client/core/constants/constants.dart';
 import 'package:client/features/home/widgets/bottom_drawer/providers/bottom_drawer_provider.dart';
 import 'package:client/features/home/widgets/bottom_drawer/view_models/bottom_drawer_view_model.dart';
-import 'package:client/features/home/widgets/map/providers/data_provider.dart';
+import 'package:client/features/home/widgets/map/providers/route_providers.dart';
+import 'package:client/features/home/widgets/map/providers/station_providers.dart';
 import 'package:client/features/home/widgets/map/providers/naver_map_providers.dart';
-import 'package:client/core/constants/constants.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_naver_map/flutter_naver_map.dart';
@@ -59,10 +60,11 @@ class _NaverMapWidgetState extends ConsumerState<NaverMapWidget> {
         _controller = controller;
 
         try {
-          final routesData = await ref.read(routeDataProvider.future);
-          final stationsData = await ref.read(stationDataProvider.future);
+          final routesData =
+              await ref.read(RouteProviders.routesDataProvider.future);
+          final stationsData =
+              await ref.read(StationProviders.stationDataProvider.future);
 
-          log('$routesData');
           if (routesData.isEmpty) {
             throw Exception("No route data available");
           }

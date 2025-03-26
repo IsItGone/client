@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:client/data/graphql/queries/station/index.dart';
 
 class StationModel {
@@ -23,7 +25,8 @@ class StationModel {
     this.routes,
   });
 
-  factory StationModel.fromGraphQL(GGetStationsData_getStations stationData) {
+  factory StationModel.fromStationList(
+      GGetStationsData_getStations stationData) {
     return StationModel(
       id: stationData.id,
       name: stationData.name,
@@ -36,8 +39,15 @@ class StationModel {
       routes: stationData.routes?.map((e) => e.toString()).toList(),
     );
   }
+  factory StationModel.fromStation(dynamic stationData) {
+    List<String>? routes;
+    if (stationData is GGetStationByIdData_getStationById) {
+      routes = stationData.routes?.map((e) => e.toString()).toList();
+    } else {
+      routes =
+          stationData.routes != null ? List.from(stationData.routes) : null;
+    }
 
-  factory StationModel.fromRouteStation(dynamic stationData) {
     return StationModel(
       id: stationData.id,
       name: stationData.name,
@@ -47,9 +57,7 @@ class StationModel {
       longitude: stationData.longitude,
       stopTime: stationData.stopTime,
       isDeparture: stationData.isDeparture,
-      routes: stationData.routes != null
-          ? List<String>.from(stationData.routes)
-          : null,
+      routes: routes,
     );
   }
 }

@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:client/core/theme/theme.dart';
 
 enum ButtonSize { sm, md, lg }
 
 class RouteButton extends StatelessWidget {
-  final int index;
+  final Color? color;
   final bool isSelected;
   final VoidCallback? onPressed;
   final String text;
@@ -13,7 +12,7 @@ class RouteButton extends StatelessWidget {
 
   const RouteButton({
     super.key,
-    required this.index,
+    this.color,
     required this.isSelected,
     required this.text,
     this.onPressed,
@@ -48,7 +47,7 @@ class RouteButton extends StatelessWidget {
     }
 
     final buttonTextStyle = TextStyle(
-      color: isSelected ? Colors.white : AppTheme.lineColors[index],
+      color: isSelected ? Colors.white : color,
       fontSize: size == ButtonSize.sm ? 14 : 16,
       fontWeight: FontWeight.bold,
     );
@@ -57,7 +56,7 @@ class RouteButton extends StatelessWidget {
       final buttonStyle = isSelected
           ? FilledButton.styleFrom(
               padding: padding ?? defaultPadding,
-              backgroundColor: AppTheme.lineColors[index],
+              backgroundColor: color,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.all(
                   Radius.circular(size == ButtonSize.sm ? 8 : 12),
@@ -73,7 +72,7 @@ class RouteButton extends StatelessWidget {
                   Radius.circular(size == ButtonSize.sm ? 8 : 12),
                 ),
               ),
-              side: BorderSide(color: AppTheme.lineColors[index]),
+              side: BorderSide(color: color ?? Colors.grey),
               minimumSize: Size(width, height),
             );
 
@@ -102,7 +101,7 @@ class RouteButton extends StatelessWidget {
         width: width,
         height: height,
         decoration: BoxDecoration(
-          color: AppTheme.lineColors[index],
+          color: color,
           borderRadius: BorderRadius.circular(size == ButtonSize.sm ? 8 : 12),
         ),
         child: Center(

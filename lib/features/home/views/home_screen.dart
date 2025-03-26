@@ -1,9 +1,11 @@
 import 'dart:developer';
 
+import 'package:client/core/constants/route_colors.dart';
 import 'package:client/features/home/widgets/bottom_drawer/bottom_drawer.dart';
 import 'package:client/features/home/widgets/bottom_drawer/providers/bottom_drawer_provider.dart';
 import 'package:client/features/home/widgets/map/providers/naver_map_providers.dart';
 import 'package:client/features/home/widgets/map/naver_map_widget.dart';
+import 'package:client/features/home/widgets/map/providers/route_providers.dart';
 import 'package:client/shared/widgets/map_search_bar.dart';
 import 'package:client/shared/widgets/route_button.dart';
 import 'package:flutter/material.dart';
@@ -19,6 +21,7 @@ class HomeScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final drawerState = ref.watch(bottomDrawerProvider);
+    final routesAsync = ref.watch(RouteProviders.routesDataProvider);
 
     log('isWeb : $kIsWeb');
     return Scaffold(
@@ -51,20 +54,23 @@ class HomeScreen extends ConsumerWidget {
                       child: Row(
                         children: [
                           const SizedBox(width: 8),
-                          ...List.generate(
-                            6,
-                            (index) {
-                              return RouteButton(
-                                index: index + 1,
-                                isSelected: false,
-                                onPressed: () => ref
-                                    .read(naverMapViewModelProvider.notifier)
-                                    .onRouteSelected((index + 1).toString()),
-                                text: "${index + 1}호차",
-                                size: ButtonSize.lg,
-                              );
-                            },
-                          ),
+                          Row(
+                            children: routesAsync.whenData((routes) {
+                                  return routes.map((route) {
+                                    return RouteButton(
+                                      isSelected: false,
+                                      onPressed: () => ref
+                                          .read(naverMapViewModelProvider
+                                              .notifier)
+                                          .onRouteSelected(route.id),
+                                      text: route.name,
+                                      size: ButtonSize.lg,
+                                      color: RouteColors.getColor(route.id),
+                                    );
+                                  }).toList();
+                                }).value ??
+                                [],
+                          )
                         ],
                       ),
                     ),
