@@ -105,15 +105,13 @@ class RouteDetail extends ConsumerWidget {
                       Row(
                         children: [
                           Text(
-                            // route.departureStations.isEmpty ||
-                            //         route.departureStations.first.stopTime ==
-                            //             null ||
-                            //         route.departureStations.last.stopTime ==
-                            //             null
-                            //     ?
-                            '-'
-                            // : '${route.departureStations.first.stopTime}~ ${route.departureStations.last.stopTime}'
-                            ,
+                            route.departureStations.isEmpty ||
+                                    route.departureStations.first.stopTime ==
+                                        null ||
+                                    route.departureStations.last.stopTime ==
+                                        null
+                                ? '-'
+                                : '${route.departureStations.first.stopTime}~ ${route.departureStations.last.stopTime}',
                             style: AppTheme.textTheme.titleLarge,
                           ),
                         ],

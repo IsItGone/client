@@ -45,6 +45,7 @@ class LinearRoutesScreen extends ConsumerWidget {
                   Expanded(
                     child: LinearRoutesDetail(
                       stationId,
+                      routeId: routeId,
                       departureStations: route.departureStations,
                       arrivalStations: route.arrivalStations,
                     ),

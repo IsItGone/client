@@ -23,7 +23,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 //   return RouteModel.fromRouteList(response.data);
 // }
 
-// route_providers.dart
 mixin RouteProviders {
   static final routeRepositoryProvider = Provider((ref) => RouteRepository());
 
@@ -53,7 +52,6 @@ mixin RouteProviders {
     final repository = ref.watch(routeRepositoryProvider);
     final response = await repository.getRouteById(id);
 
-    log('routbyid : ${response.data}');
     if (response.hasErrors) {
       final errorMessage =
           response.graphqlErrors?.first.message ?? '알 수 없는 오류가 발생했습니다.';

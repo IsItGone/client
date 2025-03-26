@@ -31,13 +31,6 @@ class _StationDetailState extends ConsumerState<StationDetail> {
     final stationAsync =
         ref.watch(StationProviders.stationByIdProvider(widget.stationId));
 
-    void onRouteButtonPressed(String id, Color color) {
-      setState(() {
-        selectedId = id;
-        selectedColor = color;
-      });
-    }
-
     return stationAsync.when(
       data: (station) {
         if (station.routes == null || station.routes!.isEmpty) {
@@ -53,36 +46,7 @@ class _StationDetailState extends ConsumerState<StationDetail> {
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     Expanded(
-                      child: SingleChildScrollView(
-                        scrollDirection: Axis.horizontal,
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 10),
-                          child: Row(
-                            children:
-                                List.generate(station.routes!.length, (index) {
-                              final route = ref.watch(
-                                  RouteProviders.routeByIdProvider(
-                                      station.routes![index]));
-
-                              return route.when(
-                                data: (route) => RouteButton(
-                                  isSelected: selectedId == route.id,
-                                  onPressed: () => onRouteButtonPressed(
-                                    route.id,
-                                    route.color,
-                                  ),
-                                  text: route.name.split("호차")[0],
-                                  size: ButtonSize.md,
-                                  color: route.color,
-                                ),
-                                loading: () =>
-                                    const CircularProgressIndicator(),
-                                error: (error, stack) => Text('오류: $error'),
-                              );
-                            }),
-                          ),
-                        ),
-                      ),
+                      child: _buildRouteButtonList(station.routes!),
                     ),
                     LinearRouteButton(
                       routeId: selectedId,
@@ -106,5 +70,48 @@ class _StationDetailState extends ConsumerState<StationDetail> {
       loading: () => const Center(child: CircularProgressIndicator()),
       error: (error, stack) => Center(child: Text('오류가 발생했습니다: $error')),
     );
+  }
+
+  Widget _buildRouteButtonList(List<String> routes) {
+    return SizedBox(
+      height: 40, // RouteButton의 원하는 높이로 설정
+      child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        child: Row(
+          children: routes.map((routeId) {
+            return FutureBuilder(
+              future:
+                  ref.read(RouteProviders.routeByIdProvider(routeId).future),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const SizedBox(width: 50, height: 40); // 로딩 중 빈 공간
+                }
+                if (snapshot.hasError) {
+                  return Text('오류: ${snapshot.error}');
+                }
+                final route = snapshot.data!;
+                return SizedBox(
+                  child: RouteButton(
+                    isSelected: selectedId == route.id,
+                    onPressed: () =>
+                        _onRouteButtonPressed(route.id, route.color),
+                    text: route.name.split("호차")[0],
+                    size: ButtonSize.md,
+                    color: route.color,
+                  ),
+                );
+              },
+            );
+          }).toList(),
+        ),
+      ),
+    );
+  }
+
+  void _onRouteButtonPressed(String id, Color color) {
+    setState(() {
+      selectedId = id;
+      selectedColor = color;
+    });
   }
 }

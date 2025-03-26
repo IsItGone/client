@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:client/data/graphql/queries/station/index.dart';
 
 class StationModel {
@@ -12,6 +10,7 @@ class StationModel {
   final String? stopTime;
   final bool? isDeparture;
   final List<String>? routes;
+  final String? compositeId;
 
   const StationModel({
     required this.id,
@@ -23,7 +22,34 @@ class StationModel {
     this.stopTime,
     this.isDeparture,
     this.routes,
+    this.compositeId,
   });
+
+  StationModel copyWith({
+    String? id,
+    String? name,
+    String? description,
+    String? address,
+    double? latitude,
+    double? longitude,
+    String? stopTime,
+    bool? isDeparture,
+    List<String>? routes,
+    String? compositeId,
+  }) {
+    return StationModel(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      description: description ?? this.description,
+      address: address ?? this.address,
+      latitude: latitude ?? this.latitude,
+      longitude: longitude ?? this.longitude,
+      stopTime: stopTime ?? this.stopTime,
+      isDeparture: isDeparture ?? this.isDeparture,
+      routes: routes ?? this.routes,
+      compositeId: compositeId ?? this.compositeId,
+    );
+  }
 
   factory StationModel.fromStationList(
       GGetStationsData_getStations stationData) {
@@ -39,8 +65,11 @@ class StationModel {
       routes: stationData.routes?.map((e) => e.toString()).toList(),
     );
   }
-  factory StationModel.fromStation(dynamic stationData) {
+
+  factory StationModel.fromStation(dynamic stationData, {String? routeId}) {
     List<String>? routes;
+    String? compositeId = routeId != null ? "${stationData.id}_$routeId" : null;
+
     if (stationData is GGetStationByIdData_getStationById) {
       routes = stationData.routes?.map((e) => e.toString()).toList();
     } else {
@@ -58,6 +87,7 @@ class StationModel {
       stopTime: stationData.stopTime,
       isDeparture: stationData.isDeparture,
       routes: routes,
+      compositeId: compositeId,
     );
   }
 }
