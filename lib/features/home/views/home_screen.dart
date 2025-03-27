@@ -1,17 +1,22 @@
 import 'dart:developer';
+import 'dart:js_interop';
 
 import 'package:client/core/constants/route_colors.dart';
+import 'package:client/data/models/route_model.dart';
 import 'package:client/features/home/widgets/bottom_drawer/bottom_drawer.dart';
 import 'package:client/features/home/widgets/bottom_drawer/providers/bottom_drawer_provider.dart';
 import 'package:client/features/home/widgets/map/providers/naver_map_providers.dart';
 import 'package:client/features/home/widgets/map/naver_map_widget.dart';
-import 'package:client/features/home/widgets/map/providers/route_providers.dart';
+import 'package:client/data/providers/route_providers.dart';
 import 'package:client/shared/widgets/map_search_bar.dart';
 import 'package:client/shared/widgets/route_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:pointer_interceptor/pointer_interceptor.dart';
+
+@JS('selectRoute')
+external void selectRouteJS(String routeId);
 
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({
@@ -49,32 +54,22 @@ class HomeScreen extends ConsumerWidget {
                 if (!drawerState.isDrawerOpen)
                   Align(
                     alignment: Alignment.centerLeft,
-                    child: SingleChildScrollView(
-                      scrollDirection: Axis.horizontal,
-                      child: Row(
-                        children: [
-                          const SizedBox(width: 8),
-                          Row(
-                            children: routesAsync.whenData((routes) {
-                                  return routes.map((route) {
-                                    return RouteButton(
-                                      isSelected: false,
-                                      onPressed: () => ref
-                                          .read(naverMapViewModelProvider
-                                              .notifier)
-                                          .onRouteSelected(route.id),
-                                      text: route.name,
-                                      size: ButtonSize.lg,
-                                      color: RouteColors.getColor(route.id),
-                                    );
-                                  }).toList();
-                                }).value ??
-                                [],
-                          )
-                        ],
+                    child: SizedBox(
+                      height: 50,
+                      child: routesAsync.when(
+                        data: (routes) {
+                          return kIsWeb
+                              ? PointerInterceptor(
+                                  child: _buildRouteList(routes, ref),
+                                )
+                              : _buildRouteList(routes, ref);
+                        },
+                        loading: () =>
+                            const Center(child: CircularProgressIndicator()),
+                        error: (err, stack) => Text('에러 발생: $err'),
                       ),
                     ),
-                  ),
+                  )
               ],
             ),
           ),
@@ -98,6 +93,37 @@ class HomeScreen extends ConsumerWidget {
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildRouteList(List<RouteModel> routes, WidgetRef ref) {
+    return ListView.builder(
+      scrollDirection: Axis.horizontal,
+      padding: const EdgeInsets.symmetric(horizontal: 8),
+      itemCount: routes.length,
+      itemBuilder: (context, index) {
+        final route = routes[index];
+        return Row(
+          children: [
+            RouteButton(
+              isSelected: false,
+              onPressed: () {
+                ref
+                    .read(naverMapViewModelProvider.notifier)
+                    .onRouteSelected(route.id);
+                if (kIsWeb) {
+                  selectRouteJS(
+                    route.id,
+                  );
+                }
+              },
+              text: route.name,
+              size: ButtonSize.lg,
+              color: RouteColors.getColor(route.id),
+            ),
+          ],
+        );
+      },
     );
   }
 }

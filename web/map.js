@@ -7,6 +7,7 @@ class NaverMap {
     this.locationMarker = null;
     this.markers = [];
     this.polylines = [];
+    this.allStations = new Map();
     this.latLngCache = new Map();
     this.isSelectionMode = false;
     this.selectedRouteId = null;
@@ -119,24 +120,26 @@ class NaverMap {
   }
 
   drawData(routesData, stationsData, colorsData) {
-    const allStations = new Map();
-    const markers = [];
-    const polylines = [];
+    this.allStations = new Map();
+    this.markers = [];
+    this.polylines = [];
 
-    this.createStationMarkers(allStations, stationsData, markers);
+    this.createStationMarkers(stationsData);
 
     for (let i = 0; i < routesData.length; i++) {
       const route = routesData[i];
       const color = `#${colorsData[i + 1].substring(2, 8)}`;
 
-      polylines.push(
+      this.polylines.push(
         this.createRoutePolyline(route.departureStations, color, "departure", route.id)
       );
-      polylines.push(this.createRoutePolyline(route.arrivalStations, color, "arrival", route.id));
+      this.polylines.push(
+        this.createRoutePolyline(route.arrivalStations, color, "arrival", route.id)
+      );
     }
 
-    for (const polyline of polylines) {
-      this.addPolylineEventListeners(polyline, allStations);
+    for (const polyline of this.polylines) {
+      this.addPolylineEventListeners(polyline);
       polyline.setMap(this.map);
     }
 
@@ -144,18 +147,15 @@ class NaverMap {
     naver.maps.Event.addListener(this.map, "zoom_changed", () => {
       this.setVisibilityByZoom(this.map.getZoom());
     });
-
-    this.markers = markers;
-    this.polylines = polylines;
   }
 
-  createStationMarkers(allStations, stationsData, markers) {
+  createStationMarkers(stationsData) {
     const isProduction = window.location.hostname !== "localhost";
     const iconBasePath = isProduction ? "assets/assets/" : "assets/";
     const iconImageUrl = `${iconBasePath}icons/bus_station_icon.png`;
 
     for (const station of stationsData) {
-      if (!allStations.has(station.id)) {
+      if (!this.allStations.has(station.id)) {
         const marker = new naver.maps.Marker({
           position: this.getLatLng(station.latitude, station.longitude),
           icon: {
@@ -166,8 +166,8 @@ class NaverMap {
         });
         marker.set("id", station.id);
         marker.set("type", station.isDeparture ? "departure" : "arrival");
-        allStations.set(station.id, marker);
-        markers.push(marker);
+        this.allStations.set(station.id, marker);
+        this.markers.push(marker);
 
         naver.maps.Event.addListener(marker, "click", () => {
           this.map.panTo(marker.getPosition(), { duration: 300 });
@@ -202,54 +202,61 @@ class NaverMap {
     return polyline;
   }
 
-  addPolylineEventListeners(polyline, allStations) {
+  addPolylineEventListeners(polyline) {
     naver.maps.Event.addListener(polyline, "click", (e) => {
-      this.map.panTo(e.coord, { duration: 300 });
-      this.map.setZoom(13, { duration: 500 });
-
       const routeId = polyline.get("routeId");
+      this.selectRouteById(routeId, e.coord);
+    });
+  }
 
-      // 모든 폴리라인과 마커 숨기기
-      this.polylines.forEach((p) => p.setVisible(false));
-      this.markers.forEach((m) => m.setVisible(false));
+  selectRouteById(routeId, coord) {
+    // 모든 폴리라인과 마커 숨기기
+    this.polylines.forEach((p) => p.setVisible(false));
+    this.markers.forEach((m) => m.setVisible(false));
 
-      // 같은 노선의 승차/하차 폴리라인 모두 표시
-      this.polylines.forEach((p) => {
-        if (p.get("routeId") === routeId) {
-          p.setVisible(true);
+    // 같은 노선의 승차/하차 폴리라인 모두 표시
+    this.polylines.forEach((p) => {
+      if (p.get("routeId") === routeId) {
+        p.setVisible(true);
 
-          // 선택된 폴리라인의 관련 마커 표시
-          const stationIds = p.get("stationIds");
-          stationIds.forEach((stationId) => {
-            const marker = allStations.get(stationId);
-            if (marker) {
-              marker.setVisible(true);
-            }
-          });
-        }
-      });
-
-      // 선택 모드 활성화 상태 저장
-      this.isSelectionMode = true;
-      this.selectedRouteId = routeId;
-
-      // 줌 레벨에 따라 선택된 노선의 마커 가시성 설정
-      this.setSelectedVisibilityByZoom(this.map.getZoom());
-
-      // 줌 변경 시 선택된 노선의 마커 가시성 업데이트
-      if (!this.zoomChangeListener) {
-        this.zoomChangeListener = naver.maps.Event.addListener(this.map, "zoom_changed", () => {
-          if (this.isSelectionMode) {
-            this.setSelectedVisibilityByZoom(this.map.getZoom());
-          } else {
-            this.setVisibilityByZoom(this.map.getZoom());
+        // 선택된 폴리라인의 관련 마커 표시
+        const stationIds = p.get("stationIds");
+        stationIds.forEach((stationId) => {
+          const marker = this.allStations.get(stationId);
+          if (marker) {
+            marker.setVisible(true);
           }
         });
       }
-
-      console.log("Selected route:", routeId, this.selectedRouteId);
-      this.openDrawer(this.selectedRouteId, "route");
     });
+
+    if (coord) {
+      this.map.panTo(coord, { duration: 300 });
+    } else
+      this.map.panTo(new naver.maps.LatLng(this.defaultLocation.lat, this.defaultLocation.lng), {
+        duration: 300,
+      });
+    this.map.setZoom(12, { duration: 500 });
+
+    // 선택 모드 활성화 상태 저장
+    this.isSelectionMode = true;
+    this.selectedRouteId = routeId;
+
+    // 줌 레벨에 따라 선택된 노선의 마커 가시성 설정
+    this.setSelectedVisibilityByZoom(this.map.getZoom());
+
+    // 줌 변경 시 선택된 노선의 마커 가시성 업데이트
+    if (!this.zoomChangeListener) {
+      this.zoomChangeListener = naver.maps.Event.addListener(this.map, "zoom_changed", () => {
+        if (this.isSelectionMode) {
+          this.setSelectedVisibilityByZoom(this.map.getZoom());
+        } else {
+          this.setVisibilityByZoom(this.map.getZoom());
+        }
+      });
+    }
+
+    this.openDrawer(this.selectedRouteId, "route");
   }
 
   setSelectedVisibilityByZoom(zoomLevel) {
@@ -329,7 +336,6 @@ async function initNaverMap(elementId, clientId) {
   const defaultLocation = { lat: 36.3553177, lng: 127.2981911 };
   window.naverMap = new NaverMap(elementId, clientId, defaultLocation);
   await window.naverMap.init();
-  console.log("init naver map");
 }
 
 function drawDataToMap(routesData, stationsData, colorsData) {
@@ -338,6 +344,9 @@ function drawDataToMap(routesData, stationsData, colorsData) {
 
 window.initNaverMap = initNaverMap;
 window.drawDataToMap = drawDataToMap;
+window.selectRoute = function (routeId) {
+  window.naverMap.selectRouteById(routeId);
+};
 
 window.addEventListener("resize", () => {
   if (window.naverMap && window.naverMap.map) {
