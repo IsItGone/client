@@ -4,7 +4,7 @@ import 'package:client/features/home/widgets/bottom_drawer/widgets/route_detail.
 import 'package:client/features/home/widgets/bottom_drawer/widgets/station_detail.dart';
 import 'package:client/features/home/widgets/bottom_drawer/models/info_type.dart';
 import 'package:client/features/home/widgets/bottom_drawer/providers/bottom_drawer_provider.dart';
-import 'package:client/features/home/widgets/map/providers/station_providers.dart';
+import 'package:client/data/providers/station_providers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 

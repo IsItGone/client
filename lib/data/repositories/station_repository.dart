@@ -32,4 +32,21 @@ class StationRepository extends GraphQLRepository {
       throw Exception('서비스 연결에 문제가 발생했습니다.');
     }
   }
+
+  // searchStationsByKeyword
+  Future<
+      OperationResponse<GSearchStationsByKeywordData,
+          GSearchStationsByKeywordVars>> searchStationsByKeyword(
+      String keyword) async {
+    try {
+      final request =
+          GSearchStationsByKeywordReq((b) => b..vars.keyword = keyword);
+
+      final response = await executeQuery(request);
+      return response;
+    } catch (e) {
+      log('예상치 못한 오류: $e');
+      throw Exception('서비스 연결에 문제가 발생했습니다.');
+    }
+  }
 }
