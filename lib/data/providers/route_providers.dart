@@ -44,6 +44,8 @@ mixin RouteProviders {
         .toList();
     RouteColors.initializeColors(routes.map((route) => route.id).toList());
 
+    log('$routes');
+
     return routes;
   });
 

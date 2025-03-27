@@ -1,6 +1,6 @@
 import 'package:client/features/home/widgets/bottom_drawer/widgets/station_detail_info.dart';
-import 'package:client/features/home/widgets/map/providers/route_providers.dart';
-import 'package:client/features/home/widgets/map/providers/station_providers.dart';
+import 'package:client/data/providers/route_providers.dart';
+import 'package:client/data/providers/station_providers.dart';
 import 'package:client/shared/widgets/linear_route_button.dart';
 import 'package:client/shared/widgets/route_button.dart';
 import 'package:flutter/material.dart';
@@ -25,6 +25,37 @@ class StationDetail extends ConsumerStatefulWidget {
 class _StationDetailState extends ConsumerState<StationDetail> {
   late String selectedId = widget.routeIds[0];
   late Color selectedColor = widget.firstColor;
+  Map<String, dynamic> routeCache = {}; // 노선 데이터 캐시
+
+  @override
+  void initState() {
+    super.initState();
+    // 모든 노선 데이터를 미리 로드
+    _preloadRouteData();
+  }
+
+  Future<void> _preloadRouteData() async {
+    for (final routeId in widget.routeIds) {
+      try {
+        final route =
+            await ref.read(RouteProviders.routeByIdProvider(routeId).future);
+        routeCache[routeId] = {
+          'route': route,
+          'color': route.color,
+        };
+      } catch (e) {
+        // 오류 처리
+      }
+    }
+    if (mounted) setState(() {});
+  }
+
+  void _onRouteButtonPressed(String id, Color color) {
+    setState(() {
+      selectedId = id;
+      selectedColor = color;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -60,7 +91,9 @@ class _StationDetailState extends ConsumerState<StationDetail> {
                 child: StationDetailInfo(
                   station: station,
                   stationId: widget.stationId,
+                  routeId: selectedId,
                   color: selectedColor,
+                  routeCache: routeCache, // 캐시된 노선 데이터 전달
                 ),
               ),
             ],
@@ -74,44 +107,31 @@ class _StationDetailState extends ConsumerState<StationDetail> {
 
   Widget _buildRouteButtonList(List<String> routes) {
     return SizedBox(
-      height: 40, // RouteButton의 원하는 높이로 설정
-      child: SingleChildScrollView(
+      height: 40,
+      child: ListView.builder(
         scrollDirection: Axis.horizontal,
-        child: Row(
-          children: routes.map((routeId) {
-            return FutureBuilder(
-              future:
-                  ref.read(RouteProviders.routeByIdProvider(routeId).future),
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const SizedBox(width: 50, height: 40); // 로딩 중 빈 공간
-                }
-                if (snapshot.hasError) {
-                  return Text('오류: ${snapshot.error}');
-                }
-                final route = snapshot.data!;
-                return SizedBox(
-                  child: RouteButton(
-                    isSelected: selectedId == route.id,
-                    onPressed: () =>
-                        _onRouteButtonPressed(route.id, route.color),
-                    text: route.name.split("호차")[0],
-                    size: ButtonSize.md,
-                    color: route.color,
-                  ),
-                );
-              },
+        itemCount: routes.length,
+        itemBuilder: (context, index) {
+          final routeId = routes[index];
+
+          if (routeCache.containsKey(routeId)) {
+            final cachedData = routeCache[routeId];
+            final route = cachedData['route'];
+            return SizedBox(
+              height: 40,
+              child: RouteButton(
+                isSelected: selectedId == route.id,
+                onPressed: () => _onRouteButtonPressed(route.id, route.color),
+                text: route.name.split("호차")[0],
+                size: ButtonSize.md,
+                color: route.color,
+              ),
             );
-          }).toList(),
-        ),
+          }
+
+          return const SizedBox(width: 50, height: 40);
+        },
       ),
     );
-  }
-
-  void _onRouteButtonPressed(String id, Color color) {
-    setState(() {
-      selectedId = id;
-      selectedColor = color;
-    });
   }
 }

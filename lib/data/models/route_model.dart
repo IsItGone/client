@@ -50,8 +50,6 @@ class RouteModel {
         // ...
         return stationModel.copyWith(id: compositeId);
       }).toList(),
-      // .map((station) => StationModel.fromStation(station))
-      // .toList(),
       arrivalStations: (routeData.arrivalStations?.toList() ?? [])
           .where((station) => station != null)
           .map((station) => StationModel.fromStation(station))

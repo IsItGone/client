@@ -1,5 +1,4 @@
-import 'dart:developer';
-import 'package:client/features/home/widgets/map/providers/route_providers.dart';
+import 'package:client/data/providers/route_providers.dart';
 import 'package:client/shared/widgets/linear_route_button.dart';
 import 'package:client/shared/widgets/route_button.dart';
 import 'package:client/core/theme/theme.dart';
@@ -121,14 +120,8 @@ class RouteDetail extends ConsumerWidget {
                 ),
               ],
             ),
-            loading: () {
-              log('loading');
-              return null;
-            },
-            error: (Object error, StackTrace stackTrace) {
-              log('error: $error, stackTrace: $stackTrace');
-              return null;
-            },
+            loading: () => const Center(child: CircularProgressIndicator()),
+            error: (err, stack) => Text('에러 발생: $err'),
           ),
         ));
   }

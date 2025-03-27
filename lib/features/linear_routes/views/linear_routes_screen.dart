@@ -1,12 +1,11 @@
 import 'package:client/core/constants/route_colors.dart';
 import 'package:client/core/theme/theme.dart';
-import 'package:client/features/home/widgets/map/providers/route_providers.dart';
+import 'package:client/data/providers/route_providers.dart';
 import 'package:client/features/linear_routes/widgets/linear_routes_detail.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-// TODO: routeId, routeName, this.stationId
 class LinearRoutesScreen extends ConsumerWidget {
   final String routeId;
   final String? stationId;
