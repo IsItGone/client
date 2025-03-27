@@ -1,4 +1,5 @@
-import 'dart:developer';
+import 'dart:developer' as dev;
+import 'dart:math';
 
 import 'package:client/data/models/route_model.dart';
 import 'package:client/data/models/station_model.dart';
@@ -20,6 +21,58 @@ class OverlayService {
     required this.routePatternImage,
     required this.stationMarkerImage,
   });
+
+  Map<NLatLng, int> overlapCount = {};
+  Map<String, int> pathCount = {};
+
+  List<NLatLng> adjustPath(List<NLatLng> originalPath) {
+    // 2-1. Path를 문자열 또는 해시값으로 변환
+    String pathKey =
+        originalPath.map((e) => "${e.latitude},${e.longitude}").join(";");
+    int count = pathCount[pathKey] ?? 0; // 등장 횟수 확인
+
+    // 2-2. 겹치는 경우, 일정 거리만큼 밀어줌
+    double offset = 0.000001 * count; // 겹칠수록 더 많이 밀림
+
+    double dx = (originalPath.last.longitude - originalPath.first.longitude);
+    double dy = (originalPath.last.latitude - originalPath.first.latitude);
+    double magnitude = sqrt(dx * dx + dy * dy);
+
+    double offsetX = -dy / magnitude * offset;
+    double offsetY = dx / magnitude * offset;
+
+    // 2-3. 새로운 경로 생성 (밀어줌)
+    List<NLatLng> adjustedPath = originalPath
+        .map((coord) =>
+            NLatLng(coord.latitude + offsetY, coord.longitude + offsetX))
+        .toList();
+
+    // 2-4. 등장 횟수 증가
+    pathCount[pathKey] = count + 1;
+
+    return adjustedPath;
+  }
+
+  List<NLatLng> adjustRoute(List<NLatLng> originalPath) {
+    List<NLatLng> adjustedPath = [];
+    for (var coord in originalPath) {
+      int count = overlapCount[coord] ?? 0;
+      double offset = 0.000008 * count; // 겹치는 횟수에 따라 밀어줌
+      // 기존 좌표에서 offset을 추가 (경로 방향에 따라 법선 벡터 적용)
+      double dx = (originalPath.last.longitude - originalPath.first.longitude);
+      double dy = (originalPath.last.latitude - originalPath.first.latitude);
+      double magnitude = sqrt(dx * dx + dy * dy);
+      double offsetX = -dy / magnitude * offset;
+      double offsetY = dx / magnitude * offset;
+      adjustedPath
+          .add(NLatLng(coord.latitude + offsetY, coord.longitude + offsetX));
+      // 겹친 횟수 업데이트
+      overlapCount[coord] = count + 1;
+    }
+
+    dev.log('$overlapCount');
+    return adjustedPath;
+  }
 
   void setMapInteractionCallback(MapInteractionCallback callback) {
     _mapCallback = callback;
@@ -154,19 +207,22 @@ class OverlayService {
         .map((coords) => NMultipartPath(
               color: AppTheme.lineColors[index],
               outlineColor: AppTheme.lineColors[index],
-              coords: coords.map((item) => item['coord'] as NLatLng).toList(),
+              coords: adjustRoute(
+                coords.map((item) => item['coord'] as NLatLng).toList(),
+              ),
+              // coords.map((item) => item['coord'] as NLatLng).toList(),
             ))
         .toList();
 
     final overlay = NMultipartPathOverlay(
       id: '$id-${isExtended ? 'extended' : 'base'}',
-      width: 8,
+      width: 4,
       patternImage: isExtended ? routePatternImage : null,
       paths: paths,
     );
 
     overlay.setOnTapListener((NMultipartPathOverlay tappedOverlay) {
-      log('$tappedOverlay');
+      dev.log('tapped: $tappedOverlay');
       final routeId = tappedOverlay.info.id.split('-')[0];
       _mapCallback?.onRouteSelected(routeId);
     });
