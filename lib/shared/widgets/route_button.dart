@@ -77,7 +77,10 @@ class RouteButton extends StatelessWidget {
             );
 
       return Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 4.0),
+        padding: EdgeInsets.symmetric(
+          horizontal: 4.0,
+          vertical: size == ButtonSize.md ? 12.0 : 0,
+        ),
         child: isSelected
             ? FilledButton(
                 onPressed: onPressed,
