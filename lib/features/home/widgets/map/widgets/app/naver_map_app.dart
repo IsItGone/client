@@ -3,8 +3,8 @@ import 'dart:developer';
 import 'package:client/core/constants/constants.dart';
 import 'package:client/features/home/widgets/bottom_drawer/providers/bottom_drawer_provider.dart';
 import 'package:client/features/home/widgets/bottom_drawer/view_models/bottom_drawer_view_model.dart';
-import 'package:client/features/home/widgets/map/providers/route_providers.dart';
-import 'package:client/features/home/widgets/map/providers/station_providers.dart';
+import 'package:client/data/providers/route_providers.dart';
+import 'package:client/data/providers/station_providers.dart';
 import 'package:client/features/home/widgets/map/providers/naver_map_providers.dart';
 
 import 'package:flutter/material.dart';
@@ -16,7 +16,7 @@ class NaverMapWidget extends ConsumerStatefulWidget {
   const NaverMapWidget({super.key});
 
   @override
-  ConsumerState<ConsumerStatefulWidget> createState() => _NaverMapWidgetState();
+  ConsumerState<NaverMapWidget> createState() => _NaverMapWidgetState();
 }
 
 class _NaverMapWidgetState extends ConsumerState<NaverMapWidget> {

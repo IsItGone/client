@@ -1,21 +1,47 @@
 import 'package:client/core/theme/theme.dart';
 import 'package:client/data/models/station_model.dart';
+import 'package:client/data/providers/route_providers.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class StationDetailInfo extends StatelessWidget {
+class StationDetailInfo extends ConsumerWidget {
   const StationDetailInfo({
     super.key,
     required this.station,
     required this.stationId,
+    required this.routeId,
     required this.color,
+    required this.routeCache,
   });
 
   final StationModel station;
-  final String stationId;
+  final String stationId, routeId;
   final Color color;
+  final Map<String, dynamic> routeCache;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    // 캐시된 데이터가 있으면 사용
+    if (routeCache.containsKey(routeId)) {
+      final route = routeCache[routeId]['route'];
+      return _buildContent(context, route);
+    }
+
+    // 캐시된 데이터가 없으면 API 호출
+    final routeAsync = ref.watch(RouteProviders.routeByIdProvider(routeId));
+
+    return routeAsync.when(
+      data: (route) => _buildContent(context, route),
+      loading: () => const Center(child: CircularProgressIndicator()),
+      error: (error, stack) => Center(child: Text('오류가 발생했습니다: $error')),
+    );
+  }
+
+  Widget _buildContent(BuildContext context, dynamic route) {
+    // 이전/다음 정류장 찾기
+    final previousStation = _findAdjacentStation(route, stationId, true, false);
+    final nextStation = _findAdjacentStation(route, stationId, false, false);
+
     return LayoutBuilder(
       builder: (context, constraints) {
         final centerWidth = constraints.maxWidth / 3;
@@ -29,7 +55,7 @@ class StationDetailInfo extends StatelessWidget {
                 AdjacentStationButton(
                   alignment: MainAxisAlignment.start,
                   icon: Icons.chevron_left,
-                  text: "유성문화원", // TODO
+                  text: previousStation?.name ?? "이전 정류장 없음",
                   borderRadius: const BorderRadius.only(
                     topLeft: Radius.circular(20),
                     bottomLeft: Radius.circular(20),
@@ -38,13 +64,11 @@ class StationDetailInfo extends StatelessWidget {
                   ),
                   color: color,
                 ),
-                SizedBox(
-                  width: centerWidth - 5,
-                ),
+                SizedBox(width: centerWidth - 5),
                 AdjacentStationButton(
                   alignment: MainAxisAlignment.end,
                   icon: Icons.chevron_right,
-                  text: "현충원역", // TODO
+                  text: nextStation?.name ?? "다음 정류장 없음",
                   borderRadius: const BorderRadius.only(
                     topLeft: Radius.circular(4),
                     bottomLeft: Radius.circular(4),
@@ -91,6 +115,34 @@ class StationDetailInfo extends StatelessWidget {
       },
     );
   }
+
+  // 인접 정류장 찾기 함수
+  StationModel? _findAdjacentStation(
+      dynamic route, String stationId, bool isPrevious, bool useCompositeId) {
+    final isDeparture = station.isDeparture ?? true;
+    final stations =
+        isDeparture ? route.departureStations : route.arrivalStations;
+
+    // 정류장 인덱스 찾기
+    int index = -1;
+    for (int i = 0; i < stations.length; i++) {
+      final station = stations[i];
+      final id = useCompositeId ? station.id : station.id.split('_')[0];
+      if (id == stationId) {
+        index = i;
+        break;
+      }
+    }
+
+    if (index == -1) return null;
+
+    // 이전 또는 다음 정류장 반환
+    if (isPrevious) {
+      return index > 0 ? stations[index - 1] : null;
+    } else {
+      return index < stations.length - 1 ? stations[index + 1] : null;
+    }
+  }
 }
 
 class AdjacentStationButton extends StatelessWidget {
@@ -124,7 +176,7 @@ class AdjacentStationButton extends StatelessWidget {
             shape: RoundedRectangleBorder(borderRadius: borderRadius),
             backgroundColor: Colors.transparent,
           ),
-          onPressed: () {},
+          onPressed: () {}, // TODO:
           child: Row(
             mainAxisAlignment: alignment,
             children: [
@@ -138,7 +190,8 @@ class AdjacentStationButton extends StatelessWidget {
                     fontWeight: FontWeight.bold,
                     color: AppTheme.mainWhite,
                   ),
-                  overflow: TextOverflow.ellipsis,
+                  maxLines: 3,
+                  overflow: TextOverflow.visible,
                 ),
               ),
               if (alignment == MainAxisAlignment.end)

@@ -1,10 +1,9 @@
-import 'dart:developer';
-
 import 'package:client/core/theme/theme.dart';
 import 'package:client/data/models/station_model.dart';
 import 'package:flutter/material.dart';
 
-class LinearRoutesDetail extends StatefulWidget {
+// TODO: 전달받은 stationId 배경색
+class LinearRoutesDetail extends StatelessWidget {
   final String? stationId;
   final String routeId;
   final List<StationModel> departureStations, arrivalStations;
@@ -18,20 +17,14 @@ class LinearRoutesDetail extends StatefulWidget {
   });
 
   @override
-  State<LinearRoutesDetail> createState() => _LinearRoutesDetailState();
-}
-
-class _LinearRoutesDetailState extends State<LinearRoutesDetail> {
-  @override
   Widget build(BuildContext context) {
     final allStations = [
-      ...widget.departureStations,
-      ...widget.departureStations.isNotEmpty &&
-              widget.arrivalStations.isNotEmpty &&
-              widget.departureStations.last.name ==
-                  widget.arrivalStations.first.name
-          ? widget.arrivalStations.sublist(1)
-          : widget.arrivalStations,
+      ...departureStations,
+      ...departureStations.isNotEmpty &&
+              arrivalStations.isNotEmpty &&
+              departureStations.last.name == arrivalStations.first.name
+          ? arrivalStations.sublist(1)
+          : arrivalStations,
     ];
 
     return Padding(
@@ -44,7 +37,7 @@ class _LinearRoutesDetailState extends State<LinearRoutesDetail> {
             isHighlighted: false, // TODO: 실시간 위치
             stopName: station.name ?? '정류장 정보 없음',
             isFirst: index == 0,
-            isTurnAround: index == widget.departureStations.length - 1,
+            isTurnAround: index == departureStations.length - 1,
             isLast: index == allStations.length - 1,
             index: index,
             stopTime: station.stopTime,

@@ -23,8 +23,7 @@ class NaverMapViewModel extends StateNotifier<MapState>
 
   @override
   void onRouteSelected(String routeId) {
-    //TODO  routeId: 호차 번호 -> 노선 ID
-    log('clicked : $routeId');
+    log('selected: $routeId');
     _drawerNotifier.updateInfoId(routeId);
     _drawerNotifier.openDrawer(InfoType.route);
     if (!kIsWeb) {

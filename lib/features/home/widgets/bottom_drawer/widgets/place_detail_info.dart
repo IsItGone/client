@@ -36,14 +36,9 @@ const List<Map<String, dynamic>> nearStations = [
   },
 ];
 
-class PlaceDetailInfo extends StatefulWidget {
+class PlaceDetailInfo extends StatelessWidget {
   const PlaceDetailInfo({super.key});
 
-  @override
-  State<PlaceDetailInfo> createState() => _PlaceDetailInfoState();
-}
-
-class _PlaceDetailInfoState extends State<PlaceDetailInfo> {
   @override
   Widget build(BuildContext context) {
     return SliverList(
@@ -86,6 +81,7 @@ class StationItem extends StatelessWidget {
                   .map(
                     (line) => RouteButton(
                       //TODO
+                      color: Colors.red,
                       isSelected: true,
                       text: line,
                       size: ButtonSize.sm,
