@@ -1,6 +1,4 @@
 import 'dart:developer';
-import 'dart:js_interop';
-
 import 'package:client/core/constants/route_colors.dart';
 import 'package:client/data/models/route_model.dart';
 import 'package:client/features/home/widgets/bottom_drawer/bottom_drawer.dart';
@@ -14,9 +12,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:pointer_interceptor/pointer_interceptor.dart';
-
-@JS('selectRoute')
-external void selectRouteJS(String routeId);
+import 'package:client/features/home/widgets/map/widgets/web/naver_map_js_interop_stub.dart'
+    if (dart.library.js_interop) 'package:client/features/home/widgets/map/widgets/web/naver_map_js_interop_web.dart';
 
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({

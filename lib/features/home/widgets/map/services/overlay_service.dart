@@ -70,7 +70,6 @@ class OverlayService {
       overlapCount[coord] = count + 1;
     }
 
-    dev.log('$overlapCount');
     return adjustedPath;
   }
 
