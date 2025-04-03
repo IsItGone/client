@@ -28,7 +28,7 @@ class NaverMapViewModel extends StateNotifier<MapState>
     _drawerNotifier.openDrawer(InfoType.route);
     if (!kIsWeb) {
       if (state.mapController != null &&
-          state.currentZoom >= MapConstants.minZoomBase) {
+          state.currentZoom >= MapConstants.baseZoomLevel) {
         selectRoute(routeId);
         moveCamera(MapConstants.defaultCameraPosition, 10.5);
       }
@@ -36,15 +36,15 @@ class NaverMapViewModel extends StateNotifier<MapState>
   }
 
   @override
-  void onStationSelected(String stationId, NLatLng? position) {
+  void onStationSelected(String stationId, double lat, double lng) {
     _drawerNotifier.updateInfoId(stationId);
     _drawerNotifier.openDrawer(InfoType.station);
     if (!kIsWeb) {
-      moveCamera(position!, 17);
+      moveCamera(NLatLng(lat, lng), 17);
     }
   }
 
-  void initializeMap(
+  Set<NAddableOverlay<NOverlay<void>>> initializeMap(
     NaverMapController controller,
     List<RouteModel> routes,
     List<StationModel> stations,
@@ -66,11 +66,12 @@ class NaverMapViewModel extends StateNotifier<MapState>
       extendedStations: overlayData['extendedStations'],
     );
 
-    setZoomLevels(); // 줌 레벨 설정 추가
     _updateDefaultVisibility(); // 초기 가시성 설정
+    return getAllOverlays(); // 오버레이 반환
   }
 
   Set<NAddableOverlay<NOverlay<void>>> getAllOverlays() {
+    log('${state.routeOverlays.values.expand((map) => map.values).length}');
     return {
       ...state.routeOverlays.values.expand((map) => map.values),
       ...state.baseStations,
@@ -116,10 +117,10 @@ class NaverMapViewModel extends StateNotifier<MapState>
     final currentZoom = state.currentZoom;
 
     if (selectedRouteId != null && selectedRouteId.isNotEmpty) {
-      if (currentZoom >= MapConstants.minZoomExtended) {
+      if (currentZoom >= MapConstants.normalZoomLevel) {
         // 줌 레벨이 14 이상일 때 상세 경로와 정류장 표시
         _updateSelectedRouteVisibility(true);
-      } else if (currentZoom >= MapConstants.minZoomBase) {
+      } else if (currentZoom >= MapConstants.baseZoomLevel) {
         // 줌 레벨이 12 이상일 때 기본 경로와 정류장 표시
         _updateSelectedRouteVisibility(false);
       } else {
@@ -226,7 +227,7 @@ class NaverMapViewModel extends StateNotifier<MapState>
         bool isExtendedRoute = overlay.info.id.contains('extended');
         if (isExtendedRoute) {
           // 상세 경로는 줌 레벨에 따라 표시
-          overlay.setIsVisible(currentZoom >= MapConstants.minZoomExtended);
+          overlay.setIsVisible(currentZoom >= MapConstants.normalZoomLevel);
         } else {
           // 기본 경로는 항상 표시 (줌 레벨 체크 제거)
           overlay.setIsVisible(true);
@@ -236,10 +237,10 @@ class NaverMapViewModel extends StateNotifier<MapState>
 
     // 정류장 마커 가시성 설정
     for (var station in state.baseStations) {
-      station.setIsVisible(currentZoom >= MapConstants.minZoomBase);
+      station.setIsVisible(currentZoom >= MapConstants.baseZoomLevel);
     }
     for (var station in state.extendedStations) {
-      station.setIsVisible(currentZoom >= MapConstants.minZoomExtended);
+      station.setIsVisible(currentZoom >= MapConstants.normalZoomLevel);
     }
   }
 
@@ -250,12 +251,12 @@ class NaverMapViewModel extends StateNotifier<MapState>
         bool isExtendedRoute = overlay.info.id.contains('extended');
         if (isExtendedRoute) {
           // 상세 경로는 14-21 줌 레벨
-          overlay.setMinZoom(14);
-          overlay.setMaxZoom(21);
+          overlay.setMinZoom(MapConstants.normalZoomLevel);
+          overlay.setMaxZoom(MapConstants.maxZoomLevel);
         } else {
           // 기본 경로는 0-14 줌 레벨 (항상 보이도록)
-          overlay.setMinZoom(0);
-          overlay.setMaxZoom(14);
+          overlay.setMinZoom(MapConstants.minZoomLevel);
+          overlay.setMaxZoom(MapConstants.normalZoomLevel);
         }
       }
     }
@@ -263,14 +264,14 @@ class NaverMapViewModel extends StateNotifier<MapState>
     // 정류장 마커 줌 레벨 제한 설정
     for (var station in state.baseStations) {
       // 기본 정류장은 12-21 줌 레벨
-      station.setMinZoom(12);
-      station.setMaxZoom(21);
+      station.setMinZoom(MapConstants.baseZoomLevel);
+      station.setMaxZoom(MapConstants.maxZoomLevel);
     }
 
     for (var station in state.extendedStations) {
       // 상세 정류장은 14-21 줌 레벨
-      station.setMinZoom(14);
-      station.setMaxZoom(21);
+      station.setMinZoom(MapConstants.normalZoomLevel);
+      station.setMaxZoom(MapConstants.maxZoomLevel);
     }
 
     // 최소/최대 줌 포함 여부 설정

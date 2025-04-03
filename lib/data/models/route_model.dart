@@ -45,10 +45,11 @@ class RouteModel {
           .where((station) => station != null)
           .map((station) {
         final compositeId = "${station?.id}_$routeId";
-        final stationModel =
-            StationModel.fromStation(station, routeId: routeId);
-        // ...
-        return stationModel.copyWith(id: compositeId);
+        final stationModel = StationModel.fromStation(
+          station,
+          routeId: routeId,
+        );
+        return stationModel.copyWith(compositeId: compositeId);
       }).toList(),
       arrivalStations: (routeData.arrivalStations?.toList() ?? [])
           .where((station) => station != null)

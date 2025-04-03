@@ -1,6 +1,7 @@
 import 'package:client/core/theme/theme.dart';
 import 'package:client/data/models/station_model.dart';
 import 'package:client/data/providers/route_providers.dart';
+import 'package:client/features/home/widgets/map/providers/naver_map_providers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -24,23 +25,23 @@ class StationDetailInfo extends ConsumerWidget {
     // 캐시된 데이터가 있으면 사용
     if (routeCache.containsKey(routeId)) {
       final route = routeCache[routeId]['route'];
-      return _buildContent(context, route);
+      return _buildContent(context, route, ref);
     }
 
     // 캐시된 데이터가 없으면 API 호출
     final routeAsync = ref.watch(RouteProviders.routeByIdProvider(routeId));
 
     return routeAsync.when(
-      data: (route) => _buildContent(context, route),
+      data: (route) => _buildContent(context, route, ref),
       loading: () => const Center(child: CircularProgressIndicator()),
       error: (error, stack) => Center(child: Text('오류가 발생했습니다: $error')),
     );
   }
 
-  Widget _buildContent(BuildContext context, dynamic route) {
+  Widget _buildContent(BuildContext context, dynamic route, WidgetRef ref) {
     // 이전/다음 정류장 찾기
-    final previousStation = _findAdjacentStation(route, stationId, true, false);
-    final nextStation = _findAdjacentStation(route, stationId, false, false);
+    final previousStation = _findAdjacentStation(route, stationId, true);
+    final nextStation = _findAdjacentStation(route, stationId, false);
 
     return LayoutBuilder(
       builder: (context, constraints) {
@@ -53,29 +54,19 @@ class StationDetailInfo extends ConsumerWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 AdjacentStationButton(
-                  alignment: MainAxisAlignment.start,
-                  icon: Icons.chevron_left,
-                  text: previousStation?.name ?? "이전 정류장 없음",
-                  borderRadius: const BorderRadius.only(
-                    topLeft: Radius.circular(20),
-                    bottomLeft: Radius.circular(20),
-                    topRight: Radius.circular(4),
-                    bottomRight: Radius.circular(4),
-                  ),
+                  station: previousStation,
+                  isPrevious: true,
                   color: color,
+                  onStationTapped: (station) =>
+                      _navigateToStation(context, station, ref),
                 ),
                 SizedBox(width: centerWidth - 5),
                 AdjacentStationButton(
-                  alignment: MainAxisAlignment.end,
-                  icon: Icons.chevron_right,
-                  text: nextStation?.name ?? "다음 정류장 없음",
-                  borderRadius: const BorderRadius.only(
-                    topLeft: Radius.circular(4),
-                    bottomLeft: Radius.circular(4),
-                    topRight: Radius.circular(20),
-                    bottomRight: Radius.circular(20),
-                  ),
+                  station: nextStation,
+                  isPrevious: false,
                   color: color,
+                  onStationTapped: (station) =>
+                      _navigateToStation(context, station, ref),
                 ),
               ],
             ),
@@ -116,31 +107,44 @@ class StationDetailInfo extends ConsumerWidget {
     );
   }
 
+  // 인접 정류장으로 이동하는 함수
+  void _navigateToStation(
+      BuildContext context, StationModel? station, WidgetRef ref) {
+    if (station == null) return;
+
+    ref.read(naverMapViewModelProvider.notifier).onStationSelected(
+          station.id,
+          station.latitude!,
+          station.longitude!,
+        );
+  }
+
   // 인접 정류장 찾기 함수
   StationModel? _findAdjacentStation(
-      dynamic route, String stationId, bool isPrevious, bool useCompositeId) {
+      dynamic route, String stationId, bool isPrevious) {
     final isDeparture = station.isDeparture ?? true;
     final stations =
         isDeparture ? route.departureStations : route.arrivalStations;
 
     // 정류장 인덱스 찾기
-    int index = -1;
-    for (int i = 0; i < stations.length; i++) {
-      final station = stations[i];
-      final id = useCompositeId ? station.id : station.id.split('_')[0];
-      if (id == stationId) {
-        index = i;
-        break;
-      }
-    }
+    int index = stations.indexWhere((s) => s.id == stationId);
 
     if (index == -1) return null;
 
     // 이전 또는 다음 정류장 반환
     if (isPrevious) {
+      // 회차 정류장인 경우
+      if (index == 0 && !isDeparture) {
+        return route.departureStations[route.departureStations.length - 2];
+      }
       return index > 0 ? stations[index - 1] : null;
     } else {
-      return index < stations.length - 1 ? stations[index + 1] : null;
+      // 회차 정류장인 경우
+      if (index == stations.length - 1 && isDeparture) {
+        return route.arrivalStations[1];
+      } else {
+        return index < stations.length - 1 ? stations[index + 1] : null;
+      }
     }
   }
 }
@@ -148,21 +152,37 @@ class StationDetailInfo extends ConsumerWidget {
 class AdjacentStationButton extends StatelessWidget {
   const AdjacentStationButton({
     super.key,
-    required this.alignment,
-    required this.icon,
-    required this.text,
-    required this.borderRadius,
+    required this.station,
+    required this.isPrevious,
     required this.color,
+    required this.onStationTapped, // 콜백 함수 추가
   });
 
-  final MainAxisAlignment alignment;
-  final IconData icon;
-  final String text;
-  final BorderRadius borderRadius;
+  final StationModel? station;
+  final bool isPrevious;
   final Color color;
+  final Function(StationModel?) onStationTapped;
 
   @override
   Widget build(BuildContext context) {
+    final String text = station?.name ?? '${isPrevious ? "이전" : "다음"} 정류장 없음';
+    final IconData icon = isPrevious ? Icons.chevron_left : Icons.chevron_right;
+    final MainAxisAlignment alignment =
+        isPrevious ? MainAxisAlignment.start : MainAxisAlignment.end;
+    final BorderRadius borderRadius = isPrevious
+        ? const BorderRadius.only(
+            topLeft: Radius.circular(20),
+            bottomLeft: Radius.circular(20),
+            topRight: Radius.circular(4),
+            bottomRight: Radius.circular(4),
+          )
+        : const BorderRadius.only(
+            topLeft: Radius.circular(4),
+            bottomLeft: Radius.circular(4),
+            topRight: Radius.circular(20),
+            bottomRight: Radius.circular(20),
+          );
+
     return Expanded(
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 300),
@@ -173,15 +193,18 @@ class AdjacentStationButton extends StatelessWidget {
         child: FilledButton(
           style: FilledButton.styleFrom(
             padding: const EdgeInsets.symmetric(horizontal: 6),
-            shape: RoundedRectangleBorder(borderRadius: borderRadius),
+            shape: RoundedRectangleBorder(
+              borderRadius: borderRadius,
+            ),
             backgroundColor: Colors.transparent,
           ),
-          onPressed: () {}, // TODO:
+          onPressed: () {
+            onStationTapped(station);
+          },
           child: Row(
             mainAxisAlignment: alignment,
             children: [
-              if (alignment == MainAxisAlignment.start)
-                Icon(icon, color: AppTheme.mainWhite),
+              if (isPrevious) Icon(icon, color: AppTheme.mainWhite),
               Flexible(
                 child: Text(
                   text,
@@ -190,12 +213,11 @@ class AdjacentStationButton extends StatelessWidget {
                     fontWeight: FontWeight.bold,
                     color: AppTheme.mainWhite,
                   ),
-                  maxLines: 3,
+                  maxLines: 2,
                   overflow: TextOverflow.visible,
                 ),
               ),
-              if (alignment == MainAxisAlignment.end)
-                Icon(icon, color: AppTheme.mainWhite),
+              if (!isPrevious) Icon(icon, color: AppTheme.mainWhite),
             ],
           ),
         ),
