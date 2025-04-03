@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:client/core/constants/route_colors.dart';
 import 'package:client/data/graphql/queries/route/index.dart';
 import 'package:client/data/models/route_model.dart';
@@ -43,8 +41,6 @@ mixin RouteProviders {
         .map((routeData) => RouteModel.fromRouteList(routeData!))
         .toList();
     RouteColors.initializeColors(routes.map((route) => route.id).toList());
-
-    log('$routes');
 
     return routes;
   });
