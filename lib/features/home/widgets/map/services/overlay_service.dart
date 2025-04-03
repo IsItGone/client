@@ -1,6 +1,7 @@
 import 'dart:developer' as dev;
 import 'dart:math';
 
+import 'package:client/core/constants/constants.dart';
 import 'package:client/data/models/route_model.dart';
 import 'package:client/data/models/station_model.dart';
 import 'package:client/features/home/widgets/bottom_drawer/view_models/bottom_drawer_view_model.dart';
@@ -9,7 +10,7 @@ import 'package:flutter_naver_map/flutter_naver_map.dart';
 
 abstract class MapInteractionCallback {
   void onRouteSelected(String routeId);
-  void onStationSelected(String stationId, NLatLng position);
+  void onStationSelected(String stationId, double lat, double lng);
 }
 
 class OverlayService {
@@ -25,52 +26,69 @@ class OverlayService {
   Map<NLatLng, int> overlapCount = {};
   Map<String, int> pathCount = {};
 
-  List<NLatLng> adjustPath(List<NLatLng> originalPath) {
-    // 2-1. Path를 문자열 또는 해시값으로 변환
-    String pathKey =
-        originalPath.map((e) => "${e.latitude},${e.longitude}").join(";");
-    int count = pathCount[pathKey] ?? 0; // 등장 횟수 확인
+  List<NLatLng> adjustRoute(List<NLatLng> originalPath, int routeIndex) {
+    List<NLatLng> curvedPath = [];
 
-    // 2-2. 겹치는 경우, 일정 거리만큼 밀어줌
-    double offset = 0.000001 * count; // 겹칠수록 더 많이 밀림
+    // 노선별로 다른 곡률 적용
+    double baseCurveFactor = 0.0003;
+    double curveFactor = baseCurveFactor * (1 + (routeIndex % 3) * 0.2);
 
-    double dx = (originalPath.last.longitude - originalPath.first.longitude);
-    double dy = (originalPath.last.latitude - originalPath.first.latitude);
-    double magnitude = sqrt(dx * dx + dy * dy);
+    // 홀수/짝수 노선에 따라 곡률 방향 반대로 설정
+    int direction = routeIndex % 2 == 0 ? 1 : -1;
+    curveFactor *= direction;
 
-    double offsetX = -dy / magnitude * offset;
-    double offsetY = dx / magnitude * offset;
+    for (int i = 0; i < originalPath.length - 1; i++) {
+      NLatLng start = originalPath[i];
+      NLatLng end = originalPath[i + 1];
 
-    // 2-3. 새로운 경로 생성 (밀어줌)
-    List<NLatLng> adjustedPath = originalPath
-        .map((coord) =>
-            NLatLng(coord.latitude + offsetY, coord.longitude + offsetX))
-        .toList();
+      List<NLatLng> curveSegment = createBezierCurve(start, end, curveFactor);
 
-    // 2-4. 등장 횟수 증가
-    pathCount[pathKey] = count + 1;
+      // 중복 포인트 제거
+      if (i > 0) {
+        curveSegment = curveSegment.sublist(1);
+      }
 
-    return adjustedPath;
-  }
-
-  List<NLatLng> adjustRoute(List<NLatLng> originalPath) {
-    List<NLatLng> adjustedPath = [];
-    for (var coord in originalPath) {
-      int count = overlapCount[coord] ?? 0;
-      double offset = 0.000008 * count; // 겹치는 횟수에 따라 밀어줌
-      // 기존 좌표에서 offset을 추가 (경로 방향에 따라 법선 벡터 적용)
-      double dx = (originalPath.last.longitude - originalPath.first.longitude);
-      double dy = (originalPath.last.latitude - originalPath.first.latitude);
-      double magnitude = sqrt(dx * dx + dy * dy);
-      double offsetX = -dy / magnitude * offset;
-      double offsetY = dx / magnitude * offset;
-      adjustedPath
-          .add(NLatLng(coord.latitude + offsetY, coord.longitude + offsetX));
-      // 겹친 횟수 업데이트
-      overlapCount[coord] = count + 1;
+      curvedPath.addAll(curveSegment);
     }
 
-    return adjustedPath;
+    return curvedPath;
+  }
+
+  List<NLatLng> createBezierCurve(
+      NLatLng start, NLatLng end, double curveFactor) {
+    List<NLatLng> curvePoints = [];
+
+    // 제어점 계산 (곡선의 높이 조절)
+    double midLat = (start.latitude + end.latitude) / 2;
+    double midLng = (start.longitude + end.longitude) / 2;
+
+    // 수직 방향 오프셋 계산
+    double dx = end.longitude - start.longitude;
+    double dy = end.latitude - start.latitude;
+    double normalX = -dy;
+    double normalY = dx;
+    double distance = sqrt(dx * dx + dy * dy);
+
+    // 제어점 (곡선의 정점)
+    NLatLng controlPoint = NLatLng(midLat + normalY / distance * curveFactor,
+        midLng + normalX / distance * curveFactor);
+
+    // 곡선에 포인트 추가
+    final steps = 20;
+    for (int i = 0; i <= steps; i++) {
+      double t = i / steps;
+      double lat =
+          _bezierPoint(start.latitude, controlPoint.latitude, end.latitude, t);
+      double lng = _bezierPoint(
+          start.longitude, controlPoint.longitude, end.longitude, t);
+      curvePoints.add(NLatLng(lat, lng));
+    }
+
+    return curvePoints;
+  }
+
+  double _bezierPoint(double p0, double p1, double p2, double t) {
+    return (1 - t) * (1 - t) * p0 + 2 * (1 - t) * t * p1 + t * t * p2;
   }
 
   void setMapInteractionCallback(MapInteractionCallback callback) {
@@ -208,11 +226,10 @@ class OverlayService {
               outlineColor: AppTheme.lineColors[index],
               coords: adjustRoute(
                 coords.map((item) => item['coord'] as NLatLng).toList(),
+                index, // 노선 인덱스 전달
               ),
-              // coords.map((item) => item['coord'] as NLatLng).toList(),
             ))
         .toList();
-
     final overlay = NMultipartPathOverlay(
       id: '$id-${isExtended ? 'extended' : 'base'}',
       width: 4,
@@ -237,17 +254,26 @@ class OverlayService {
     final baseStations = <NAddableOverlay<NOverlay<void>>>{};
     final extendedStations = <NAddableOverlay<NOverlay<void>>>{};
 
+    Map<String, StationModel> coordMap = {};
+
     for (var station in stations) {
       if (station.latitude != null && station.longitude != null) {
-        final marker = _createStationMarker(
-          station,
-          drawerNotifier,
-        );
+        String coordKey = '${station.latitude},${station.longitude}';
 
-        if (station.isDeparture != null && station.isDeparture == true) {
-          baseStations.add(marker);
-        } else {
-          extendedStations.add(marker);
+        // 회차 정류장 처리: 동일한 좌표를 가진 경우 하나의 마커만 추가
+        if (!coordMap.containsKey(coordKey)) {
+          coordMap[coordKey] = station;
+
+          final marker = _createStationMarker(
+            station,
+            drawerNotifier,
+          );
+
+          if (station.isDeparture != null && station.isDeparture == true) {
+            baseStations.add(marker);
+          } else {
+            extendedStations.add(marker);
+          }
         }
       }
     }
@@ -275,7 +301,8 @@ class OverlayService {
     marker.setOnTapListener((NMarker marker) {
       _mapCallback?.onStationSelected(
         marker.info.id,
-        marker.position,
+        marker.position.latitude,
+        marker.position.longitude,
       );
     });
 
@@ -287,15 +314,31 @@ class OverlayService {
     Set<NAddableOverlay<NOverlay<void>>> baseStations,
     Set<NAddableOverlay<NOverlay<void>>> extendedStations,
   ) {
-    _setZoomForOverlays(baseStations, 12, 21);
-    _setZoomForOverlays(extendedStations, 14, 21);
+    _setZoomForOverlays(
+      baseStations,
+      MapConstants.baseZoomLevel,
+      MapConstants.maxZoomLevel,
+    );
+    _setZoomForOverlays(
+      extendedStations,
+      MapConstants.normalZoomLevel,
+      MapConstants.maxZoomLevel,
+    );
   }
 
   void _setRouteZoomLevels(
     Map<String, Set<NAddableOverlay<NOverlay<void>>>> overlays,
   ) {
-    _setZoomForOverlays(overlays['baseRoutes']!, 0, 21);
-    _setZoomForOverlays(overlays['extendedRoutes']!, 14, 21);
+    _setZoomForOverlays(
+      overlays['baseRoutes']!,
+      MapConstants.minZoomLevel,
+      MapConstants.maxZoomLevel,
+    );
+    _setZoomForOverlays(
+      overlays['extendedRoutes']!,
+      MapConstants.normalZoomLevel,
+      MapConstants.maxZoomLevel,
+    );
   }
 
   void _setZoomForOverlays(
@@ -307,7 +350,7 @@ class OverlayService {
       overlay.setMinZoom(minZoom);
       overlay.setMaxZoom(maxZoom);
       overlay.setIsMinZoomInclusive(true);
-      overlay.setIsMaxZoomInclusive(maxZoom == 21);
+      overlay.setIsMaxZoomInclusive(maxZoom == MapConstants.maxZoomLevel);
     }
   }
 }

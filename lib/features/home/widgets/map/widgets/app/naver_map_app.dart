@@ -71,14 +71,13 @@ class _NaverMapWidgetState extends ConsumerState<NaverMapWidget> {
 
           final mapViewModel = ref.read(naverMapViewModelProvider.notifier);
           // 지도 초기화 및 오버레이 생성
-          mapViewModel.initializeMap(
+          final overlays = mapViewModel.initializeMap(
             controller,
             routesData,
             stationsData,
             drawerNotifier,
           );
           // 생성된 오버레이 추가
-          final overlays = mapViewModel.getAllOverlays();
           controller.addOverlayAll(overlays);
         } catch (e) {
           // 에러 처리
