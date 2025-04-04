@@ -13,7 +13,8 @@ class BottomDrawerViewModel extends ChangeNotifier {
 
   InfoType get infoType => _state.type;
   bool get isDrawerOpen => _state.isOpen;
-  String get infoId => _state.infoId;
+  String? get stationId => _state.stationId;
+  String? get routeId => _state.routeId;
 
   void setAnimationController(AnimationController controller) {
     _state = _state.copyWith(animationController: controller);
@@ -42,13 +43,18 @@ class BottomDrawerViewModel extends ChangeNotifier {
 
       // 선택 상태 초기화
       _ref.read(naverMapViewModelProvider.notifier).resetSelection();
+      updateInfoId(null, null);
       notifyListeners();
     }
   }
 
-  void updateInfoId(String id) {
-    if (_state.infoId != id) {
-      _state = _state.copyWith(infoId: id);
+  void updateInfoId(String? stationId, String? routeId) {
+    if (_state.stationId != stationId) {
+      _state = _state.copyWith(stationId: stationId);
+      notifyListeners();
+    }
+    if (_state.routeId != routeId) {
+      _state = _state.copyWith(routeId: routeId);
       notifyListeners();
     }
   }

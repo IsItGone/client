@@ -2,26 +2,30 @@ import 'package:flutter/material.dart';
 import 'info_type.dart';
 
 class DrawerState {
-  final String infoId;
+  final String? stationId;
+  final String? routeId;
   final bool isOpen;
   final InfoType type;
   final AnimationController? animationController;
 
   const DrawerState({
-    this.infoId = "",
+    this.stationId,
+    this.routeId,
     this.isOpen = false,
     this.type = InfoType.station,
     this.animationController,
   });
 
   DrawerState copyWith({
-    String? infoId,
+    String? stationId,
+    String? routeId,
     bool? isOpen,
     InfoType? type,
     AnimationController? animationController,
   }) {
     return DrawerState(
-      infoId: infoId ?? this.infoId,
+      stationId: stationId ?? this.stationId,
+      routeId: routeId ?? this.routeId,
       isOpen: isOpen ?? this.isOpen,
       type: type ?? this.type,
       animationController: animationController ?? this.animationController,

@@ -1,6 +1,7 @@
 import 'package:client/core/theme/theme.dart';
 import 'package:client/data/models/station_model.dart';
 import 'package:client/data/providers/route_providers.dart';
+import 'package:client/features/home/widgets/bottom_drawer/providers/bottom_drawer_provider.dart';
 import 'package:client/features/home/widgets/map/providers/naver_map_providers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -117,6 +118,12 @@ class StationDetailInfo extends ConsumerWidget {
           station.latitude!,
           station.longitude!,
         );
+
+    // 드로어 상태 업데이트 - 현재 선택된 노선 유지
+    ref.read(bottomDrawerProvider.notifier).updateInfoId(
+          station.id,
+          routeId, // 현재 선택된 노선 ID 유지
+        );
   }
 
   // 인접 정류장 찾기 함수
@@ -186,21 +193,25 @@ class AdjacentStationButton extends StatelessWidget {
     return Expanded(
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 300),
-        decoration: BoxDecoration(
-          borderRadius: borderRadius,
-          color: color,
-        ),
+        // decoration: BoxDecoration(
+        //   // borderRadius: borderRadius,
+        //   color: color.withOpacity(0.5),
+        // ),
         child: FilledButton(
           style: FilledButton.styleFrom(
+            fixedSize: Size(0, 50),
             padding: const EdgeInsets.symmetric(horizontal: 6),
             shape: RoundedRectangleBorder(
               borderRadius: borderRadius,
             ),
-            backgroundColor: Colors.transparent,
+            backgroundColor: color,
+            disabledBackgroundColor: color.withOpacity(0.7),
           ),
-          onPressed: () {
-            onStationTapped(station);
-          },
+          onPressed: station == null
+              ? null
+              : () {
+                  onStationTapped(station);
+                },
           child: Row(
             mainAxisAlignment: alignment,
             children: [
@@ -249,7 +260,7 @@ class CurrentStationButton extends StatelessWidget {
           side: BorderSide(color: color, width: 4),
           backgroundColor: AppTheme.mainWhite,
         ),
-        onPressed: () {},
+        onPressed: null,
         child: Text(
           text,
           style: const TextStyle(

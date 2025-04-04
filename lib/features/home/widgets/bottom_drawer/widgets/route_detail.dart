@@ -6,12 +6,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class RouteDetail extends ConsumerWidget {
-  final String routeId;
+  final String? routeId;
   const RouteDetail(this.routeId, {super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final routeAsync = ref.watch(RouteProviders.routeByIdProvider(routeId));
+    if (routeId == null) {
+      return const Center(child: Text('노선을 선택하세요.'));
+    }
+
+    final routeAsync = ref.watch(RouteProviders.routeByIdProvider(routeId!));
 
     return Container(
         padding: const EdgeInsets.all(12),
