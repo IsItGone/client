@@ -30,7 +30,7 @@ class OverlayService {
     List<NLatLng> curvedPath = [];
 
     // 노선별로 다른 곡률 적용
-    double baseCurveFactor = 0.0003;
+    double baseCurveFactor = 0.0001;
     double curveFactor = baseCurveFactor * (1 + (routeIndex % 3) * 0.2);
 
     // 홀수/짝수 노선에 따라 곡률 방향 반대로 설정
@@ -232,7 +232,7 @@ class OverlayService {
         .toList();
     final overlay = NMultipartPathOverlay(
       id: '$id-${isExtended ? 'extended' : 'base'}',
-      width: 4,
+      width: 3,
       patternImage: isExtended ? routePatternImage : null,
       paths: paths,
     );

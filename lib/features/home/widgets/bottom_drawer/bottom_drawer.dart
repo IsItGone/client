@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:client/core/constants/route_colors.dart' show RouteColors;
 import 'package:client/features/home/widgets/bottom_drawer/widgets/place_detail.dart';
 import 'package:client/features/home/widgets/bottom_drawer/widgets/route_detail.dart';
@@ -36,35 +38,51 @@ class BottomDrawer extends ConsumerWidget {
         ],
       ),
       child: switch (drawerState.infoType) {
-        InfoType.station => _buildStationDetail(ref, drawerState.infoId),
+        InfoType.station => _buildStationDetail(
+            ref,
+            drawerState.stationId,
+            drawerState.routeId,
+          ),
         InfoType.place => const PlaceDetail(),
-        InfoType.route => RouteDetail(drawerState.infoId),
+        InfoType.route => RouteDetail(drawerState.routeId),
       },
     );
   }
 }
 
-Widget _buildStationDetail(WidgetRef ref, String stationId) {
+Widget _buildStationDetail(WidgetRef ref, String? stationId, String? routeId) {
+  if (stationId == null) {
+    return const Center(child: Text('정류장을 선택하세요.'));
+  }
+
   final stationAsync =
       ref.watch(StationProviders.stationByIdProvider(stationId));
 
   return stationAsync.when(
     data: (station) {
       if (station.routes == null || station.routes!.isEmpty) {
-        return StationDetail(
-          stationId,
-          routeIds: [],
-          firstColor: Colors.grey,
+        return const Center(
+          child: Text('해당 정류장에 연결된 노선이 없습니다.'),
         );
       }
 
-      final firstRouteId = station.routes![0];
-      final firstColor = RouteColors.getColor(firstRouteId);
+      String selectedRouteId;
+      log('routeId: $routeId');
+
+      if (routeId != null &&
+          routeId.isNotEmpty &&
+          station.routes!.contains(routeId)) {
+        selectedRouteId = routeId;
+      } else {
+        selectedRouteId = station.routes![0];
+      }
+      final selectedColor = RouteColors.getColor(selectedRouteId);
 
       return StationDetail(
         stationId,
         routeIds: station.routes!,
-        firstColor: firstColor,
+        selectedRouteId: selectedRouteId,
+        selectedColor: selectedColor,
       );
     },
     loading: () => const Center(child: CircularProgressIndicator()),

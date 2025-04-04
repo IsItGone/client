@@ -24,7 +24,7 @@ class NaverMapViewModel extends StateNotifier<MapState>
   @override
   void onRouteSelected(String routeId) {
     log('selected: $routeId');
-    _drawerNotifier.updateInfoId(routeId);
+    _drawerNotifier.updateInfoId(null, routeId);
     _drawerNotifier.openDrawer(InfoType.route);
     if (!kIsWeb) {
       if (state.mapController != null &&
@@ -37,7 +37,7 @@ class NaverMapViewModel extends StateNotifier<MapState>
 
   @override
   void onStationSelected(String stationId, double lat, double lng) {
-    _drawerNotifier.updateInfoId(stationId);
+    _drawerNotifier.updateInfoId(stationId, null);
     _drawerNotifier.openDrawer(InfoType.station);
     if (!kIsWeb) {
       moveCamera(NLatLng(lat, lng), 17);

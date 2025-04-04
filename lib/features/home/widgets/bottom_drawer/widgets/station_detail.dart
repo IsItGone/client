@@ -1,3 +1,6 @@
+import 'dart:developer';
+
+import 'package:client/features/home/widgets/bottom_drawer/providers/bottom_drawer_provider.dart';
 import 'package:client/features/home/widgets/bottom_drawer/widgets/station_detail_info.dart';
 import 'package:client/data/providers/route_providers.dart';
 import 'package:client/data/providers/station_providers.dart';
@@ -9,11 +12,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 class StationDetail extends ConsumerStatefulWidget {
   final String stationId;
   final List<String> routeIds;
-  final Color firstColor;
+  final String selectedRouteId;
+  final Color selectedColor;
 
   const StationDetail(
     this.stationId, {
-    required this.firstColor,
+    required this.selectedRouteId,
+    required this.selectedColor,
     required this.routeIds,
     super.key,
   });
@@ -23,14 +28,11 @@ class StationDetail extends ConsumerStatefulWidget {
 }
 
 class _StationDetailState extends ConsumerState<StationDetail> {
-  late String selectedId = widget.routeIds[0];
-  late Color selectedColor = widget.firstColor;
   Map<String, dynamic> routeCache = {}; // 노선 데이터 캐시
 
   @override
   void initState() {
     super.initState();
-    // 모든 노선 데이터를 미리 로드
     _preloadRouteData();
   }
 
@@ -50,15 +52,16 @@ class _StationDetailState extends ConsumerState<StationDetail> {
     if (mounted) setState(() {});
   }
 
-  void _onRouteButtonPressed(String id, Color color) {
-    setState(() {
-      selectedId = id;
-      selectedColor = color;
-    });
+  void _onRouteButtonPressed(String routeId, Color color) {
+    ref
+        .read(bottomDrawerProvider.notifier)
+        .updateInfoId(widget.stationId, routeId);
   }
 
   @override
   Widget build(BuildContext context) {
+    log(widget.selectedRouteId);
+
     final stationAsync =
         ref.watch(StationProviders.stationByIdProvider(widget.stationId));
 
@@ -80,7 +83,7 @@ class _StationDetailState extends ConsumerState<StationDetail> {
                       child: _buildRouteButtonList(station.routes!),
                     ),
                     LinearRouteButton(
-                      routeId: selectedId,
+                      routeId: widget.selectedRouteId,
                       stationId: widget.stationId,
                     ),
                   ],
@@ -91,8 +94,8 @@ class _StationDetailState extends ConsumerState<StationDetail> {
                 child: StationDetailInfo(
                   station: station,
                   stationId: widget.stationId,
-                  routeId: selectedId,
-                  color: selectedColor,
+                  routeId: widget.selectedRouteId,
+                  color: widget.selectedColor,
                   routeCache: routeCache, // 캐시된 노선 데이터 전달
                 ),
               ),
@@ -120,7 +123,7 @@ class _StationDetailState extends ConsumerState<StationDetail> {
             return SizedBox(
               height: 40,
               child: RouteButton(
-                isSelected: selectedId == route.id,
+                isSelected: widget.selectedRouteId == route.id,
                 onPressed: () => _onRouteButtonPressed(route.id, route.color),
                 text: route.name.split("호차")[0],
                 size: ButtonSize.md,
