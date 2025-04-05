@@ -1,6 +1,8 @@
 import 'dart:developer';
 
 import 'package:client/core/constants/constants.dart';
+import 'package:client/data/models/route_model.dart';
+import 'package:client/data/models/station_model.dart';
 import 'package:client/features/home/widgets/bottom_drawer/providers/bottom_drawer_provider.dart';
 import 'package:client/features/home/widgets/bottom_drawer/view_models/bottom_drawer_view_model.dart';
 import 'package:client/data/providers/route_providers.dart';
@@ -21,18 +23,25 @@ class NaverMapWidget extends ConsumerStatefulWidget {
 
 class _NaverMapWidgetState extends ConsumerState<NaverMapWidget> {
   NaverMapController? _controller;
+  bool _isMapInitialized = false;
 
   @override
   Widget build(BuildContext context) {
     final initialization = ref.watch(naverMapInitializationProvider);
     final currentLocation = ref.watch(currentLocationProvider);
-    final drawerNotifier = ref.watch(bottomDrawerProvider.notifier);
+    final drawerNotifier = ref.read(bottomDrawerProvider.notifier);
 
     return initialization.when(
       data: (_) => _buildCurrentLocationMap(currentLocation, drawerNotifier),
       loading: () => const LoadingIndicator(),
       error: (error, stack) => ErrorIndicator(error: error),
     );
+  }
+
+  @override
+  void dispose() {
+    _controller?.dispose();
+    super.dispose();
   }
 
   Widget _buildCurrentLocationMap(
@@ -55,34 +64,40 @@ class _NaverMapWidgetState extends ConsumerState<NaverMapWidget> {
       forceGesture: true,
       options: _buildMapOptions(initialPosition),
       onMapReady: (controller) async {
-        log('current location $position');
-        log("onMapReady", name: "onMapReady");
         _controller = controller;
 
+        if (_isMapInitialized) return;
+        _isMapInitialized = true;
+
         try {
-          final routesData =
-              await ref.read(RouteProviders.routesDataProvider.future);
-          final stationsData =
-              await ref.read(StationProviders.stationDataProvider.future);
+          final results = await Future.wait([
+            ref.read(RouteProviders.routesDataProvider.future),
+            ref.read(StationProviders.stationDataProvider.future),
+          ]);
+
+          final routesData = results[0] as List<RouteModel>;
+          final stationsData = results[1] as List<StationModel>;
 
           if (routesData.isEmpty) {
-            throw Exception("No route data available");
+            log('경고: 노선 데이터가 비어 있습니다');
           }
 
           final mapViewModel = ref.read(naverMapViewModelProvider.notifier);
-          // 지도 초기화 및 오버레이 생성
           final overlays = mapViewModel.initializeMap(
             controller,
             routesData,
             stationsData,
             drawerNotifier,
           );
-          // 생성된 오버레이 추가
           controller.addOverlayAll(overlays);
         } catch (e) {
-          // 에러 처리
           log('데이터 로딩 오류: $e');
-          // TODO : 사용자에게 오류 알림
+
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text('지도 데이터 로딩 중 오류가 발생했습니다: $e')),
+            );
+          }
         }
       },
       onMapTapped: (point, latLng) {
@@ -92,7 +107,6 @@ class _NaverMapWidgetState extends ConsumerState<NaverMapWidget> {
         final mapViewModel = ref.read(naverMapViewModelProvider.notifier);
         mapViewModel.updateZoomLevel(_controller?.nowCameraPosition.zoom ?? 0);
       },
-      // onSymbolTapped: (symbol) => log('symbol tapped ${symbol.caption}'),
     );
   }
 
@@ -104,11 +118,19 @@ class _NaverMapWidgetState extends ConsumerState<NaverMapWidget> {
         bearing: 0,
         tilt: 0,
       ),
-      indoorEnable: true,
+      extent: NLatLngBounds(
+        southWest: NLatLng(36.18, 127.25),
+        northEast: NLatLng(36.50, 127.56),
+      ),
+      logoAlign: NLogoAlign.leftBottom,
+      logoMargin: const EdgeInsets.only(top: 10, right: 10),
       scaleBarEnable: false,
+      indoorLevelPickerEnable: false,
       locationButtonEnable: true,
       consumeSymbolTapEvents: false,
       locale: const Locale('ko'),
+      minZoom: 10,
+      maxZoom: 19,
     );
   }
 

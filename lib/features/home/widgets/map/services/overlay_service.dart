@@ -10,7 +10,12 @@ import 'package:flutter_naver_map/flutter_naver_map.dart';
 
 abstract class MapInteractionCallback {
   void onRouteSelected(String routeId);
-  void onStationSelected(String stationId, double lat, double lng);
+  void onStationSelected(
+    String stationId,
+    double lat,
+    double lng,
+    String? routeId,
+  );
 }
 
 class OverlayService {
@@ -303,6 +308,7 @@ class OverlayService {
         marker.info.id,
         marker.position.latitude,
         marker.position.longitude,
+        null,
       );
     });
 

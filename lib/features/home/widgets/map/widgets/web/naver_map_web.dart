@@ -78,7 +78,7 @@ class _NaverMapWidgetState extends ConsumerState<NaverMapWidget> {
     final mapViewModel = ref.read(naverMapViewModelProvider.notifier);
     switch (type) {
       case 'station':
-        mapViewModel.onStationSelected(id, 0, 0);
+        mapViewModel.onStationSelected(id, 0, 0, null);
         break;
       case 'route':
         mapViewModel.onRouteSelected(id);

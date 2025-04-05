@@ -26,22 +26,25 @@ class NaverMapViewModel extends StateNotifier<MapState>
     log('selected: $routeId');
     _drawerNotifier.updateInfoId(null, routeId);
     _drawerNotifier.openDrawer(InfoType.route);
+
+    selectRoute(routeId);
     if (!kIsWeb) {
       if (state.mapController != null &&
           state.currentZoom >= MapConstants.baseZoomLevel) {
-        selectRoute(routeId);
         moveCamera(MapConstants.defaultCameraPosition, 10.5);
       }
     }
   }
 
   @override
-  void onStationSelected(String stationId, double lat, double lng) {
-    _drawerNotifier.updateInfoId(stationId, null);
-    _drawerNotifier.openDrawer(InfoType.station);
+  void onStationSelected(
+      String stationId, double lat, double lng, String? routeId) {
     if (!kIsWeb) {
       moveCamera(NLatLng(lat, lng), 17);
     }
+
+    _drawerNotifier.updateInfoId(stationId, routeId);
+    _drawerNotifier.openDrawer(InfoType.station);
   }
 
   Set<NAddableOverlay<NOverlay<void>>> initializeMap(
@@ -71,7 +74,6 @@ class NaverMapViewModel extends StateNotifier<MapState>
   }
 
   Set<NAddableOverlay<NOverlay<void>>> getAllOverlays() {
-    log('${state.routeOverlays.values.expand((map) => map.values).length}');
     return {
       ...state.routeOverlays.values.expand((map) => map.values),
       ...state.baseStations,
@@ -84,19 +86,15 @@ class NaverMapViewModel extends StateNotifier<MapState>
     _updateVisibility();
   }
 
-  Future<void> moveCamera(NLatLng target, double zoom) async {
+  void moveCamera(NLatLng target, double zoom) {
     if (state.mapController == null) return;
 
     final cameraUpdate = NCameraUpdate.scrollAndZoomTo(
       target: target,
       zoom: zoom,
-    )
-      ..setAnimation(
-          animation: NCameraAnimation.easing,
-          duration: const Duration(milliseconds: 300))
-      ..setPivot(const NPoint(1 / 2, 1 / 2));
+    );
 
-    await state.mapController!.updateCamera(cameraUpdate);
+    state.mapController!.updateCamera(cameraUpdate);
   }
 
   void selectRoute(String routeId) {
@@ -105,7 +103,6 @@ class NaverMapViewModel extends StateNotifier<MapState>
   }
 
   void resetSelection() {
-    // 선택된 노선 ID를 null로 설정
     state = state.copyWith(selectedRouteId: "");
 
     _updateDefaultVisibility();
