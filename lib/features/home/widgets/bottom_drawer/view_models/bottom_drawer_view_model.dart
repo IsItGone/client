@@ -29,7 +29,6 @@ class BottomDrawerViewModel extends ChangeNotifier {
       );
       _state.animationController?.forward();
       notifyListeners();
-      await Future.delayed(const Duration(milliseconds: 300));
     } else {
       updateInfoType(type);
     }
@@ -49,6 +48,7 @@ class BottomDrawerViewModel extends ChangeNotifier {
   }
 
   void updateInfoId(String? stationId, String? routeId) {
+    log('updating infoId: stationId: $stationId, routeId: $routeId');
     if (_state.stationId != stationId) {
       _state = _state.copyWith(stationId: stationId);
       notifyListeners();

@@ -24,12 +24,18 @@ class HomeScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final drawerState = ref.watch(bottomDrawerProvider);
     final routesAsync = ref.watch(RouteProviders.routesDataProvider);
+    final screenHeight = MediaQuery.of(context).size.height;
 
     log('isWeb : $kIsWeb');
     return Scaffold(
       body: Stack(
         children: [
-          const NaverMapWidget(),
+          SizedBox(
+            height: drawerState.isDrawerOpen
+                ? screenHeight * (1 - 0.33)
+                : screenHeight,
+            child: const NaverMapWidget(),
+          ),
           SafeArea(
             child: Column(
               children: [
@@ -40,7 +46,7 @@ class HomeScreen extends ConsumerWidget {
                   ),
                   child: drawerState.isDrawerOpen
                       ? Align(
-                          alignment: Alignment.centerLeft,
+                          alignment: Alignment.bottomLeft,
                           child: FloatingActionButton(
                             onPressed: () => drawerState.closeDrawer(),
                             child: const Icon(Icons.arrow_back_ios_new_rounded),
@@ -70,23 +76,15 @@ class HomeScreen extends ConsumerWidget {
               ],
             ),
           ),
-          AnimatedPositioned(
-            duration: const Duration(milliseconds: 300),
-            curve: Curves.easeInOut,
-            bottom: drawerState.isDrawerOpen
-                ? 0
-                : -MediaQuery.of(context).size.height * 0.33,
+          Positioned(
+            bottom: 0,
             left: 0,
             right: 0,
             child: kIsWeb
                 ? PointerInterceptor(
-                    child: const SingleChildScrollView(
-                      child: BottomDrawer(),
-                    ),
+                    child: const BottomDrawer(),
                   )
-                : const SingleChildScrollView(
-                    child: BottomDrawer(),
-                  ),
+                : const BottomDrawer(),
           ),
         ],
       ),
