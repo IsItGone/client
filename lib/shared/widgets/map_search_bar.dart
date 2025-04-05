@@ -7,10 +7,11 @@ import 'package:client/features/search/providers/search_providers.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 
 class MapSearchBar extends ConsumerStatefulWidget {
-  const MapSearchBar({super.key});
+  const MapSearchBar({
+    super.key,
+  });
 
   @override
   ConsumerState<MapSearchBar> createState() => _MapSearchBarState();
@@ -24,6 +25,30 @@ class _MapSearchBarState extends ConsumerState<MapSearchBar> {
   void initState() {
     super.initState();
     _controller.addListener(_onTextChanged);
+  }
+
+  @override
+  void dispose() {
+    _debouncer.cancel();
+    _controller.removeListener(_onTextChanged);
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return TextField(
+      controller: _controller,
+      autofocus: true,
+      decoration: const InputDecoration(
+        hintText: '정류장 또는 장소 검색',
+        prefixIcon: Icon(Icons.search),
+        prefixIconColor: AppTheme.mainGray,
+        border: OutlineInputBorder(
+          borderSide: BorderSide.none,
+        ),
+      ),
+    );
   }
 
   void _onTextChanged() {
@@ -50,43 +75,5 @@ class _MapSearchBarState extends ConsumerState<MapSearchBar> {
       // 오류 처리 (검색 결과 없음 등)
       ref.read(searchResultsProvider.notifier).state = [];
     }
-  }
-
-  @override
-  void dispose() {
-    _debouncer.cancel();
-    _controller.removeListener(_onTextChanged);
-    _controller.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final String currentUrl = GoRouterState.of(context).path ?? "";
-
-    return TextField(
-      controller: _controller,
-      autofocus: true,
-      onTap: () {
-        if (currentUrl == '/') {
-          context.push(
-            '/search',
-          );
-        } else {}
-      },
-      decoration: const InputDecoration(
-        hintText: '정류장 또는 장소 검색',
-        prefixIcon: Icon(Icons.search),
-        prefixIconColor: AppTheme.mainGray,
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.all(
-            Radius.circular(15.0),
-          ),
-          borderSide: BorderSide.none,
-        ),
-        filled: true,
-        fillColor: AppTheme.subWhite,
-      ),
-    );
   }
 }

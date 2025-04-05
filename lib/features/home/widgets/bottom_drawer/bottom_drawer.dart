@@ -15,14 +15,18 @@ class BottomDrawer extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final drawerState = ref.watch(bottomDrawerProvider);
+    final isDrawerOpen =
+        ref.watch(bottomDrawerProvider.select((s) => s.isDrawerOpen));
+    final infoType = ref.watch(bottomDrawerProvider.select((s) => s.infoType));
+    final stationId =
+        ref.watch(bottomDrawerProvider.select((s) => s.stationId));
+    final routeId = ref.watch(bottomDrawerProvider.select((s) => s.routeId));
+    final screenHeight = MediaQuery.of(context).size.height;
 
     return AnimatedContainer(
       duration: const Duration(milliseconds: 300),
       curve: Curves.easeInOut,
-      height: drawerState.isDrawerOpen
-          ? MediaQuery.of(context).size.height * 0.33
-          : 0,
+      height: isDrawerOpen ? screenHeight * 0.33 : 0,
       decoration: const BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.only(
@@ -37,15 +41,17 @@ class BottomDrawer extends ConsumerWidget {
           ),
         ],
       ),
-      child: switch (drawerState.infoType) {
-        InfoType.station => _buildStationDetail(
-            ref,
-            drawerState.stationId,
-            drawerState.routeId,
-          ),
-        InfoType.place => const PlaceDetail(),
-        InfoType.route => RouteDetail(drawerState.routeId),
-      },
+      child: RepaintBoundary(
+        child: switch (infoType) {
+          InfoType.station => _buildStationDetail(
+              ref,
+              stationId,
+              routeId,
+            ),
+          InfoType.place => const PlaceDetail(),
+          InfoType.route => RouteDetail(routeId),
+        },
+      ),
     );
   }
 }

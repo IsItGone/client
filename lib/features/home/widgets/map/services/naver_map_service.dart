@@ -23,7 +23,7 @@ class NaverMapService {
 
     // 위치 서비스 활성화 확인
     serviceEnabled = await Geolocator.isLocationServiceEnabled();
-    log("serviceEnabled $serviceEnabled");
+    log("location service enabled $serviceEnabled");
     if (!serviceEnabled) {
       // 위치 서비스가 비활성화 상태일 때
       return null;
