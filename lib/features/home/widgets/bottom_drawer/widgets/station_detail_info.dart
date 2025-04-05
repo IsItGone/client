@@ -1,10 +1,17 @@
 import 'package:client/core/theme/theme.dart';
 import 'package:client/data/models/station_model.dart';
 import 'package:client/data/providers/route_providers.dart';
-import 'package:client/features/home/widgets/bottom_drawer/providers/bottom_drawer_provider.dart';
+
 import 'package:client/features/home/widgets/map/providers/naver_map_providers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+class AdjacentStation {
+  final StationModel? station;
+  final String direction;
+
+  AdjacentStation(this.station, this.direction);
+}
 
 class StationDetailInfo extends ConsumerWidget {
   const StationDetailInfo({
@@ -49,13 +56,47 @@ class StationDetailInfo extends ConsumerWidget {
         final centerWidth = constraints.maxWidth / 3;
         final centerHeight = constraints.maxHeight / 2.5;
         return Stack(
-          alignment: const AlignmentDirectional(0, -0.4),
+          alignment: const AlignmentDirectional(0, -0.2),
           children: [
+            Positioned(
+              height: 30,
+              top: 25,
+              left: 10,
+              right: 10,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: CrossAxisAlignment.end,
+                textDirection: TextDirection.ltr,
+                children: [
+                  SizedBox(
+                    width: centerWidth,
+                    // height: centerHeight,
+                    child: Text(
+                      previousStation!.direction,
+                      style: AppTheme.textTheme.bodySmall,
+                      textAlign: TextAlign.start,
+                      maxLines: 2,
+                      overflow: TextOverflow.visible,
+                    ),
+                  ),
+                  SizedBox(
+                    width: centerWidth,
+                    child: Text(
+                      nextStation!.direction,
+                      style: AppTheme.textTheme.bodySmall,
+                      textAlign: TextAlign.end,
+                      maxLines: 2,
+                      overflow: TextOverflow.visible,
+                    ),
+                  ),
+                ],
+              ),
+            ),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 AdjacentStationButton(
-                  station: previousStation,
+                  station: previousStation.station,
                   isPrevious: true,
                   color: color,
                   onStationTapped: (station) =>
@@ -63,7 +104,7 @@ class StationDetailInfo extends ConsumerWidget {
                 ),
                 SizedBox(width: centerWidth - 5),
                 AdjacentStationButton(
-                  station: nextStation,
+                  station: nextStation.station,
                   isPrevious: false,
                   color: color,
                   onStationTapped: (station) =>
@@ -72,7 +113,7 @@ class StationDetailInfo extends ConsumerWidget {
               ],
             ),
             Align(
-              alignment: const Alignment(0, -0.5),
+              alignment: const Alignment(0, -0.3),
               child: SizedBox(
                 width: centerWidth,
                 height: centerHeight,
@@ -83,7 +124,7 @@ class StationDetailInfo extends ConsumerWidget {
               ),
             ),
             Positioned(
-              top: centerHeight * 1.5,
+              top: centerHeight * 1.65,
               left: 0,
               right: 0,
               child: Column(
@@ -117,17 +158,12 @@ class StationDetailInfo extends ConsumerWidget {
           station.id,
           station.latitude!,
           station.longitude!,
-        );
-
-    // 드로어 상태 업데이트 - 현재 선택된 노선 유지
-    ref.read(bottomDrawerProvider.notifier).updateInfoId(
-          station.id,
-          routeId, // 현재 선택된 노선 ID 유지
+          routeId,
         );
   }
 
   // 인접 정류장 찾기 함수
-  StationModel? _findAdjacentStation(
+  AdjacentStation? _findAdjacentStation(
       dynamic route, String stationId, bool isPrevious) {
     final isDeparture = station.isDeparture ?? true;
     final stations =
@@ -136,21 +172,42 @@ class StationDetailInfo extends ConsumerWidget {
     // 정류장 인덱스 찾기
     int index = stations.indexWhere((s) => s.id == stationId);
 
-    if (index == -1) return null;
+    if (index == -1) return AdjacentStation(null, "");
 
     // 이전 또는 다음 정류장 반환
     if (isPrevious) {
       // 회차 정류장인 경우
       if (index == 0 && !isDeparture) {
-        return route.departureStations[route.departureStations.length - 2];
+        return AdjacentStation(
+          route.departureStations[route.departureStations.length - 2],
+          route.departureStations[0].name + " 방면",
+        );
       }
-      return index > 0 ? stations[index - 1] : null;
+      if (index > 0) {
+        StationModel? prevStation = stations[index - 1];
+        String direction = isDeparture
+            ? route.departureStations[0].name + " 방면"
+            : "삼성화재 연수원 방면";
+        return AdjacentStation(prevStation, direction);
+      }
+      return AdjacentStation(null, "");
     } else {
       // 회차 정류장인 경우
       if (index == stations.length - 1 && isDeparture) {
-        return route.arrivalStations[1];
+        return AdjacentStation(
+          route.arrivalStations[1],
+          route.arrivalStations.last.name + " 방면",
+        );
       } else {
-        return index < stations.length - 1 ? stations[index + 1] : null;
+        if (index < stations.length - 1) {
+          StationModel? nextStation = stations[index + 1];
+          String direction = isDeparture
+              ? "삼성화재 연수원 방면"
+              : route.arrivalStations.last.name + " 방면";
+          return AdjacentStation(nextStation, direction);
+        }
+
+        return AdjacentStation(null, "");
       }
     }
   }
@@ -193,10 +250,6 @@ class AdjacentStationButton extends StatelessWidget {
     return Expanded(
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 300),
-        // decoration: BoxDecoration(
-        //   // borderRadius: borderRadius,
-        //   color: color.withOpacity(0.5),
-        // ),
         child: FilledButton(
           style: FilledButton.styleFrom(
             fixedSize: Size(0, 50),
@@ -205,7 +258,7 @@ class AdjacentStationButton extends StatelessWidget {
               borderRadius: borderRadius,
             ),
             backgroundColor: color,
-            disabledBackgroundColor: color.withOpacity(0.7),
+            disabledBackgroundColor: color.withValues(alpha: 0.7),
           ),
           onPressed: station == null
               ? null
