@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:client/features/home/widgets/bottom_drawer/providers/bottom_drawer_provider.dart';
 import 'package:client/features/home/widgets/bottom_drawer/widgets/station_detail_info.dart';
 import 'package:client/data/providers/route_providers.dart';
@@ -60,8 +58,6 @@ class _StationDetailState extends ConsumerState<StationDetail> {
 
   @override
   Widget build(BuildContext context) {
-    log(widget.selectedRouteId);
-
     final stationAsync =
         ref.watch(StationProviders.stationByIdProvider(widget.stationId));
 
