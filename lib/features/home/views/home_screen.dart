@@ -6,7 +6,7 @@ import 'package:client/features/home/widgets/bottom_drawer/providers/bottom_draw
 import 'package:client/features/home/widgets/map/providers/naver_map_providers.dart';
 import 'package:client/features/home/widgets/map/naver_map_widget.dart';
 import 'package:client/data/providers/route_providers.dart';
-import 'package:client/shared/widgets/map_search_bar.dart';
+import 'package:client/features/home/widgets/search_bar_button.dart';
 import 'package:client/shared/widgets/route_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
@@ -15,25 +15,34 @@ import 'package:pointer_interceptor/pointer_interceptor.dart';
 import 'package:client/features/home/widgets/map/widgets/web/naver_map_js_interop_stub.dart'
     if (dart.library.js_interop) 'package:client/features/home/widgets/map/widgets/web/naver_map_js_interop_web.dart';
 
-class HomeScreen extends ConsumerWidget {
+class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({
     super.key,
   });
+  @override
+  ConsumerState<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends ConsumerState<HomeScreen> {
+  @override
+  void initState() {
+    super.initState();
+    log('isWeb : $kIsWeb');
+  }
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final drawerState = ref.watch(bottomDrawerProvider);
+  Widget build(BuildContext context) {
+    final isDrawerOpen =
+        ref.watch(bottomDrawerProvider.select((s) => s.isDrawerOpen));
     final routesAsync = ref.watch(RouteProviders.routesDataProvider);
-    final screenHeight = MediaQuery.of(context).size.height;
+    final mediaQuery = MediaQuery.of(context);
+    final screenHeight = mediaQuery.size.height;
 
-    log('isWeb : $kIsWeb');
     return Scaffold(
       body: Stack(
         children: [
           SizedBox(
-            height: drawerState.isDrawerOpen
-                ? screenHeight * (1 - 0.33)
-                : screenHeight,
+            height: isDrawerOpen ? screenHeight * (1 - 0.33) : screenHeight,
             child: const NaverMapWidget(),
           ),
           SafeArea(
@@ -44,17 +53,21 @@ class HomeScreen extends ConsumerWidget {
                     horizontal: 12,
                     vertical: 10,
                   ),
-                  child: drawerState.isDrawerOpen
+                  child: isDrawerOpen
                       ? Align(
                           alignment: Alignment.bottomLeft,
                           child: FloatingActionButton(
-                            onPressed: () => drawerState.closeDrawer(),
-                            child: const Icon(Icons.arrow_back_ios_new_rounded),
+                            onPressed: () => ref
+                                .read(bottomDrawerProvider.notifier)
+                                .closeDrawer(),
+                            child: const Icon(
+                              Icons.arrow_back_ios_new_rounded,
+                            ),
                           ),
                         )
-                      : const MapSearchBar(),
+                      : const SearchBarButton(),
                 ),
-                if (!drawerState.isDrawerOpen)
+                if (!isDrawerOpen)
                   Align(
                     alignment: Alignment.centerLeft,
                     child: SizedBox(
@@ -67,8 +80,9 @@ class HomeScreen extends ConsumerWidget {
                                 )
                               : _buildRouteList(routes, ref);
                         },
-                        loading: () =>
-                            const Center(child: CircularProgressIndicator()),
+                        loading: () => const Center(
+                          child: CircularProgressIndicator(),
+                        ),
                         error: (err, stack) => Text('에러 발생: $err'),
                       ),
                     ),
