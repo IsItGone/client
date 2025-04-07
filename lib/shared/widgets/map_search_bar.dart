@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:client/core/theme/theme.dart';
 import 'package:client/core/utils/debouncer.dart';
 import 'package:client/data/providers/station_providers.dart';
@@ -54,12 +52,15 @@ class _MapSearchBarState extends ConsumerState<MapSearchBar> {
   void _onTextChanged() {
     _debouncer.run(() {
       final keyword = _controller.text.trim();
-      log(keyword);
+
+      
       if (keyword.isNotEmpty) {
         // 검색어 상태를 업데이트
         ref.read(searchKeywordProvider.notifier).state = keyword;
-
         _searchStations(keyword);
+      } else {
+        ref.read(searchResultsProvider.notifier).state = [];
+        ref.read(searchKeywordProvider.notifier).state = '';
       }
     });
   }
@@ -69,7 +70,6 @@ class _MapSearchBarState extends ConsumerState<MapSearchBar> {
       final result = await ref.read(
           StationProviders.searchStationByKeywordProvider(keyword).future);
 
-      log('result : $result');
       ref.read(searchResultsProvider.notifier).state = result;
     } catch (e) {
       // 오류 처리 (검색 결과 없음 등)

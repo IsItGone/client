@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:client/core/theme/theme.dart';
 import 'package:client/data/models/station_model.dart';
 import 'package:flutter/material.dart';
@@ -52,7 +54,7 @@ class StationSearchResult extends StatelessWidget {
     );
   }
 
-  /// 📌 정류장 리스트 UI
+  // 정류장 리스트 UI
   Widget _buildList(List<StationModel> stations) {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 15),
@@ -61,27 +63,74 @@ class StationSearchResult extends StatelessWidget {
         borderRadius: BorderRadius.circular(4),
       ),
       child: ListView.separated(
-        padding: const EdgeInsets.all(0),
         physics: const NeverScrollableScrollPhysics(),
         shrinkWrap: true,
         itemCount: stations.length,
         itemBuilder: (context, index) {
           final station = stations[index];
+          if (station.name == null) {
+            return const SizedBox.shrink();
+          }
+
+          final bool isDeparture = station.isDeparture ?? false;
+          final Color color = AppTheme.mainWhite;
+          final Color textColor = isDeparture
+              ? const Color.fromARGB(255, 123, 169, 245)
+              : AppTheme.secondarySwatch;
           return ListTile(
-            title: _highlightSearchKeyword(_removeNewlines(station.name ?? "")),
+            onTap: () {
+              Navigator.of(context).pop();
+              // Navigator.of(context).pushNamed(
+              //   '/station/${station.id}',
+              //   arguments: {
+              //     'stationId': station.id,
+              //     'routeId': station.routeId,
+              //     'color': station.color,
+              //   },
+              // );
+            },
+            title: Row(
+              children: [
+                _highlightSearchKeyword(
+                  _removeNewlines(station.name ?? ""),
+                  isTitle: true,
+                ),
+                if (station.isDeparture != null)
+                  Container(
+                    margin: const EdgeInsets.only(left: 8),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(10),
+                      color: color,
+                      border: Border.all(
+                        color: textColor,
+                      ),
+                    ),
+                    padding: const EdgeInsets.symmetric(
+                      vertical: 2,
+                      horizontal: 6,
+                    ),
+                    child: Text(
+                      station.isDeparture! ? "승차" : "하차",
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold,
+                        color: textColor,
+                      ),
+                    ),
+                  ),
+              ],
+            ),
             subtitle: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _highlightSearchKeyword(
-                    _removeNewlines(station.description ?? "")),
+                if (station.description != null &&
+                    station.description!.isNotEmpty)
+                  _highlightSearchKeyword(
+                    _removeNewlines(station.description!),
+                  ),
                 _highlightSearchKeyword(_removeNewlines(station.address ?? "")),
               ],
             ),
-            // trailing: Text(
-            //   station.address ?? "",
-            //   style: const TextStyle(
-            //       color: Colors.green, fontWeight: FontWeight.bold),
-            // ),
           );
         },
         separatorBuilder: (context, index) =>
@@ -90,8 +139,11 @@ class StationSearchResult extends StatelessWidget {
     );
   }
 
-  /// 📌 검색어가 포함된 부분만 굵게 처리하는 메소드
-  Text _highlightSearchKeyword(String text) {
+  // 검색어가 포함된 부분만 굵게 처리
+  Text _highlightSearchKeyword(String text, {bool isTitle = false}) {
+    TextStyle textStyle =
+        isTitle ? AppTheme.textTheme.bodyLarge! : AppTheme.textTheme.bodySmall!;
+
     if (searchKeyword.isEmpty) {
       return Text(text);
     }
@@ -99,46 +151,66 @@ class StationSearchResult extends StatelessWidget {
     final int startIndex =
         text.toLowerCase().indexOf(searchKeyword.toLowerCase());
     if (startIndex == -1) {
-      return Text(text);
+      return Text(text, style: textStyle);
     }
 
     final List<TextSpan> spans = <TextSpan>[];
 
-    // Add text before the search keyword
-    spans.add(TextSpan(text: text.substring(0, startIndex)));
+    // 키워드 이전
+    spans.add(
+      TextSpan(
+        text: text.substring(
+          0,
+          startIndex,
+        ),
+        style: textStyle,
+      ),
+    );
 
-    // Add the search keyword part with bold style
+    // 키워드 볼드 처리
     spans.add(TextSpan(
       text: text.substring(startIndex, startIndex + searchKeyword.length),
-      style: const TextStyle(fontWeight: FontWeight.bold),
+      style: textStyle.copyWith(
+        fontWeight: FontWeight.bold,
+      ),
     ));
 
-    // Add text after the search keyword
-    spans
-        .add(TextSpan(text: text.substring(startIndex + searchKeyword.length)));
+    // 키워드 이후
+    spans.add(TextSpan(
+      text: text.substring(startIndex + searchKeyword.length),
+      style: textStyle,
+    ));
 
     return Text.rich(
-      TextSpan(children: spans),
+      TextSpan(children: spans, style: textStyle),
     );
   }
 
-  /// 📌 문자열에서 줄바꿈 문자 (\n) 제거
+  // 문자열에서 줄바꿈 문자 제거
   String _removeNewlines(String text) {
-    return text.replaceAll('\n', ' '); // \n 제거
+    return text.replaceAll('\n', ' ');
   }
 
   Widget _buildEmptyMessage() {
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
+      margin: const EdgeInsets.symmetric(
+        horizontal: 15,
+        vertical: 10,
+      ),
       padding: const EdgeInsets.all(15),
       decoration: BoxDecoration(
         border: Border.all(color: AppTheme.lightGray),
-        borderRadius: BorderRadius.circular(4),
+        borderRadius: BorderRadius.circular(
+          4,
+        ),
       ),
       child: const Center(
         child: Text(
           '검색 결과가 없습니다.',
-          style: TextStyle(fontSize: 16, color: Colors.grey),
+          style: TextStyle(
+            fontSize: 16,
+            color: AppTheme.mainGray,
+          ),
         ),
       ),
     );
