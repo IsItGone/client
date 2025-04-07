@@ -4,7 +4,8 @@ class AppTheme {
   static const int _primaryValue = 0xff574B90;
   static const int _secondaryValue = 0xff3954A5;
 
-  static const Color mainBlack = Color(0xff303A52);
+  static const Color mainBlack = Color(0xff141923);
+  static const Color subBlack = Color(0xff303A52);
   static const Color mainGray = Color(0xff6C6C6C);
   static const Color lightGray = Color(0xffEEEEEE);
   static const Color mainRed = Color(0xffEF4A4A);
