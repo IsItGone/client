@@ -18,41 +18,57 @@ class BottomDrawer extends ConsumerWidget {
     final isDrawerOpen =
         ref.watch(bottomDrawerProvider.select((s) => s.isDrawerOpen));
     final infoType = ref.watch(bottomDrawerProvider.select((s) => s.infoType));
+    final screenHeight = MediaQuery.of(context).size.height;
+
+    return RepaintBoundary(
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeInOut,
+        height: isDrawerOpen ? screenHeight * 0.33 : 0,
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.only(
+            topLeft: Radius.circular(16),
+            topRight: Radius.circular(16),
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black12,
+              blurRadius: 10,
+              offset: Offset(0, -5),
+            ),
+          ],
+        ),
+        // child: switch (infoType) {
+        //   InfoType.station => _buildStationDetail(
+        //       ref,
+        //       stationId,
+        //       routeId,
+        //     ),
+        //   InfoType.place => const PlaceDetail(),
+        //   InfoType.route => RouteDetail(routeId),
+        // },
+        child: isDrawerOpen
+            ? RepaintBoundary(
+                // 내부 콘텐츠도 별도 레이어로 분리
+                child: _buildDrawerContent(ref, infoType),
+              )
+            : const SizedBox.shrink(), // 닫혀있을 때는 내용 렌더링 안함
+      ),
+    );
+  }
+
+  // 추가 메소드: 드로어 내용 구성
+  Widget _buildDrawerContent(WidgetRef ref, InfoType infoType) {
     final stationId =
         ref.watch(bottomDrawerProvider.select((s) => s.stationId));
     final routeId = ref.watch(bottomDrawerProvider.select((s) => s.routeId));
-    final screenHeight = MediaQuery.of(context).size.height;
 
-    return AnimatedContainer(
-      duration: const Duration(milliseconds: 300),
-      curve: Curves.easeInOut,
-      height: isDrawerOpen ? screenHeight * 0.33 : 0,
-      decoration: const BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.only(
-          topLeft: Radius.circular(16),
-          topRight: Radius.circular(16),
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black12,
-            blurRadius: 10,
-            offset: Offset(0, -5),
-          ),
-        ],
-      ),
-      child: RepaintBoundary(
-        child: switch (infoType) {
-          InfoType.station => _buildStationDetail(
-              ref,
-              stationId,
-              routeId,
-            ),
-          InfoType.place => const PlaceDetail(),
-          InfoType.route => RouteDetail(routeId),
-        },
-      ),
-    );
+    return switch (infoType) {
+      InfoType.station => _buildStationDetail(ref, stationId, routeId),
+      InfoType.place => const PlaceDetail(),
+      InfoType.route => RouteDetail(routeId),
+    };
   }
 }
 

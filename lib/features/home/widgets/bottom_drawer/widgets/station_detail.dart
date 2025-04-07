@@ -53,7 +53,7 @@ class _StationDetailState extends ConsumerState<StationDetail> {
   void _onRouteButtonPressed(String routeId, Color color) {
     ref
         .read(bottomDrawerProvider.notifier)
-        .updateInfoId(widget.stationId, routeId);
+        .updateInfoId(stationId: widget.stationId, routeId: routeId);
   }
 
   @override
