@@ -42,12 +42,12 @@ class BottomDrawerViewModel extends ChangeNotifier {
 
       // 선택 상태 초기화
       _ref.read(naverMapViewModelProvider.notifier).resetSelection();
-      updateInfoId(null, null);
+      updateInfoId(stationId: null, routeId: null);
       notifyListeners();
     }
   }
 
-  void updateInfoId(String? stationId, String? routeId) {
+  void updateInfoId({String? stationId, String? routeId}) {
     log('updating infoId: stationId: $stationId, routeId: $routeId');
     if (_state.stationId != stationId) {
       _state = _state.copyWith(stationId: stationId);

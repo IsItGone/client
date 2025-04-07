@@ -15,36 +15,107 @@ class NaverMapViewModel extends StateNotifier<MapState>
     implements MapInteractionCallback {
   final BottomDrawerViewModel _drawerNotifier;
   final OverlayService _overlayService;
+  bool _isAnimating = false;
+  double _lastProcessedZoom = 0.0;
 
   NaverMapViewModel(
     this._drawerNotifier,
     this._overlayService,
   ) : super(const MapState());
 
+  // @override
+  // void onRouteSelected(String routeId) {
+  //   log('selected: $routeId');
+  //   selectRoute(routeId);
+
+  //   _drawerNotifier.updateInfoId(null, routeId);
+  //   _drawerNotifier.openDrawer(InfoType.route);
+
+  //   if (!kIsWeb) {
+  //     if (state.mapController != null &&
+  //         state.currentZoom >= MapConstants.baseZoomLevel) {
+  //       moveCamera(MapConstants.defaultCameraPosition, 10.5);
+  //     }
+  //   }
+  // }
   @override
   void onRouteSelected(String routeId) {
     log('selected: $routeId');
-    _drawerNotifier.updateInfoId(null, routeId);
+
+    // 애니메이션 시작 상태 설정
+    _isAnimating = true;
+
+    // 1. 먼저 선택 상태만 업데이트 (가벼운 작업)
+    state = state.copyWith(selectedRouteId: routeId);
+
+    // 2. 기본 경로만 우선 표시 (애니메이션 성능 향상)
+    _simplifiedRouteUpdate(routeId);
+
+    // 3. 드로어 열기 (UI 애니메이션)
+    _drawerNotifier.updateInfoId(stationId: null, routeId: routeId);
     _drawerNotifier.openDrawer(InfoType.route);
 
-    selectRoute(routeId);
-    if (!kIsWeb) {
-      if (state.mapController != null &&
-          state.currentZoom >= MapConstants.baseZoomLevel) {
+    // 4. 애니메이션 후 카메라 이동
+    if (!kIsWeb && state.mapController != null) {
+      Future.delayed(const Duration(milliseconds: 50), () {
+        // 카메라 이동
         moveCamera(MapConstants.defaultCameraPosition, 10.5);
-      }
+
+        // 5. 모든 애니메이션 완료 후 상세 업데이트
+        Future.delayed(const Duration(milliseconds: 300), () {
+          _isAnimating = false;
+          _updateVisibility(); // 전체 업데이트 수행
+        });
+      });
     }
   }
 
+  // 추가 메소드: 간소화된 노선 업데이트
+  void _simplifiedRouteUpdate(String routeId) {
+    // 선택된 노선의 기본 정보만 표시 (가벼운 작업)
+    for (var entry in state.routeOverlays.entries) {
+      final isSelected = entry.key == routeId;
+      entry.value.forEach((type, overlay) {
+        bool isBaseRoute = !overlay.info.id.contains('extended');
+        // 애니메이션 중에는 확장 경로 숨기기
+        overlay.setIsVisible(isSelected && isBaseRoute);
+      });
+    }
+  }
+
+  // @override
+  // void onStationSelected(
+  //     String stationId, double lat, double lng, String? routeId) {
+  //   if (!kIsWeb) {
+  //     moveCamera(NLatLng(lat, lng), 17);
+  //   }
+
+  //   _drawerNotifier.updateInfoId(stationId, routeId);
+  //   _drawerNotifier.openDrawer(InfoType.station);
+  // }
   @override
   void onStationSelected(
       String stationId, double lat, double lng, String? routeId) {
-    if (!kIsWeb) {
-      moveCamera(NLatLng(lat, lng), 17);
-    }
+    // 애니메이션 상태 설정
+    _isAnimating = true;
 
-    _drawerNotifier.updateInfoId(stationId, routeId);
+    // 1. 드로어 열기 (UI 애니메이션 시작)
+    _drawerNotifier.updateInfoId(stationId: stationId, routeId: routeId);
     _drawerNotifier.openDrawer(InfoType.station);
+
+    // 2. 애니메이션 후 카메라 이동
+    if (!kIsWeb && state.mapController != null) {
+      Future.delayed(const Duration(milliseconds: 50), () {
+        // 카메라 이동
+        moveCamera(NLatLng(lat, lng), 17);
+
+        // 3. 모든 애니메이션 완료 후 상태 업데이트
+        Future.delayed(const Duration(milliseconds: 300), () {
+          _isAnimating = false;
+          // 필요한 경우 추가 업데이트 작업
+        });
+      });
+    }
   }
 
   Set<NAddableOverlay<NOverlay<void>>> initializeMap(
@@ -81,9 +152,45 @@ class NaverMapViewModel extends StateNotifier<MapState>
     };
   }
 
+  // void updateZoomLevel(double zoom) {
+  //   state = state.copyWith(currentZoom: zoom);
+  //   _updateVisibility();
+  // }
+
   void updateZoomLevel(double zoom) {
+    // 최소 변화량 체크로 불필요한 업데이트 방지
+    if ((zoom - state.currentZoom).abs() < 0.05) return;
+
+    // 드로어가 열려 있는 동안 줌 레벨 변경 시 오버레이 업데이트 최소화
+    if (_drawerNotifier.isDrawerOpen &&
+        (zoom - _lastProcessedZoom).abs() < 0.5) {
+      return;
+    }
+
+    _lastProcessedZoom = zoom;
     state = state.copyWith(currentZoom: zoom);
-    _updateVisibility();
+    _updateVisibilityLite(); // 가벼운 가시성 업데이트 메소드 호출
+  }
+
+  void _updateVisibilityLite() {
+    if (_isAnimating) return; // 애니메이션 중이면 업데이트 건너뛰기
+
+    final currentZoom = state.currentZoom;
+    final selectedRouteId = state.selectedRouteId;
+
+    // 선택된 노선만 업데이트
+    if (selectedRouteId != null && selectedRouteId.isNotEmpty) {
+      if (currentZoom >= MapConstants.normalZoomLevel) {
+        // 줌 레벨이 높을 때는 상세 보기
+        _updateSelectedRouteVisibility(true);
+      } else {
+        // 줌 레벨이 낮을 때는 간소화된 보기
+        _updateSelectedRouteVisibility(false);
+      }
+    } else {
+      // 줌 레벨에 따른 가시성만 업데이트
+      _updateDefaultVisibility();
+    }
   }
 
   void moveCamera(NLatLng target, double zoom) {
@@ -107,6 +214,34 @@ class NaverMapViewModel extends StateNotifier<MapState>
 
     _updateDefaultVisibility();
     setZoomLevels();
+  }
+
+// overlay_service.dart에 추가
+  bool isOverlayInBounds(NAddableOverlay overlay, NLatLngBounds bounds) {
+    if (overlay is NMarker) {
+      return bounds.containsPoint(overlay.position);
+    } else if (overlay is NMultipartPathOverlay) {
+      // 각 경로의 시작점과 끝점만 체크하여 성능 최적화
+      for (var path in overlay.paths) {
+        if (path.coords.isEmpty) continue;
+
+        // 경로의 첫 점과 마지막 점만 체크
+        if (bounds.containsPoint(path.coords.first) ||
+            bounds.containsPoint(path.coords.last)) {
+          return true;
+        }
+
+        // 긴 경로인 경우 중간점도 체크
+        if (path.coords.length > 10) {
+          final midIndex = path.coords.length ~/ 2;
+          if (bounds.containsPoint(path.coords.elementAt(midIndex))) {
+            return true;
+          }
+        }
+      }
+      return false;
+    }
+    return true;
   }
 
   void _updateVisibility() {

@@ -41,6 +41,7 @@ class _NaverMapWidgetState extends ConsumerState<NaverMapWidget> {
   @override
   void dispose() {
     _controller?.dispose();
+
     super.dispose();
   }
 
@@ -61,6 +62,7 @@ class _NaverMapWidgetState extends ConsumerState<NaverMapWidget> {
         : MapConstants.defaultLatLng;
 
     return NaverMap(
+      // forceHybridComposition: true, // 하이브리드 컴포지션 강제 사용
       forceGesture: true,
       options: _buildMapOptions(initialPosition),
       onMapReady: (controller) async {
@@ -103,9 +105,10 @@ class _NaverMapWidgetState extends ConsumerState<NaverMapWidget> {
       onMapTapped: (point, latLng) {
         _handleMapTap(drawerNotifier);
       },
-      onCameraChange: (reason, isAnimated) {
-        final mapViewModel = ref.read(naverMapViewModelProvider.notifier);
-        mapViewModel.updateZoomLevel(_controller?.nowCameraPosition.zoom ?? 0);
+      onCameraIdle: () => {
+        ref
+            .read(naverMapViewModelProvider.notifier)
+            .updateZoomLevel(_controller?.nowCameraPosition.zoom ?? 0)
       },
     );
   }
@@ -128,6 +131,12 @@ class _NaverMapWidgetState extends ConsumerState<NaverMapWidget> {
       indoorLevelPickerEnable: false,
       locationButtonEnable: true,
       consumeSymbolTapEvents: false,
+      scrollGesturesEnable: true,
+      indoorEnable: false,
+      nightModeEnable: false,
+      buildingHeight: 0.0,
+      symbolScale: 0.8, // 심볼 크기 축소
+      // liteModeEnable: true,
       locale: const Locale('ko'),
       minZoom: 10,
       maxZoom: 19,
