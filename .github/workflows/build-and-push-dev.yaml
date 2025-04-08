@@ -17,6 +17,7 @@ env:
 
 jobs:
   build-and-push:
+    if: false # TODO: delete
     environment: dev
     runs-on: ubuntu-latest
 
@@ -42,3 +43,30 @@ jobs:
           tags: |
             ${{ env.IMAGE_REPOSITORY }}:${{ env.APP_VERSION }}
           password: ${{ secrets.GHCR_TOKEN }}
+
+
+  update-helm-chart:
+#    needs: build-and-push # TODO: uncomment
+    environment: dev
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ vars.ORGANIZATION }}/cluster-config
+          token: ${{ secrets.GITOPS_TOKEN }}
+
+      - name: Update Helm Chart
+        working-directory: apps/${{ env.REPOSITORY_NAME }}/${{ env.ENVIRONMENT }}/chart
+        run: |
+          yq -i '.appVersion = "${{ env.APP_VERSION }}"' Chart.yaml
+          yq -i '.flutter-base.image.repository = "${{ env.IMAGE_REPOSITORY }}"' values.yaml
+          yq -i '.flutter-base.image.tag = "${{ env.APP_VERSION }}"' values.yaml
+          yq -i '.flutter-base.ingress.host = "${{ env.HOST }}"' values.yaml
+
+      - name: Commit changes
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: Update Image tag to ${{ env.APP_VERSION }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITOPS_TOKEN }}
