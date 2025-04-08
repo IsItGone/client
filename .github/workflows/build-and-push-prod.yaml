@@ -32,7 +32,7 @@ jobs:
         run: flutter pub get
 
       - name: Build Flutter Web
-        run: flutter build web --release --dart-define=NAVER_MAP_CLIENT_ID=${{ secrets.NAVER_MAP_CLIENT_ID }} --base-href /
+        run: flutter build web --release --dart-define=NAVER_MAP_CLIENT_ID=${{ secrets.NAVER_MAP_CLIENT_ID }} --dart-define=API_URL=https://${{ vars.HOST }}/api/graphql --base-href /
 
       - name: Build and Push image with Docker buildx
         uses: IsItgone/ci-templates/.github/actions/build-and-push-image@main
