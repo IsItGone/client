@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - main
-      - ci # TODO: delete
   workflow_dispatch:
 
 env:
@@ -17,7 +16,6 @@ env:
 
 jobs:
   build-and-push:
-    if: false # TODO: delete
     environment: dev
     runs-on: ubuntu-latest
 
@@ -46,7 +44,7 @@ jobs:
 
 
   update-helm-chart:
-#    needs: build-and-push # TODO: uncomment
+    needs: build-and-push
     environment: dev
     runs-on: ubuntu-latest
     steps:
