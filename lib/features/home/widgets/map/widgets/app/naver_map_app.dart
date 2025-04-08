@@ -1,4 +1,5 @@
 import 'dart:developer';
+import 'dart:io';
 
 import 'package:client/core/constants/constants.dart';
 import 'package:client/data/models/route_model.dart';
@@ -62,7 +63,7 @@ class _NaverMapWidgetState extends ConsumerState<NaverMapWidget> {
         : MapConstants.defaultLatLng;
 
     return NaverMap(
-      // forceHybridComposition: true, // 하이브리드 컴포지션 강제 사용
+      forceHybridComposition: Platform.isAndroid,
       forceGesture: true,
       options: _buildMapOptions(initialPosition),
       onMapReady: (controller) async {
@@ -126,17 +127,11 @@ class _NaverMapWidgetState extends ConsumerState<NaverMapWidget> {
         northEast: NLatLng(36.50, 127.56),
       ),
       logoAlign: NLogoAlign.leftBottom,
-      logoMargin: const EdgeInsets.only(top: 10, right: 10),
+      logoMargin: const EdgeInsets.only(bottom: 10, left: 10),
       scaleBarEnable: false,
       indoorLevelPickerEnable: false,
       locationButtonEnable: true,
       consumeSymbolTapEvents: false,
-      scrollGesturesEnable: true,
-      indoorEnable: false,
-      nightModeEnable: false,
-      buildingHeight: 0.0,
-      symbolScale: 0.8, // 심볼 크기 축소
-      // liteModeEnable: true,
       locale: const Locale('ko'),
       minZoom: 10,
       maxZoom: 19,
