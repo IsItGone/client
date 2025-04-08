@@ -41,11 +41,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     return Scaffold(
       body: Stack(
         children: [
-          RepaintBoundary(
-            child: SizedBox(
-              height: isDrawerOpen ? screenHeight * (1 - 0.33) : screenHeight,
-              child: const NaverMapWidget(),
-            ),
+          SizedBox(
+            height: isDrawerOpen ? screenHeight * (1 - 0.33) : screenHeight,
+            child: const NaverMapWidget(),
           ),
           SafeArea(
             child: Column(

@@ -2,9 +2,12 @@ import 'dart:developer';
 
 import 'package:client/core/theme/theme.dart';
 import 'package:client/data/models/station_model.dart';
+import 'package:client/features/home/widgets/bottom_drawer/providers/bottom_drawer_provider.dart';
+import 'package:client/features/home/widgets/map/providers/naver_map_providers.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class StationSearchResult extends StatelessWidget {
+class StationSearchResult extends ConsumerWidget {
   final List<StationModel> stations;
   final String searchKeyword;
 
@@ -12,13 +15,16 @@ class StationSearchResult extends StatelessWidget {
       {super.key, required this.stations, required this.searchKeyword});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         _buildHeader(
-            Icons.directions_bus_rounded, '정류장', AppTheme.primarySwatch),
-        stations.isNotEmpty ? _buildList(stations) : _buildEmptyMessage(),
+          Icons.directions_bus_rounded,
+          '정류장',
+          AppTheme.primarySwatch,
+        ),
+        stations.isNotEmpty ? _buildList(stations, ref) : _buildEmptyMessage(),
       ],
     );
   }
@@ -55,7 +61,7 @@ class StationSearchResult extends StatelessWidget {
   }
 
   // 정류장 리스트 UI
-  Widget _buildList(List<StationModel> stations) {
+  Widget _buildList(List<StationModel> stations, WidgetRef ref) {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 15),
       decoration: BoxDecoration(
@@ -79,15 +85,13 @@ class StationSearchResult extends StatelessWidget {
               : AppTheme.secondarySwatch;
           return ListTile(
             onTap: () {
+              ref.read(naverMapViewModelProvider.notifier).onStationSelected(
+                    station.id,
+                    station.latitude!,
+                    station.longitude!,
+                    null,
+                  );
               Navigator.of(context).pop();
-              // Navigator.of(context).pushNamed(
-              //   '/station/${station.id}',
-              //   arguments: {
-              //     'stationId': station.id,
-              //     'routeId': station.routeId,
-              //     'color': station.color,
-              //   },
-              // );
             },
             title: Row(
               children: [
