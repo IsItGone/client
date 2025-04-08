@@ -31,6 +31,9 @@ jobs:
       - name: Install dependencies
         run: flutter pub get
 
+      - name: Generate GraphQL Schema & Models
+        run: flutter pub run build_runner build --delete-conflicting-outputs
+
       - name: Build Flutter Web
         run: flutter build web --release --dart-define=NAVER_MAP_CLIENT_ID=${{ secrets.NAVER_MAP_CLIENT_ID }} --base-href /
 
