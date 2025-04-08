@@ -1,0 +1,46 @@
+name: Build, Push, Deploy (Dev)
+
+on:
+  push:
+    branches:
+      - main
+      - ci # TODO: delete
+  workflow_dispatch:
+
+env:
+  ENVIRONMENT: dev
+  REPOSITORY_NAME: ${{ github.event.repository.name }}
+  IMAGE_REPOSITORY: ${{ vars.REGISTRY }}/${{ vars.ORGANIZATION }}/${{ github.event.repository.name }}
+  APP_VERSION: ${{ github.sha }}
+  HOST: dev.${{ vars.HOST }}
+
+
+jobs:
+  build-and-push:
+    environment: dev
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: "3.29.2"
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Build Flutter Web
+        run: flutter build web --release \
+          --dart-define NAVER_MAP_CLIENT_ID=${{ secrets.NAVER_MAP_CLIENT_ID }} \
+          --base-href /
+
+      - name: Build and Push image with Docker buildx
+        uses: IsItgone/ci-templates/.github/actions/build-and-push-image@main
+        with:
+          registry: ${{ vars.REGISTRY }}
+          tags: |
+            ${{ env.IMAGE_REPOSITORY }}:${{ env.APP_VERSION }}
+          password: ${{ secrets.GHCR_TOKEN }}
