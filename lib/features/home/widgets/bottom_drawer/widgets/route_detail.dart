@@ -114,7 +114,7 @@ class RouteDetail extends ConsumerWidget {
                                     route.departureStations.last.stopTime ==
                                         null
                                 ? '-'
-                                : '${route.departureStations.first.stopTime}~ ${route.departureStations.last.stopTime}',
+                                : '${route.departureStations.first.stopTime} ~ ${route.departureStations.last.stopTime}',
                             style: AppTheme.textTheme.titleLarge,
                           ),
                         ],

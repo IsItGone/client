@@ -1,8 +1,5 @@
-import 'dart:developer';
-
 import 'package:client/core/theme/theme.dart';
 import 'package:client/data/models/station_model.dart';
-import 'package:client/features/home/widgets/bottom_drawer/providers/bottom_drawer_provider.dart';
 import 'package:client/features/home/widgets/map/providers/naver_map_providers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -47,7 +44,7 @@ class StationSearchResult extends ConsumerWidget {
                 Text(
                   title,
                   style: const TextStyle(
-                    fontWeight: FontWeight.bold,
+                    fontVariations: [FontVariation('wght', 800)],
                     fontSize: 16,
                     color: AppTheme.mainWhite,
                   ),
@@ -115,9 +112,8 @@ class StationSearchResult extends ConsumerWidget {
                     ),
                     child: Text(
                       station.isDeparture! ? "승차" : "하차",
-                      style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.bold,
+                      style: AppTheme.textTheme.labelSmall?.copyWith(
+                        fontVariations: [FontVariation('wght', 800)],
                         color: textColor,
                       ),
                     ),
@@ -175,7 +171,7 @@ class StationSearchResult extends ConsumerWidget {
     spans.add(TextSpan(
       text: text.substring(startIndex, startIndex + searchKeyword.length),
       style: textStyle.copyWith(
-        fontWeight: FontWeight.bold,
+        fontVariations: [FontVariation('wght', 700)],
       ),
     ));
 

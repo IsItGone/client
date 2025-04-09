@@ -34,7 +34,10 @@ class LinearRouteButton extends StatelessWidget {
           const SizedBox(width: 6),
           Text(
             "노선표",
-            style: AppTheme.textTheme.titleLarge,
+            style: const TextStyle(
+              fontSize: 16,
+              fontVariations: [FontVariation('wght', 800)],
+            ),
           ),
         ],
       ),

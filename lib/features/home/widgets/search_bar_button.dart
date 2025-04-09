@@ -23,6 +23,7 @@ class SearchBarButton extends StatelessWidget {
             Text(
               '정류장 또는 장소 검색',
               style: TextStyle(
+                fontSize: 16,
                 color: AppTheme.mainGray,
               ),
             ),

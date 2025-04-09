@@ -272,9 +272,8 @@ class AdjacentStationButton extends StatelessWidget {
               Flexible(
                 child: Text(
                   text,
-                  style: const TextStyle(
-                    fontSize: 14.0,
-                    fontWeight: FontWeight.bold,
+                  style: AppTheme.textTheme.labelLarge?.copyWith(
+                    fontVariations: [FontVariation('wght', 700)],
                     color: AppTheme.mainWhite,
                   ),
                   maxLines: 2,
@@ -316,10 +315,9 @@ class CurrentStationButton extends StatelessWidget {
         onPressed: null,
         child: Text(
           text,
-          style: const TextStyle(
-            fontSize: 14.0,
-            fontWeight: FontWeight.bold,
-            color: AppTheme.mainBlack,
+          style: AppTheme.textTheme.labelLarge?.copyWith(
+            fontVariations: [FontVariation('wght', 700)],
+            color: AppTheme.subBlack,
           ),
           textAlign: TextAlign.center,
           overflow: TextOverflow.visible,

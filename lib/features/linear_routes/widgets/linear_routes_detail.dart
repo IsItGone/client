@@ -110,6 +110,7 @@ class RouteStop extends StatelessWidget {
                             "회차",
                             style: TextStyle(
                               color: Colors.white,
+                              fontVariations: [FontVariation('wght', 700)],
                               fontSize: 12,
                             ),
                           ),
@@ -172,7 +173,7 @@ class RouteStop extends StatelessWidget {
                       ),
                       Text(
                         "도착 시간 : ${stopTime ?? '정보 없음'}",
-                        style: TextStyle(fontSize: 14),
+                        style: AppTheme.textTheme.bodyMedium,
                       ),
                     ],
                   ),
