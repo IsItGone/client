@@ -54,69 +54,69 @@ class AppTheme {
 
 // Define the text theme
   static const TextTheme textTheme = TextTheme(
-    displayLarge: TextStyle(
-      fontSize: 32.0,
-      fontWeight: FontWeight.bold,
-      color: mainBlack,
-    ),
-    displayMedium: TextStyle(
-      fontSize: 28.0,
-      fontWeight: FontWeight.bold,
-      color: mainBlack,
-    ),
+    // displayLarge: TextStyle(
+    //   fontSize: 32.0,
+    //   fontVariations: [FontVariation('wght', 1000)],
+    //   color: mainBlack,
+    // ),
+    // displayMedium: TextStyle(
+    //   fontSize: 28.0,
+    //   fontVariations: [FontVariation('wght', 900)],
+    //   color: mainBlack,
+    // ),
     displaySmall: TextStyle(
       fontSize: 24.0,
-      fontWeight: FontWeight.bold,
-      color: mainBlack,
+      fontVariations: [
+        FontVariation('wght', 800)
+      ], // bottom drawer 노선 정보, 주변 정류장 목록 헤더
+      color: subBlack,
     ),
-    headlineMedium: TextStyle(
-      fontSize: 20.0,
-      fontWeight: FontWeight.bold,
-      color: mainBlack,
-    ),
-    headlineSmall: TextStyle(
-      fontSize: 18.0,
-      fontWeight: FontWeight.bold,
-      color: mainBlack,
-    ),
+    // headlineMedium: TextStyle(
+    //   fontSize: 20.0,
+    //   fontVariations: [FontVariation('wght', 700)],
+    //   color: mainBlack,
+    // ),
+    // headlineSmall: TextStyle(
+    //   fontSize: 18.0,
+    //   fontVariations: [FontVariation('wght', 600)],
+    //   color: mainBlack,
+    // ),
     titleLarge: TextStyle(
       fontSize: 16.0,
-      fontWeight: FontWeight.bold,
-      color: mainBlack,
+      fontVariations: [FontVariation('wght', 600)], // 승차 운행 시간, 선형노선도 정류장 이름
+      color: subBlack,
     ),
-    titleMedium: TextStyle(
-      fontSize: 16.0,
-      fontWeight: FontWeight.normal,
-      color: mainGray,
-    ),
+    // titleMedium: TextStyle(
+    //   fontSize: 16.0,
+    //   color: mainGray,
+    // ),
     titleSmall: TextStyle(
       fontSize: 14.0,
-      fontWeight: FontWeight.normal,
+      fontVariations: [FontVariation('wght', 500)], // 노선 종점 <->
       color: mainGray,
     ),
     bodyLarge: TextStyle(
       fontSize: 16.0,
-      fontWeight: FontWeight.normal,
+      fontVariations: [FontVariation('wght', 400)], // 주변 정류장 이름, 검색 결과 정류장 이름
       color: mainBlack,
     ),
     bodyMedium: TextStyle(
       fontSize: 14.0,
-      fontWeight: FontWeight.normal,
+      fontVariations: [FontVariation('wght', 400)], // 정류장 설명
       color: mainBlack,
     ),
     bodySmall: TextStyle(
       fontSize: 12.0,
-      fontWeight: FontWeight.normal,
+      fontVariations: [FontVariation('wght', 400)], // 정류장 주소, 검색 결과 정류장 주소
       color: mainGray,
     ),
     labelLarge: TextStyle(
       fontSize: 14.0,
-      fontWeight: FontWeight.bold,
+      fontVariations: [FontVariation('wght', 400)], // 주변 정류장 거리
       color: primarySwatch,
     ),
     labelSmall: TextStyle(
       fontSize: 12.0,
-      fontWeight: FontWeight.normal,
       color: mainWhite,
     ),
   );

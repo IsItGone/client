@@ -1,3 +1,4 @@
+import 'package:client/core/theme/theme.dart';
 import 'package:flutter/material.dart';
 
 enum ButtonSize { sm, md, lg }
@@ -47,9 +48,9 @@ class RouteButton extends StatelessWidget {
     }
 
     final buttonTextStyle = TextStyle(
-      color: isSelected ? Colors.white : color,
+      color: isSelected ? AppTheme.mainWhite : color,
       fontSize: size == ButtonSize.sm ? 14 : 16,
-      fontWeight: FontWeight.bold,
+      fontVariations: [FontVariation('wght', 700)],
     );
 
     if (onPressed != null) {
