@@ -1,7 +1,6 @@
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
-import 'package:client/core/theme/theme.dart';
 import 'package:go_router/go_router.dart';
 
 class LinearRouteButton extends StatelessWidget {

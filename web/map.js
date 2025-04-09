@@ -43,14 +43,17 @@ class NaverMap {
       center: new naver.maps.LatLng(this.defaultLocation.lat, this.defaultLocation.lng),
       zoom: 17,
       mapTypeId: naver.maps.MapTypeId.NORMAL,
-      scaleControl: true,
+      scaleControl: false,
       mapDataControl: false,
+      tileTransition: false,
       scaleControlOptions: {
         position: naver.maps.Position.BOTTOM_LEFT,
       },
       logoControlOptions: {
         position: naver.maps.Position.BOTTOM_LEFT,
       },
+      minZoom: 10,
+      maxZoom: 18,
     };
     this.map = new naver.maps.Map(this.elementId, this.mapOptions);
 
