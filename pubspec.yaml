@@ -19,7 +19,6 @@ dependencies:
   flutter_dotenv: ^5.1.0
   geolocator: ^13.0.2
   widgetbook_annotation: ^3.1.0
-  js: ^0.7.1
   web: ^1.1.0
   json_annotation: ^4.9.0
   pointer_interceptor: ^0.10.1+2
@@ -44,7 +43,6 @@ flutter:
 
   assets:
     - assets/icons/
-    # - assets/images/
 
   fonts:
     - family: Pretendard

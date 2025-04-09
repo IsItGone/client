@@ -24,10 +24,15 @@ class HomeScreen extends ConsumerStatefulWidget {
 }
 
 class _HomeScreenState extends ConsumerState<HomeScreen> {
+  bool _isMapInitialized = false;
+
   @override
   void initState() {
     super.initState();
     log('isWeb : $kIsWeb');
+    Future.delayed(Duration.zero, () {
+      setState(() => _isMapInitialized = true);
+    });
   }
 
   @override
@@ -37,40 +42,47 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     final routesAsync = ref.watch(RouteProviders.routesDataProvider);
     final mediaQuery = MediaQuery.of(context);
     final screenHeight = mediaQuery.size.height;
+    final mapHeight = isDrawerOpen ? screenHeight * (1 - 0.33) : screenHeight;
 
     return Scaffold(
       body: Stack(
         children: [
-          SizedBox(
-            height: isDrawerOpen ? screenHeight * (1 - 0.33) : screenHeight,
-            child: const NaverMapWidget(),
+          /// 지도 영역
+          AnimatedPositioned(
+            duration: const Duration(milliseconds: 300),
+            curve: Curves.easeInOut,
+            top: 0,
+            left: 0,
+            right: 0,
+            height: mapHeight,
+            child: RepaintBoundary(
+              child: _isMapInitialized
+                  ? const NaverMapWidget()
+                  : const Center(child: CircularProgressIndicator()),
+            ),
           ),
+
+          /// 상단 UI
           SafeArea(
-            child: Column(
-              children: [
-                Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 10,
-                  ),
-                  child: isDrawerOpen
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  isDrawerOpen
                       ? Align(
                           alignment: Alignment.bottomLeft,
                           child: FloatingActionButton(
                             onPressed: () => ref
                                 .read(bottomDrawerProvider.notifier)
                                 .closeDrawer(),
-                            child: const Icon(
-                              Icons.arrow_back_ios_new_rounded,
-                            ),
+                            child: const Icon(Icons.arrow_back_ios_new_rounded),
                           ),
                         )
                       : const SearchBarButton(),
-                ),
-                if (!isDrawerOpen)
-                  Align(
-                    alignment: Alignment.centerLeft,
-                    child: SizedBox(
+                  const SizedBox(height: 10),
+                  if (!isDrawerOpen)
+                    SizedBox(
                       height: 50,
                       child: routesAsync.when(
                         data: (routes) {
@@ -83,21 +95,22 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                         loading: () => const Center(
                           child: CircularProgressIndicator(),
                         ),
-                        error: (err, stack) => Text('에러 발생: $err'),
+                        error: (err, stack) => Text('에러 발생: $err',
+                            style: TextStyle(color: Colors.red)),
                       ),
                     ),
-                  )
-              ],
+                ],
+              ),
             ),
           ),
+
+          /// 하단 드로어
           Positioned(
             bottom: 0,
             left: 0,
             right: 0,
             child: kIsWeb
-                ? PointerInterceptor(
-                    child: const BottomDrawer(),
-                  )
+                ? PointerInterceptor(child: BottomDrawer())
                 : const BottomDrawer(),
           ),
         ],
