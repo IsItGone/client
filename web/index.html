@@ -18,6 +18,7 @@
 
     <meta charset="UTF-8" />
     <meta content="IE=Edge" http-equiv="X-UA-Compatible" />
+
     <meta name="description" content="SSAFY 대전 캠퍼스의 학생들을 위한 셔틀 버스 앱입니다." />
 
     <!-- iOS meta tags & icons -->
@@ -30,19 +31,26 @@
     <link rel="icon" type="image/png" href="favicon.ico" />
     <link rel="apple-touch-icon" href="apple-touch-icon.png" />
 
+    <!-- preconnect 네이버 맵 API 도메인 -->
+    <link rel="preconnect" href="https://openapi.map.naver.com" />
+
     <title>지나갔나요?</title>
-    </title>
     <link rel="manifest" href="manifest.json" />
+
+    <script src="map.js" defer></script>
+    <script src="flutter_bootstrap.js" defer></script>
+
     <style>
-      html, body {
+      html,
+      body {
         margin: 0;
         padding: 0;
         height: 100%;
         overflow: hidden;
       }
-      #map {
-        width: 100%;
-        height: 100vh;
+      body > flutter-view {
+        contain: layout paint;
+        transform: translateZ(0);
       }
       #map > * {
         z-index: 0 !important;
@@ -64,8 +72,5 @@
       }
     </style>
   </head>
-  <body>
-    <script src="map.js"></script>
-    <script src="flutter_bootstrap.js" async></script>
-  </body>
+  <body></body>
 </html>

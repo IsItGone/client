@@ -4,6 +4,7 @@ import 'dart:ui_web' as ui_web;
 import 'package:client/data/models/route_model.dart';
 import 'package:client/data/models/station_model.dart';
 import 'package:client/data/providers/route_providers.dart';
+import 'package:client/features/home/widgets/map/widgets/web/js_interop_web.dart';
 import 'package:web/web.dart' as web;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -11,51 +12,6 @@ import 'package:client/data/providers/station_providers.dart';
 import 'package:client/features/home/widgets/bottom_drawer/providers/bottom_drawer_provider.dart';
 import 'package:client/features/home/widgets/map/providers/naver_map_providers.dart';
 import 'package:client/core/theme/theme.dart';
-
-// RouteModel 웹 확장
-extension RouteModelWebExtension on RouteModel {
-  Map<String, dynamic> toJson() => {
-        'id': id,
-        'name': name,
-        'departureStations': departureStations.map((s) => s.toJson()).toList(),
-        'arrivalStations': arrivalStations.map((s) => s.toJson()).toList(),
-      };
-
-  JSObject toJSObject() => toJson().jsify() as JSObject;
-}
-
-// StationModel 웹 확장
-extension StationModelWebExtension on StationModel {
-  Map<String, dynamic> toJson() => {
-        'id': id,
-        'name': name,
-        'description': description,
-        'address': address,
-        'latitude': latitude,
-        'longitude': longitude,
-        // 'stopTime': stopTime,
-        'isDeparture': isDeparture,
-        'routes': routes,
-      };
-
-  JSObject toJSObject() => toJson().jsify() as JSObject;
-}
-
-@JS()
-external set openDrawer(JSFunction value);
-
-@JS()
-external set closeDrawer(JSFunction value);
-
-@JS()
-external JSPromise initNaverMap(String elementId, String clientId);
-
-@JS()
-external void drawDataToMap(
-  JSArray routesData,
-  JSArray stationsData,
-  JSArray colorsData,
-);
 
 class NaverMapWidget extends ConsumerStatefulWidget {
   const NaverMapWidget({super.key});
@@ -65,78 +21,50 @@ class NaverMapWidget extends ConsumerStatefulWidget {
 }
 
 class _NaverMapWidgetState extends ConsumerState<NaverMapWidget> {
-  late String clientId;
+  late final String clientId;
+  late List<RouteModel> _routeModels;
+  late List<StationModel> _stationModels;
+
+  bool _isMapInitialized = false;
+  bool _isDataLoaded = false;
 
   @override
   void initState() {
     super.initState();
     clientId = ref.read(naverMapClientIdProvider);
+    _injectNaverMapScript();
     _registerViewFactory();
+    _loadData();
   }
 
-  void openDrawerFromJS(String id, String type) {
-    final mapViewModel = ref.read(naverMapViewModelProvider.notifier);
-    switch (type) {
-      case 'station':
-        mapViewModel.onStationSelected(id, 0, 0, null);
-        break;
-      case 'route':
-        mapViewModel.onRouteSelected(id);
-        break;
-      case 'place':
-        // TODO: Implement place drawer
-        break;
-    }
-  }
+  void _injectNaverMapScript() {
+    if (web.document.querySelector('script#naver-map-script') != null) return;
 
-  void closeDrawerFromJS() {
-    ref.read(bottomDrawerProvider.notifier).closeDrawer();
-  }
+    final script =
+        web.document.createElement('script') as web.HTMLScriptElement;
+    script.id = 'naver-map-script';
+    script.type = 'text/javascript';
+    script.src =
+        'https://openapi.map.naver.com/openapi/v3/maps.js?ncpClientId=$clientId';
+    script.defer = true;
+    script.onload = ((web.Event event) {
+      initializeNaverMap('map').toDart.then((_) {
+        if (_isDataLoaded) {
+          _drawData();
+        }
 
-  Future<void> initializeMap() async {
-    try {
-      await initNaverMap('map', clientId).toDart;
-      await _drawData();
+        openDrawer = _handleOpenDrawer.toJS;
+        closeDrawer = _handleCloseDrawer.toJS;
 
-      openDrawer = openDrawerFromJS.toJS;
-      closeDrawer = closeDrawerFromJS.toJS;
-    } catch (e) {
-      // 에러 처리
-      log('데이터 로딩 오류: $e');
-      // TODO :사용자에게 오류 알림
-    }
-  }
+        setState(() {
+          _isMapInitialized = true;
+        });
+      }).catchError((e) {
+        log('지도 초기화 실패: $e');
+      });
+    }).toJS;
 
-  Future<void> _drawData() async {
-    try {
-      final routesData =
-          await ref.read(RouteProviders.routesDataProvider.future);
-      final stationsData =
-          await ref.read(StationProviders.stationDataProvider.future);
-
-      // 모델 객체를 JavaScript 객체로 변환
-      final jsRoutesData = routesData
-          .map((route) => route.toJSObject())
-          .toList()
-          .jsify() as JSArray;
-
-      final jsStationsData = stationsData
-          .map((station) => station.toJSObject())
-          .toList()
-          .jsify() as JSArray;
-
-//TODO:
-      final jsColorsData = AppTheme.lineColors
-          .map((color) => color.toARGB32().toRadixString(16))
-          .toList()
-          .jsify() as JSArray;
-
-      drawDataToMap(jsRoutesData, jsStationsData, jsColorsData);
-    } catch (e) {
-      // 오류 처리
-      log('데이터 로딩 오류: $e');
-      // TODO : 사용자에게 오류 메시지 표시
-    }
+    web.document.head!.append(script);
   }
 
   void _registerViewFactory() {
@@ -146,23 +74,72 @@ class _NaverMapWidgetState extends ConsumerState<NaverMapWidget> {
       element.style
         ..width = '100%'
         ..height = '100%'
-        ..margin = '0'
-        ..padding = '0'
         ..position = 'absolute'
-        ..top = '0'
-        ..left = '0';
+        ..overflow = 'hidden'
+        ..willChange = 'transform'
+        ..contain = 'layout paint';
       return element;
     });
   }
 
+  Future<void> _loadData() {
+    return Future.wait([
+      ref.read(RouteProviders.routesDataProvider.future),
+      ref.read(StationProviders.stationDataProvider.future),
+    ]).then((results) {
+      _routeModels = results[0] as List<RouteModel>;
+      _stationModels = results[1] as List<StationModel>;
+
+      _isDataLoaded = true;
+      if (_isMapInitialized) {
+        _drawData();
+      }
+    }).catchError((e) {
+      log('데이터 로딩 오류: $e');
+    });
+  }
+
+  void _drawData() {
+    final jsRoutes =
+        _routeModels.map((r) => r.toJSObject()).toList().jsify() as JSArray;
+    final jsStations =
+        _stationModels.map((s) => s.toJSObject()).toList().jsify() as JSArray;
+    final jsColors = AppTheme.lineColors
+        .map((c) => c.toARGB32().toRadixString(16))
+        .toList()
+        .jsify() as JSArray;
+
+    naverMap.drawData(jsRoutes, jsStations, jsColors);
+  }
+
   @override
   Widget build(BuildContext context) {
-    return HtmlElementView(
-      viewType: 'naver-map',
-      onPlatformViewCreated: (_) {
-        log('platform created');
-        initializeMap();
-      },
+    return Stack(
+      children: [
+        HtmlElementView(
+          viewType: 'naver-map',
+        ),
+        if (!_isMapInitialized)
+          const Positioned.fill(
+            child: ColoredBox(
+              color: Colors.white,
+              child: Center(child: CircularProgressIndicator()),
+            ),
+          ),
+      ],
     );
+  }
+
+  void _handleOpenDrawer(String id, String type) {
+    final vm = ref.read(naverMapViewModelProvider.notifier);
+    if (type == 'station') {
+      vm.onStationSelected(id, 0, 0, null);
+    } else if (type == 'route') {
+      vm.onRouteSelected(id);
+    }
+  }
+
+  void _handleCloseDrawer() {
+    ref.read(bottomDrawerProvider.notifier).closeDrawer();
   }
 }
