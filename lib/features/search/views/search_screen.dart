@@ -4,6 +4,7 @@ import 'package:client/features/search/widgets/search_result.dart';
 import 'package:client/shared/widgets/map_search_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 class SearchScreen extends ConsumerWidget {
   const SearchScreen({super.key});
@@ -19,7 +20,7 @@ class SearchScreen extends ConsumerWidget {
             ref.read(searchKeywordProvider.notifier).state = '';
             ref.read(searchResultsProvider.notifier).state = [];
 
-            Navigator.of(context).pop();
+            context.pop();
           },
         ),
         toolbarHeight: MediaQuery.of(context).size.height * 0.1,

@@ -12,8 +12,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:pointer_interceptor/pointer_interceptor.dart';
-import 'package:client/features/home/widgets/map/widgets/web/naver_map_js_interop_stub.dart'
-    if (dart.library.js_interop) 'package:client/features/home/widgets/map/widgets/web/naver_map_js_interop_web.dart';
+import 'package:client/features/home/widgets/map/widgets/web/js_interop_stub.dart'
+    if (dart.library.js_interop) 'package:client/features/home/widgets/map/widgets/web/js_interop_web.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({
@@ -24,15 +24,9 @@ class HomeScreen extends ConsumerStatefulWidget {
 }
 
 class _HomeScreenState extends ConsumerState<HomeScreen> {
-  bool _isMapInitialized = false;
-
   @override
   void initState() {
     super.initState();
-    log('isWeb : $kIsWeb');
-    Future.delayed(Duration.zero, () {
-      setState(() => _isMapInitialized = true);
-    });
   }
 
   @override
@@ -55,11 +49,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             left: 0,
             right: 0,
             height: mapHeight,
-            child: RepaintBoundary(
-              child: _isMapInitialized
-                  ? const NaverMapWidget()
-                  : const Center(child: CircularProgressIndicator()),
-            ),
+            child: const NaverMapWidget(),
           ),
 
           /// 상단 UI

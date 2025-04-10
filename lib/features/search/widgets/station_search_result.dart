@@ -3,6 +3,7 @@ import 'package:client/data/models/station_model.dart';
 import 'package:client/features/home/widgets/map/providers/naver_map_providers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 class StationSearchResult extends ConsumerWidget {
   final List<StationModel> stations;
@@ -88,7 +89,7 @@ class StationSearchResult extends ConsumerWidget {
                     station.longitude!,
                     null,
                   );
-              Navigator.of(context).pop();
+              context.pop();
             },
             title: Row(
               children: [
