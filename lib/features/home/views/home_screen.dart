@@ -83,11 +83,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             left: 0,
             right: 0,
             height: mapHeight,
-            // child: NaverMapWidget(
-            //   routes: _routes,
-            //   stations: _stations,
-            // ),
-
             child: FutureBuilder(
               future: _mapLibraryFuture,
               builder: (context, snapshot) {
