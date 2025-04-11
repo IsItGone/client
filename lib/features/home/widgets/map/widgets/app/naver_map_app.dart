@@ -16,7 +16,14 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:geolocator/geolocator.dart';
 
 class NaverMapWidget extends ConsumerStatefulWidget {
-  const NaverMapWidget({super.key});
+  final List<RouteModel> routes;
+  final List<StationModel> stations;
+
+  const NaverMapWidget({
+    super.key,
+    required this.routes,
+    required this.stations,
+  });
 
   @override
   ConsumerState<NaverMapWidget> createState() => _NaverMapWidgetState();
@@ -72,23 +79,23 @@ class _NaverMapWidgetState extends ConsumerState<NaverMapWidget> {
         _isMapInitialized = true;
 
         try {
-          final results = await Future.wait([
-            ref.read(RouteProviders.routesDataProvider.future),
-            ref.read(StationProviders.stationDataProvider.future),
-          ]);
+          // final results = await Future.wait([
+          //   ref.read(RouteProviders.routesDataProvider.future),
+          //   ref.read(StationProviders.stationDataProvider.future),
+          // ]);
 
-          final routesData = results[0] as List<RouteModel>;
-          final stationsData = results[1] as List<StationModel>;
+          // final routesData = results[0] as List<RouteModel>;
+          // final stationsData = results[1] as List<StationModel>;
 
-          if (routesData.isEmpty) {
-            log('경고: 노선 데이터가 비어 있습니다');
-          }
+          // if (routesData.isEmpty) {
+          //   log('경고: 노선 데이터가 비어 있습니다');
+          // }
 
           final mapViewModel = ref.read(naverMapViewModelProvider.notifier);
           final overlays = mapViewModel.initializeMap(
             controller,
-            routesData,
-            stationsData,
+            widget.routes,
+            widget.stations,
             drawerNotifier,
           );
           controller.addOverlayAll(overlays);

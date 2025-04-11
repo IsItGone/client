@@ -1,10 +1,13 @@
 import 'dart:developer';
 import 'package:client/core/constants/route_colors.dart';
 import 'package:client/data/models/route_model.dart';
+import 'package:client/data/models/station_model.dart';
+import 'package:client/data/providers/station_providers.dart';
 import 'package:client/features/home/widgets/bottom_drawer/bottom_drawer.dart';
 import 'package:client/features/home/widgets/bottom_drawer/providers/bottom_drawer_provider.dart';
 import 'package:client/features/home/widgets/map/providers/naver_map_providers.dart';
-import 'package:client/features/home/widgets/map/naver_map_widget.dart';
+import 'package:client/features/home/widgets/map/naver_map_widget.dart'
+    deferred as mapwidget;
 import 'package:client/data/providers/route_providers.dart';
 import 'package:client/features/home/widgets/search_bar_button.dart';
 import 'package:client/shared/widgets/route_button.dart';
@@ -24,13 +27,44 @@ class HomeScreen extends ConsumerStatefulWidget {
 }
 
 class _HomeScreenState extends ConsumerState<HomeScreen> {
+  bool _isLoading = true;
+  late Future<void> _mapLibraryFuture;
+
+  List<RouteModel> _routes = [];
+  List<StationModel> _stations = [];
+
   @override
   void initState() {
     super.initState();
+    _mapLibraryFuture = mapwidget.loadLibrary();
+    _loadData();
+  }
+
+  Future<void> _loadData() async {
+    try {
+      final routeModels =
+          await ref.read(RouteProviders.routesDataProvider.future);
+      final stationModels =
+          await ref.read(StationProviders.stationDataProvider.future);
+
+      setState(() {
+        _routes = routeModels;
+        _stations = stationModels;
+        _isLoading = false;
+      });
+    } catch (e) {
+      log('데이터 로딩 오류: $e');
+    }
   }
 
   @override
   Widget build(BuildContext context) {
+    if (_isLoading) {
+      return const Scaffold(
+        body: Center(child: CircularProgressIndicator()),
+      );
+    }
+
     final isDrawerOpen =
         ref.watch(bottomDrawerProvider.select((s) => s.isDrawerOpen));
     final routesAsync = ref.watch(RouteProviders.routesDataProvider);
@@ -49,7 +83,24 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             left: 0,
             right: 0,
             height: mapHeight,
-            child: const NaverMapWidget(),
+            // child: NaverMapWidget(
+            //   routes: _routes,
+            //   stations: _stations,
+            // ),
+
+            child: FutureBuilder(
+              future: _mapLibraryFuture,
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.done) {
+                  return mapwidget.NaverMapWidget(
+                    routes: _routes,
+                    stations: _stations,
+                  );
+                } else {
+                  return const Center(child: CircularProgressIndicator());
+                }
+              },
+            ),
           ),
 
           /// 상단 UI
