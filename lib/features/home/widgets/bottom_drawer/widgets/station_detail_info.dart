@@ -60,7 +60,7 @@ class StationDetailInfo extends ConsumerWidget {
           children: [
             Positioned(
               height: 30,
-              top: 25,
+              top: 25, // TODO :비율로 수정
               left: 10,
               right: 10,
               child: Row(
@@ -273,7 +273,7 @@ class AdjacentStationButton extends StatelessWidget {
                 child: Text(
                   text,
                   style: AppTheme.textTheme.labelLarge?.copyWith(
-                    fontVariations: [FontVariation('wght', 700)],
+                    fontWeight: FontWeight.w700,
                     color: AppTheme.mainWhite,
                   ),
                   maxLines: 2,
@@ -316,7 +316,7 @@ class CurrentStationButton extends StatelessWidget {
         child: Text(
           text,
           style: AppTheme.textTheme.labelLarge?.copyWith(
-            fontVariations: [FontVariation('wght', 700)],
+            fontWeight: FontWeight.w700,
             color: AppTheme.subBlack,
           ),
           textAlign: TextAlign.center,

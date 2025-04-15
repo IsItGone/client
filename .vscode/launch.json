@@ -15,7 +15,7 @@
       "name": "web(dev)",
       "request": "launch",
       "type": "dart",
-      "flutterMode": "debug",
+      "flutterMode": "release",
       "args": [
         "-d",
         "chrome",
@@ -29,6 +29,7 @@
       "name": "app (prod)",
       "request": "launch",
       "type": "dart",
+      "flutterMode": "release",
       "toolArgs": ["--dart-define-from-file", "./.env.prod"]
     },
     {
