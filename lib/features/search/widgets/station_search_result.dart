@@ -45,7 +45,7 @@ class StationSearchResult extends ConsumerWidget {
                 Text(
                   title,
                   style: const TextStyle(
-                    fontVariations: [FontVariation('wght', 800)],
+                    fontWeight: FontWeight.w800,
                     fontSize: 16,
                     color: AppTheme.mainWhite,
                   ),
@@ -114,7 +114,7 @@ class StationSearchResult extends ConsumerWidget {
                     child: Text(
                       station.isDeparture! ? "승차" : "하차",
                       style: AppTheme.textTheme.labelSmall?.copyWith(
-                        fontVariations: [FontVariation('wght', 800)],
+                        fontWeight: FontWeight.w800,
                         color: textColor,
                       ),
                     ),
@@ -172,7 +172,7 @@ class StationSearchResult extends ConsumerWidget {
     spans.add(TextSpan(
       text: text.substring(startIndex, startIndex + searchKeyword.length),
       style: textStyle.copyWith(
-        fontVariations: [FontVariation('wght', 700)],
+        fontWeight: FontWeight.w700,
       ),
     ));
 

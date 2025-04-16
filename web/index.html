@@ -36,16 +36,19 @@
     <!-- 네이버 지도 API preconnect -->
     <link rel="preconnect" href="https://openapi.map.naver.com" />
 
-    <!-- Google Fonts 관련 preconnect 및 dns-prefetch -->
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link rel="dns-prefetch" href="https://fonts.gstatic.com" />
-
     <title>지나갔나요?</title>
     <link rel="manifest" href="manifest.json" />
 
     <script src="map.js" defer></script>
     <script src="flutter_bootstrap.js" defer></script>
 
+    <style>
+      @font-face {
+        font-family: "PretendardWeb";
+        src: url("assets/fonts/Pretendard-Regular.subset.woff2") format("woff2");
+        font-display: swap;
+      }
+    </style>
     <style>
       html,
       body {

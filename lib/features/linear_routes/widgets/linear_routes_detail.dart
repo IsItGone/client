@@ -110,7 +110,7 @@ class RouteStop extends StatelessWidget {
                             "회차",
                             style: TextStyle(
                               color: Colors.white,
-                              fontVariations: [FontVariation('wght', 700)],
+                              fontWeight: FontWeight.w700,
                               fontSize: 12,
                             ),
                           ),
