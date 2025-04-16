@@ -2,15 +2,14 @@ name: Build and Push Package (Prod)
 
 on:
   release:
-    types: [ published ]
+    types: [published]
 
 env:
   ENVIRONMENT: prod
   REPOSITORY_NAME: ${{ github.event.repository.name }}
   IMAGE_REPOSITORY: ${{ vars.REGISTRY }}/${{ vars.ORGANIZATION }}/${{ github.event.repository.name }}
-  APP_VERSION: ${{ github.sha }}
+  APP_VERSION: ${{ github.event.release.tag_name }}
   HOST: ${{ vars.HOST }}
-
 
 jobs:
   build-and-push:
@@ -42,7 +41,6 @@ jobs:
             ${{ env.IMAGE_REPOSITORY }}:${{ env.APP_VERSION }},
             ${{ env.IMAGE_REPOSITORY }}:latest
           password: ${{ secrets.GHCR_TOKEN }}
-
 
   update-helm-chart:
     needs: build-and-push
