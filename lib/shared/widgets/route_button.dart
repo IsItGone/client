@@ -50,7 +50,7 @@ class RouteButton extends StatelessWidget {
     final buttonTextStyle = TextStyle(
       color: isSelected ? AppTheme.mainWhite : color,
       fontSize: size == ButtonSize.sm ? 14 : 16,
-      fontVariations: [FontVariation('wght', 700)],
+      fontWeight: FontWeight.w700,
     );
 
     if (onPressed != null) {

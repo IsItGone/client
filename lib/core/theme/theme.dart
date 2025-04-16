@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 class AppTheme {
@@ -56,34 +57,32 @@ class AppTheme {
   static const TextTheme textTheme = TextTheme(
     // displayLarge: TextStyle(
     //   fontSize: 32.0,
-    //   fontVariations: [FontVariation('wght', 1000)],
+    //   fontWeight: FontWeight.w900,
     //   color: mainBlack,
     // ),
     // displayMedium: TextStyle(
     //   fontSize: 28.0,
-    //   fontVariations: [FontVariation('wght', 900)],
+    //   fontWeight: FontWeight.w800,
     //   color: mainBlack,
     // ),
     displaySmall: TextStyle(
       fontSize: 24.0,
-      fontVariations: [
-        FontVariation('wght', 800)
-      ], // bottom drawer 노선 정보, 주변 정류장 목록 헤더
+      fontWeight: FontWeight.w800, // bottom drawer 노선 정보, 주변 정류장 목록 헤더
       color: subBlack,
     ),
     // headlineMedium: TextStyle(
     //   fontSize: 20.0,
-    //   fontVariations: [FontVariation('wght', 700)],
+    //   fontWeight: FontWeight.w700,
     //   color: mainBlack,
     // ),
     // headlineSmall: TextStyle(
     //   fontSize: 18.0,
-    //   fontVariations: [FontVariation('wght', 600)],
+    //   fontWeight: FontWeight.w600,
     //   color: mainBlack,
     // ),
     titleLarge: TextStyle(
       fontSize: 16.0,
-      fontVariations: [FontVariation('wght', 600)], // 승차 운행 시간, 선형노선도 정류장 이름
+      fontWeight: FontWeight.w600, // 승차 운행 시간, 선형노선도 정류장 이름
       color: subBlack,
     ),
     // titleMedium: TextStyle(
@@ -92,27 +91,27 @@ class AppTheme {
     // ),
     titleSmall: TextStyle(
       fontSize: 14.0,
-      fontVariations: [FontVariation('wght', 500)], // 노선 종점 <->
+      fontWeight: FontWeight.w500, // 노선 종점 <->
       color: mainGray,
     ),
     bodyLarge: TextStyle(
       fontSize: 16.0,
-      fontVariations: [FontVariation('wght', 400)], // 주변 정류장 이름, 검색 결과 정류장 이름
+      fontWeight: FontWeight.w400, // 주변 정류장 이름, 검색 결과 정류장 이름
       color: mainBlack,
     ),
     bodyMedium: TextStyle(
       fontSize: 14.0,
-      fontVariations: [FontVariation('wght', 400)], // 정류장 설명
+      fontWeight: FontWeight.w400, // 정류장 설명
       color: mainBlack,
     ),
     bodySmall: TextStyle(
       fontSize: 12.0,
-      fontVariations: [FontVariation('wght', 400)], // 정류장 주소, 검색 결과 정류장 주소
+      fontWeight: FontWeight.w400, // 정류장 주소, 검색 결과 정류장 주소
       color: mainGray,
     ),
     labelLarge: TextStyle(
       fontSize: 14.0,
-      fontVariations: [FontVariation('wght', 400)], // 주변 정류장 거리
+      fontWeight: FontWeight.w400, // 주변 정류장 거리
       color: primarySwatch,
     ),
     labelSmall: TextStyle(
@@ -125,7 +124,7 @@ class AppTheme {
     colorScheme: ColorScheme.light(
       primary: primarySwatch[800]!,
     ),
-    fontFamily: "Pretendard",
+    fontFamily: kIsWeb ? 'PretendardWeb' : 'PretendardApp',
     textTheme: textTheme,
   );
 }

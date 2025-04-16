@@ -35,7 +35,7 @@ class LinearRouteButton extends StatelessWidget {
             "노선표",
             style: const TextStyle(
               fontSize: 16,
-              fontVariations: [FontVariation('wght', 800)],
+              fontWeight: FontWeight.w800,
             ),
           ),
         ],
