@@ -24,5 +24,13 @@ query GetRoutes {
       isDeparture
       routes
     }
+    departurePath {
+      latitude
+      longitude
+    }
+    arrivalPath {
+      latitude
+      longitude
+    }
   }
 }

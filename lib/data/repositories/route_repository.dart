@@ -12,6 +12,7 @@ class RouteRepository extends GraphQLRepository {
       final request = GGetRoutesReq();
 
       final response = await executeQuery(request);
+      // log('getRoutes: ${response.data?.getRoutes}');
       return response;
     } catch (e) {
       log('예상치 못한 오류: $e');

@@ -127,11 +127,9 @@ class NaverMap {
       const route = routesData[i];
       const color = `#${colorsData[i + 1].substring(2, 8)}`;
       this.polylines.push(
-        this.createRoutePolyline(route.departureStations, color, "departure", route.id)
+        this.createRoutePolyline(route.departurePath, color, "departure", route.id)
       );
-      this.polylines.push(
-        this.createRoutePolyline(route.arrivalStations, color, "arrival", route.id)
-      );
+      this.polylines.push(this.createRoutePolyline(route.arrivalPath, color, "arrival", route.id));
     }
 
     for (const polyline of this.polylines) {
