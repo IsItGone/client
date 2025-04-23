@@ -6,8 +6,6 @@ import 'package:client/data/models/route_model.dart';
 import 'package:client/data/models/station_model.dart';
 import 'package:client/features/home/widgets/bottom_drawer/providers/bottom_drawer_provider.dart';
 import 'package:client/features/home/widgets/bottom_drawer/view_models/bottom_drawer_view_model.dart';
-import 'package:client/data/providers/route_providers.dart';
-import 'package:client/data/providers/station_providers.dart';
 import 'package:client/features/home/widgets/map/providers/naver_map_providers.dart';
 
 import 'package:flutter/material.dart';
@@ -78,19 +76,10 @@ class _NaverMapWidgetState extends ConsumerState<NaverMapWidget> {
         if (_isMapInitialized) return;
         _isMapInitialized = true;
 
+        // 혹시 초기화가 아직이면 여기서 보장
+        await ref.read(naverMapInitializationProvider.future);
+
         try {
-          // final results = await Future.wait([
-          //   ref.read(RouteProviders.routesDataProvider.future),
-          //   ref.read(StationProviders.stationDataProvider.future),
-          // ]);
-
-          // final routesData = results[0] as List<RouteModel>;
-          // final stationsData = results[1] as List<StationModel>;
-
-          // if (routesData.isEmpty) {
-          //   log('경고: 노선 데이터가 비어 있습니다');
-          // }
-
           final mapViewModel = ref.read(naverMapViewModelProvider.notifier);
           final overlays = mapViewModel.initializeMap(
             controller,

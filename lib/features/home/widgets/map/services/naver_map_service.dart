@@ -4,14 +4,26 @@ import 'package:flutter_naver_map/flutter_naver_map.dart';
 import 'package:geolocator/geolocator.dart';
 
 class NaverMapService {
+  NaverMapService._internal();
+  static final NaverMapService _instance = NaverMapService._internal();
+  factory NaverMapService() => _instance;
+
+  static final FlutterNaverMap _sdk = FlutterNaverMap();
+  bool _initialized = false;
+
   // 지도 초기화
   Future<void> initialize() async {
+    if (_initialized) return;
+
     log('init map');
     const clientId = String.fromEnvironment('NAVER_MAP_CLIENT_ID');
-    log('client id : $clientId');
-    await NaverMapSdk.instance.initialize(
-        clientId: clientId, // 클라이언트 ID 설정
-        onAuthFailed: (e) => log("네이버맵 인증오류 : $e", name: "onAuthFailed"));
+
+    await _sdk.init(
+      clientId: clientId,
+      onAuthFailed: (e) => log("네이버맵 인증오류 : $e", name: "onAuthFailed"),
+    );
+
+    _initialized = true;
   }
 
   // 현재 위치 가져오기

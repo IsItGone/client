@@ -42,7 +42,7 @@ class _NaverMapWidgetState extends ConsumerState<NaverMapWidget> {
       script.id = 'naver-map-script';
       script.type = 'text/javascript';
       script.src =
-          'https://openapi.map.naver.com/openapi/v3/maps.js?ncpClientId=$clientId';
+          'https://oapi.map.naver.com/openapi/v3/maps.js?ncpKeyId=$clientId';
       script.defer = true;
       script.onload = ((web.Event event) {
         log('네이버 맵 스크립트 로드됨');

@@ -16,7 +16,8 @@ final naverMapClientIdProvider = Provider<String>((ref) {
   return naverMapClientId;
 });
 
-final naverMapServiceProvider = Provider((ref) => NaverMapService());
+final naverMapServiceProvider =
+    Provider<NaverMapService>((_) => NaverMapService());
 
 final naverMapInitializationProvider = FutureProvider<void>((ref) async {
   final naverMapService = ref.read(naverMapServiceProvider);
