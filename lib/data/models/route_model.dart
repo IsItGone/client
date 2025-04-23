@@ -1,5 +1,6 @@
 import 'package:client/core/constants/route_colors.dart';
 import 'package:client/data/graphql/queries/route/index.dart';
+import 'package:client/data/models/location_model.dart';
 import 'package:client/data/models/station_model.dart';
 import 'package:flutter/material.dart';
 
@@ -8,7 +9,8 @@ class RouteModel {
   final String name;
   final List<StationModel> departureStations;
   final List<StationModel> arrivalStations;
-
+  final List<LocationModel>? departurePath;
+  final List<LocationModel>? arrivalPath;
   final Color color;
 
   const RouteModel({
@@ -16,6 +18,8 @@ class RouteModel {
     required this.name,
     required this.departureStations,
     required this.arrivalStations,
+    required this.departurePath,
+    required this.arrivalPath,
     required this.color,
   });
 
@@ -30,6 +34,18 @@ class RouteModel {
       arrivalStations: (routeData.arrivalStations?.toList() ?? [])
           .where((station) => station != null)
           .map((station) => StationModel.fromStation(station))
+          .toList(),
+      departurePath: (routeData.departurePath?.toList() ?? [])
+          .map((location) => LocationModel(
+                latitude: location!.latitude!,
+                longitude: location.longitude!,
+              ))
+          .toList(),
+      arrivalPath: (routeData.arrivalPath?.toList() ?? [])
+          .map((location) => LocationModel(
+                latitude: location!.latitude!,
+                longitude: location.longitude!,
+              ))
           .toList(),
       color: RouteColors.getColor(routeData.id),
     );
@@ -54,6 +70,18 @@ class RouteModel {
       arrivalStations: (routeData.arrivalStations?.toList() ?? [])
           .where((station) => station != null)
           .map((station) => StationModel.fromStation(station))
+          .toList(),
+      departurePath: (routeData.departurePath?.toList() ?? [])
+          .map((location) => LocationModel(
+                latitude: location!.latitude!,
+                longitude: location.longitude!,
+              ))
+          .toList(),
+      arrivalPath: (routeData.arrivalPath?.toList() ?? [])
+          .map((location) => LocationModel(
+                latitude: location!.latitude!,
+                longitude: location.longitude!,
+              ))
           .toList(),
       color: RouteColors.getColor(routeId),
     );

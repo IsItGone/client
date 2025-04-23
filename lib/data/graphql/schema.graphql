@@ -14,6 +14,8 @@ type Route {
   name: String!
   departureStations: [Station]
   arrivalStations: [Station]
+  departurePath: [Location]
+  arrivalPath: [Location]
 }
 
 type Station {
@@ -26,4 +28,9 @@ type Station {
   stopTime: String
   isDeparture: Boolean
   routes: [String]
+}
+
+type Location {
+  latitude: Float
+  longitude: Float
 }

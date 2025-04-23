@@ -24,5 +24,13 @@ query GetRoutesByStationId($stationId: ID!) {
       isDeparture
       routes
     }
+    departurePath {
+      latitude
+      longitude
+    }
+    arrivalPath {
+      latitude
+      longitude
+    }
   }
 }

@@ -2,6 +2,7 @@ import 'dart:developer' as dev;
 import 'dart:math';
 
 import 'package:client/core/constants/constants.dart';
+import 'package:client/data/models/location_model.dart';
 import 'package:client/data/models/route_model.dart';
 import 'package:client/data/models/station_model.dart';
 import 'package:client/features/home/widgets/bottom_drawer/view_models/bottom_drawer_view_model.dart';
@@ -35,7 +36,7 @@ class OverlayService {
     List<NLatLng> curvedPath = [];
 
     // 노선별로 다른 곡률 적용
-    double baseCurveFactor = 0.0001;
+    double baseCurveFactor = 0.00001;
     double curveFactor = baseCurveFactor * (1 + (routeIndex % 3) * 0.2);
 
     // 홀수/짝수 노선에 따라 곡률 방향 반대로 설정
@@ -111,6 +112,7 @@ class OverlayService {
     }
 
     final routeData = _prepareRouteData(routes);
+    dev.log('routeData: $routeData');
     final routeOverlays = _createRouteOverlays(routeData, drawerNotifier);
     final stationOverlays = _createStationMarkers(stations, drawerNotifier);
 
@@ -130,21 +132,26 @@ class OverlayService {
       return {
         'index': index,
         'id': entry.value.id,
-        'departureCoords': _prepareCoordinates(route.departureStations),
-        'arrivalCoords': _prepareCoordinates(route.arrivalStations),
+        'departureCoords': route.departurePath,
+        'arrivalCoords': route.arrivalPath,
+        // 'departureCoords': _prepareCoordinates(route.departureStations),
+        // 'arrivalCoords': _prepareCoordinates(route.arrivalStations),
       };
     }).toList();
   }
 
   // 좌표 데이터 준비
-  List<Map<String, dynamic>> _prepareCoordinates(List<StationModel> stations) {
-    return stations
-        .map((station) => {
-              'coord': NLatLng(station.latitude!, station.longitude!),
-              'id': station.id
-            })
-        .toList();
-  }
+  List<NLatLng> _prepareCoordinates(List<StationModel> stations) =>
+      stations.map((s) => NLatLng(s.latitude!, s.longitude!)).toList();
+
+  // List<Map<String, dynamic>> _prepareCoordinates(List<StationModel> stations) {
+  //   return stations
+  //       .map((station) => {
+  //             'coord': NLatLng(station.latitude!, station.longitude!),
+  //             'id': station.id
+  //           })
+  //       .toList();
+  // }
 
   // 경로 오버레이 생성
   Map<String, Set<NAddableOverlay<NOverlay<void>>>> _createRouteOverlays(
@@ -187,8 +194,8 @@ class OverlayService {
   ) {
     int index = route['index'];
     String id = route['id'];
-    List<Map<String, dynamic>> departureCoords = route['departureCoords'];
-    List<Map<String, dynamic>> arrivalCoords = route['arrivalCoords'] ?? [];
+    List<LocationModel> departureCoords = route['departureCoords'];
+    List<LocationModel> arrivalCoords = route['arrivalCoords'];
 
     // 기본 경로 추가
     _addRoutes(
@@ -201,7 +208,7 @@ class OverlayService {
     );
 
     // 상세 경로 추가
-    List<List<Map<String, dynamic>>> extendedCoords = [departureCoords];
+    List<List<LocationModel>> extendedCoords = [departureCoords];
     if (arrivalCoords.isNotEmpty) {
       extendedCoords.add(arrivalCoords);
     }
@@ -221,7 +228,7 @@ class OverlayService {
     Set<NAddableOverlay<NOverlay<void>>>? routeSet,
     int index,
     String id,
-    List<List<Map<String, dynamic>>> coordsList,
+    List<List<LocationModel>> coordsList,
     bool isExtended,
     BottomDrawerViewModel drawerNotifier,
   ) {
@@ -230,7 +237,9 @@ class OverlayService {
               color: AppTheme.lineColors[index],
               outlineColor: AppTheme.lineColors[index],
               coords: adjustRoute(
-                coords.map((item) => item['coord'] as NLatLng).toList(),
+                coords
+                    .map((coord) => NLatLng(coord.latitude, coord.longitude))
+                    .toList(),
                 index, // 노선 인덱스 전달
               ),
             ))

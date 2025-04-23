@@ -1,5 +1,6 @@
 import 'dart:js_interop';
 
+import 'package:client/data/models/location_model.dart';
 import 'package:client/data/models/route_model.dart';
 import 'package:client/data/models/station_model.dart';
 
@@ -32,8 +33,10 @@ extension RouteModelWebExtension on RouteModel {
   Map<String, dynamic> toJson() => {
         'id': id,
         'name': name,
-        'departureStations': departureStations.map((s) => s.toJson()).toList(),
-        'arrivalStations': arrivalStations.map((s) => s.toJson()).toList(),
+        // 'departureStations': departureStations.map((s) => s.toJson()).toList(),
+        // 'arrivalStations': arrivalStations.map((s) => s.toJson()).toList(),
+        'departurePath': departurePath?.map((l) => l.toJson()).toList(),
+        'arrivalPath': arrivalPath?.map((l) => l.toJson()).toList(),
       };
 
   JSObject toJSObject() => toJson().jsify() as JSObject;
@@ -51,6 +54,16 @@ extension StationModelWebExtension on StationModel {
         // 'stopTime': stopTime,
         'isDeparture': isDeparture,
         'routes': routes,
+      };
+
+  JSObject toJSObject() => toJson().jsify() as JSObject;
+}
+
+// LocationModel 웹 확장
+extension LocationModelWebExtension on LocationModel {
+  Map<String, dynamic> toJson() => {
+        'latitude': latitude,
+        'longitude': longitude,
       };
 
   JSObject toJSObject() => toJson().jsify() as JSObject;

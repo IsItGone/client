@@ -24,5 +24,13 @@ query GetRouteByName($name: String!) {
       isDeparture
       routes
     }
+    departurePath {
+      latitude
+      longitude
+    }
+    arrivalPath {
+      latitude
+      longitude
+    }
   }
 }
