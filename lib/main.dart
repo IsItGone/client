@@ -1,12 +1,18 @@
 import 'package:client/core/graphql/client.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:client/core/router/router.dart';
 import 'package:client/core/theme/theme.dart';
 
 void main() async {
-  WidgetsFlutterBinding.ensureInitialized(); //플러터 엔진 초기화
+  WidgetsFlutterBinding.ensureInitialized(); // 플러터 엔진 초기화
+
+  // 폰트 로드
+  FontLoader('Pretendard')
+    ..addFont(rootBundle.load('assets/fonts/Pretendard-Regular.ttf'))
+    ..load();
 
   // GraphQL 클라이언트 초기화
   await GraphQLClient.initClient();
