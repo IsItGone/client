@@ -1,6 +1,8 @@
+import 'dart:developer';
+
 import 'package:client/core/theme/theme.dart';
 import 'package:client/data/models/station_model.dart';
-import 'package:client/data/providers/route_providers.dart';
+import 'package:client/data/providers/station_providers.dart';
 
 import 'package:client/features/home/widgets/map/providers/naver_map_providers.dart';
 import 'package:flutter/material.dart';
@@ -17,19 +19,19 @@ class StationDetailInfo extends ConsumerWidget {
   const StationDetailInfo({
     super.key,
     required this.station,
-    required this.stationId,
     required this.routeId,
     required this.color,
     required this.routeCache,
   });
 
   final StationModel station;
-  final String stationId, routeId;
+  final String routeId;
   final Color color;
   final Map<String, dynamic> routeCache;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    // TODO 캐시 처리 지우기
     // 캐시된 데이터가 있으면 사용
     if (routeCache.containsKey(routeId)) {
       final route = routeCache[routeId]['route'];
@@ -37,7 +39,7 @@ class StationDetailInfo extends ConsumerWidget {
     }
 
     // 캐시된 데이터가 없으면 API 호출
-    final routeAsync = ref.watch(RouteProviders.routeByIdProvider(routeId));
+    final routeAsync = ref.watch(StationProviders.stationInfoProvider(routeId));
 
     return routeAsync.when(
       data: (route) => _buildContent(context, route, ref),
@@ -48,8 +50,10 @@ class StationDetailInfo extends ConsumerWidget {
 
   Widget _buildContent(BuildContext context, dynamic route, WidgetRef ref) {
     // 이전/다음 정류장 찾기
-    final previousStation = _findAdjacentStation(route, stationId, true);
-    final nextStation = _findAdjacentStation(route, stationId, false);
+    final prevStation = _findAdjacentStation(route, station.id, true);
+    final nextStation = _findAdjacentStation(route, station.id, false);
+    log('prevstation: ${prevStation!.station?.latitude}');
+    log('nextstation: ${nextStation?.station}');
 
     return LayoutBuilder(
       builder: (context, constraints) {
@@ -72,7 +76,7 @@ class StationDetailInfo extends ConsumerWidget {
                     width: centerWidth,
                     // height: centerHeight,
                     child: Text(
-                      previousStation!.direction,
+                      prevStation.direction,
                       style: AppTheme.textTheme.bodySmall,
                       textAlign: TextAlign.start,
                       maxLines: 2,
@@ -96,7 +100,7 @@ class StationDetailInfo extends ConsumerWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 AdjacentStationButton(
-                  station: previousStation.station,
+                  station: prevStation.station,
                   isPrevious: true,
                   color: color,
                   onStationTapped: (station) =>
@@ -169,6 +173,7 @@ class StationDetailInfo extends ConsumerWidget {
     final stations =
         isDeparture ? route.departureStations : route.arrivalStations;
 
+    log('isdeparture $isDeparture ${station.isDeparture}');
     // 정류장 인덱스 찾기
     int index = stations.indexWhere((s) => s.id == stationId);
 

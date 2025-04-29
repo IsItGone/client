@@ -27,7 +27,7 @@ class SearchScreen extends ConsumerWidget {
         title: const MapSearchBar(),
         // backgroundColor: AppTheme.primarySwatch,
       ),
-      body: const SizedBox(
+      body: SizedBox(
         width: double.infinity,
         height: double.infinity,
         // padding: const EdgeInsets.all(16.0),

@@ -21,7 +21,9 @@ class NaverMapViewModel extends StateNotifier<MapState>
   NaverMapViewModel(
     this._drawerNotifier,
     this._overlayService,
-  ) : super(const MapState());
+  ) : super(const MapState()) {
+    _overlayService.setMapInteractionCallback(this);
+  }
 
   // @override
   // void onRouteSelected(String routeId) {
@@ -131,7 +133,6 @@ class NaverMapViewModel extends StateNotifier<MapState>
     final overlayData = _overlayService.createMapOverlays(
       routes,
       stations,
-      drawerNotifier,
     );
 
     state = state.copyWith(

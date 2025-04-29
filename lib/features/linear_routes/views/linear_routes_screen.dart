@@ -18,7 +18,8 @@ class LinearRoutesScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final routebyIdAsync = ref.watch(RouteProviders.routeByIdProvider(routeId));
+    final routebyIdAsync =
+        ref.watch(RouteProviders.linearRoutesProvider(routeId));
 
     return routebyIdAsync.when(
       data: (route) {

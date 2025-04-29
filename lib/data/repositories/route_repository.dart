@@ -1,50 +1,80 @@
-import 'dart:developer';
-
-import 'package:client/data/graphql/queries/route/index.dart';
+import 'package:client/data/graphql/index.dart';
+import 'package:client/data/models/map_data_model.dart';
+import 'package:client/data/models/route_model.dart';
+import 'package:client/data/models/station_model.dart';
 import 'package:client/data/repositories/graphql_repository.dart';
 
 import 'package:ferry/ferry.dart';
 
 class RouteRepository extends GraphQLRepository {
-  // getRoutes
-  Future<OperationResponse<GGetRoutesData, GGetRoutesVars>> getRoutes() async {
-    try {
-      final request = GGetRoutesReq();
+  Future<R> _fetch<R, TData, TVars>(
+    OperationRequest<TData, TVars> req,
+    R Function(TData) convert,
+  ) =>
+      run(req, convert: convert);
 
-      final response = await executeQuery(request);
-      // log('getRoutes: ${response.data?.getRoutes}');
-      return response;
-    } catch (e) {
-      log('예상치 못한 오류: $e');
-      throw Exception('서비스 연결에 문제가 발생했습니다.');
-    }
-  }
+  /// 지도: 노선 + 정류장
+  Future<MapDataModel> getMapData() => _fetch(
+        GGetMapDataReq(
+          (b) => b
+            ..fetchPolicy = FetchPolicy.CacheAndNetwork
+            ..vars.withPath = true
+            ..vars.withStations = true
+            ..vars.withLocation = true
+            ..vars.withDetail = false
+            ..vars.withRoutes = false,
+        ),
+        (d) => MapDataModel(
+          routes: d.getRoutes!
+              .whereType<GRouteFields>()
+              .map(RouteModel.fromRouteList)
+              .toList(),
+          stations: d.getStations!
+              .whereType<GStationFields>()
+              .map(StationModel.fromStationList)
+              .toList(),
+        ),
+      );
 
-  // getRouteById
-  Future<OperationResponse<GGetRouteByIdData, GGetRouteByIdVars>> getRouteById(
-      String id) async {
-    try {
-      final request = GGetRouteByIdReq((b) => b..vars.id = id);
+  /// Route Detail
+  Future<RouteModel> getRouteDetail(String id) => _fetch(
+        GGetRouteByIdReq(
+          (b) => b
+            ..vars.id = id
+            ..vars.withPath = false
+            ..vars.withStations = true
+            ..vars.withLocation = true
+            ..vars.withDetail = true
+            ..vars.withRoutes = false,
+        ),
+        (d) => RouteModel.fromRoute(d.getRouteById as GRouteFields),
+      );
 
-      final response = await executeQuery(request);
-      return response;
-    } catch (e) {
-      log('예상치 못한 오류: $e');
-      throw Exception('서비스 연결에 문제가 발생했습니다.');
-    }
-  }
+  /// Linear Routes
+  Future<RouteModel> getLinearRoutes(String id) => _fetch(
+        GGetRouteByIdReq(
+          (b) => b
+            ..vars.id = id
+            ..vars.withPath = false
+            ..vars.withStations = true
+            ..vars.withLocation = true
+            ..vars.withDetail = true
+            ..vars.withRoutes = false,
+        ),
+        (d) => RouteModel.fromRoute(d.getRouteById as GRouteFields),
+      );
 
-  // getRouteByName
-  Future<OperationResponse<GGetRouteByNameData, GGetRouteByNameVars>>
-      getRouteByName(String name) async {
-    try {
-      final request = GGetRouteByNameReq((b) => b..vars.name = name);
-
-      final response = await executeQuery(request);
-      return response;
-    } catch (e) {
-      log('예상치 못한 오류: $e');
-      throw Exception('서비스 연결에 문제가 발생했습니다.');
-    }
-  }
+  /// getRouteByName
+  Future<RouteModel> getRouteByname(String name) => _fetch(
+        GGetRouteByNameReq(
+          (b) => b
+            ..vars.name = name
+            ..vars.withPath = false
+            ..vars.withStations = false
+            ..vars.withLocation = false
+            ..vars.withDetail = false
+            ..vars.withRoutes = false,
+        ),
+        (d) => RouteModel.fromRoute(d.getRouteByName as GRouteFields),
+      );
 }

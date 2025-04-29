@@ -53,7 +53,6 @@ class _MapSearchBarState extends ConsumerState<MapSearchBar> {
     _debouncer.run(() {
       final keyword = _controller.text.trim();
 
-      
       if (keyword.isNotEmpty) {
         // 검색어 상태를 업데이트
         ref.read(searchKeywordProvider.notifier).state = keyword;
@@ -67,8 +66,8 @@ class _MapSearchBarState extends ConsumerState<MapSearchBar> {
 
   Future<void> _searchStations(String keyword) async {
     try {
-      final result = await ref.read(
-          StationProviders.searchStationByKeywordProvider(keyword).future);
+      final result =
+          await ref.read(StationProviders.searchProvider(keyword).future);
 
       ref.read(searchResultsProvider.notifier).state = result;
     } catch (e) {

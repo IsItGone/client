@@ -1,52 +1,55 @@
-import 'dart:developer';
-
-import 'package:client/data/graphql/queries/station/index.dart';
+import 'package:client/data/graphql/index.dart';
+import 'package:client/data/models/route_model.dart';
+import 'package:client/data/models/station_model.dart';
 import 'package:client/data/repositories/graphql_repository.dart';
 
 import 'package:ferry/ferry.dart';
 
 class StationRepository extends GraphQLRepository {
-  // getStations
-  Future<OperationResponse<GGetStationsData, GGetStationsVars>>
-      getStations() async {
-    try {
-      final request = GGetStationsReq();
-      final response = await executeQuery(request);
-      return response;
-    } catch (e) {
-      log('예상치 못한 오류: $e');
-      throw Exception('서비스 연결에 문제가 발생했습니다.');
-    }
-  }
+  Future<R> _fetch<R, TData, TVars>(
+    OperationRequest<TData, TVars> req,
+    R Function(TData) convert,
+  ) =>
+      run(req, convert: convert);
 
-  // getStationById
-  Future<OperationResponse<GGetStationByIdData, GGetStationByIdVars>>
-      getStationById(String id) async {
-    try {
-      final request = GGetStationByIdReq((b) => b..vars.id = id);
+  /// Station Detail
+  Future<StationModel> getStationDetail(String id) => _fetch(
+        GGetStationByIdReq(
+          (b) => b
+            ..vars.id = id
+            ..vars.withLocation = true
+            ..vars.withDetail = true
+            ..vars.withRoutes = true,
+        ),
+        (d) => StationModel.fromStation(d.getStationById as GStationFields),
+      );
 
-      final response = await executeQuery(request);
-      return response;
-    } catch (e) {
-      log('예상치 못한 오류: $e');
-      throw Exception('서비스 연결에 문제가 발생했습니다.');
-    }
-  }
+  /// Station Info
+  Future<RouteModel> getStationInfo(String id) => _fetch(
+        GGetRouteByIdReq(
+          (b) => b
+            ..vars.id = id
+            ..vars.withPath = false
+            ..vars.withStations = true
+            ..vars.withLocation = true
+            ..vars.withDetail = true
+            ..vars.withRoutes = false,
+        ),
+        (d) => RouteModel.fromRoute(d.getRouteById as GRouteFields),
+      );
 
-  // searchStationsByKeyword
-  Future<
-      OperationResponse<GSearchStationsByKeywordData,
-          GSearchStationsByKeywordVars>> searchStationsByKeyword(
-      String keyword) async {
-    try {
-      final request =
-          GSearchStationsByKeywordReq((b) => b..vars.keyword = keyword);
-
-      final response = await executeQuery(request);
-      return response;
-    } catch (e) {
-      log('예상치 못한 오류: $e');
-      throw Exception('서비스 연결에 문제가 발생했습니다.');
-    }
-  }
+  /// Search Stations
+  Future<List<StationModel>> searchStations(String keyword) => _fetch(
+        GSearchStationsByKeywordReq(
+          (b) => b
+            ..vars.keyword = keyword
+            ..vars.withLocation = true
+            ..vars.withDetail = true
+            ..vars.withRoutes = false,
+        ),
+        (d) => d.searchStationsByKeyword!
+            .whereType<GStationFields>()
+            .map(StationModel.fromStation)
+            .toList(),
+      );
 }

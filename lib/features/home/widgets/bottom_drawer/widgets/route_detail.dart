@@ -15,7 +15,7 @@ class RouteDetail extends ConsumerWidget {
       return const Center(child: Text('노선을 선택하세요.'));
     }
 
-    final routeAsync = ref.watch(RouteProviders.routeByIdProvider(routeId!));
+    final routeAsync = ref.watch(RouteProviders.routeDetailProvider(routeId!));
 
     return Container(
         padding: const EdgeInsets.all(12),

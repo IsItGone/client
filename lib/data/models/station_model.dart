@@ -1,4 +1,4 @@
-import 'package:client/data/graphql/queries/station/index.dart';
+import 'package:client/data/graphql/index.dart';
 
 class StationModel {
   final String id;
@@ -51,8 +51,27 @@ class StationModel {
     );
   }
 
-  factory StationModel.fromStationList(
-      GGetStationsData_getStations stationData) {
+  factory StationModel.fromStationList(GStationFields stationData) {
+    return StationModel(
+      id: stationData.id,
+      latitude: stationData.latitude,
+      longitude: stationData.longitude,
+      isDeparture: stationData.isDeparture,
+    );
+  }
+
+  factory StationModel.fromStation(GStationFields stationData,
+      {String? routeId}) {
+    // List<String>? routes;
+    String? compositeId = routeId != null ? "${stationData.id}_$routeId" : null;
+
+    // if (stationData is GGetStationByIdData_getStationById) {
+    //   routes = stationData.routes?.map((e) => e.toString()).toList();
+    // } else {
+    //   routes =
+    //       stationData.routes != null ? List.from(stationData.routes) : null;
+    // }
+
     return StationModel(
       id: stationData.id,
       name: stationData.name,
@@ -63,30 +82,6 @@ class StationModel {
       stopTime: stationData.stopTime,
       isDeparture: stationData.isDeparture,
       routes: stationData.routes?.map((e) => e.toString()).toList(),
-    );
-  }
-
-  factory StationModel.fromStation(dynamic stationData, {String? routeId}) {
-    List<String>? routes;
-    String? compositeId = routeId != null ? "${stationData.id}_$routeId" : null;
-
-    if (stationData is GGetStationByIdData_getStationById) {
-      routes = stationData.routes?.map((e) => e.toString()).toList();
-    } else {
-      routes =
-          stationData.routes != null ? List.from(stationData.routes) : null;
-    }
-
-    return StationModel(
-      id: stationData.id,
-      name: stationData.name,
-      description: stationData.description,
-      address: stationData.address,
-      latitude: stationData.latitude,
-      longitude: stationData.longitude,
-      stopTime: stationData.stopTime,
-      isDeparture: stationData.isDeparture,
-      routes: routes,
       compositeId: compositeId,
     );
   }

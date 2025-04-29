@@ -1,5 +1,5 @@
 import 'package:client/core/constants/route_colors.dart';
-import 'package:client/data/graphql/queries/route/index.dart';
+import 'package:client/data/graphql/index.dart';
 import 'package:client/data/models/location_model.dart';
 import 'package:client/data/models/station_model.dart';
 import 'package:flutter/material.dart';
@@ -7,13 +7,13 @@ import 'package:flutter/material.dart';
 class RouteModel {
   final String id;
   final String name;
-  final List<StationModel> departureStations;
+  List<StationModel> departureStations;
   final List<StationModel> arrivalStations;
   final List<LocationModel>? departurePath;
   final List<LocationModel>? arrivalPath;
   final Color color;
 
-  const RouteModel({
+  RouteModel({
     required this.id,
     required this.name,
     required this.departureStations,
@@ -23,54 +23,85 @@ class RouteModel {
     required this.color,
   });
 
-  factory RouteModel.fromRouteList(GGetRoutesData_getRoutes routeData) {
+  static List<LocationModel> buildPath({
+    List<LocationModel>? pathFromServer,
+    List<StationModel>? stationList,
+  }) {
+    if (pathFromServer != null && pathFromServer.isNotEmpty) {
+      return pathFromServer
+          .map((l) =>
+              LocationModel(latitude: l.latitude, longitude: l.longitude))
+          .toList();
+    }
+
+    return stationList
+            ?.map((s) => LocationModel(
+                  latitude: s.latitude!,
+                  longitude: s.longitude!,
+                ))
+            .whereType<LocationModel>()
+            .toList() ??
+        [];
+  }
+
+  factory RouteModel.fromRouteList(GRouteFields routeData) {
+    final depStations = routeData.departureStations
+            ?.whereType<GStationFields>()
+            .map(StationModel.fromStation)
+            .toList() ??
+        [];
+    final arrStations = routeData.arrivalStations
+            ?.whereType<GStationFields>()
+            .map(StationModel.fromStation)
+            .toList() ??
+        [];
+
     return RouteModel(
       id: routeData.id,
       name: routeData.name,
-      departureStations: (routeData.departureStations?.toList() ?? [])
-          .where((station) => station != null)
-          .map((station) => StationModel.fromStation(station))
-          .toList(),
-      arrivalStations: (routeData.arrivalStations?.toList() ?? [])
-          .where((station) => station != null)
-          .map((station) => StationModel.fromStation(station))
-          .toList(),
-      departurePath: (routeData.departurePath?.toList() ?? [])
-          .map((location) => LocationModel(
-                latitude: location!.latitude!,
-                longitude: location.longitude!,
-              ))
-          .toList(),
-      arrivalPath: (routeData.arrivalPath?.toList() ?? [])
-          .map((location) => LocationModel(
-                latitude: location!.latitude!,
-                longitude: location.longitude!,
-              ))
-          .toList(),
+      departureStations: depStations,
+      arrivalStations: arrStations,
+      departurePath: buildPath(
+        pathFromServer: routeData.departurePath
+            ?.map((l) => LocationModel(
+                  latitude: l!.latitude!,
+                  longitude: l.longitude!,
+                ))
+            .toList(),
+        stationList: depStations,
+      ),
+      arrivalPath: buildPath(
+        pathFromServer: routeData.arrivalPath
+            ?.map((l) => LocationModel(
+                  latitude: l!.latitude!,
+                  longitude: l.longitude!,
+                ))
+            .toList(),
+        stationList: arrStations,
+      ),
       color: RouteColors.getColor(routeData.id),
     );
   }
 
-  factory RouteModel.fromRoute(GGetRouteByIdData_getRouteById routeData) {
+  factory RouteModel.fromRoute(GRouteFields routeData) {
     final routeId = routeData.id;
 
     return RouteModel(
       id: routeId,
       name: routeData.name,
-      departureStations: (routeData.departureStations?.toList() ?? [])
-          .where((station) => station != null)
-          .map((station) {
-        final compositeId = "${station?.id}_$routeId";
-        final stationModel = StationModel.fromStation(
-          station,
-          routeId: routeId,
-        );
-        return stationModel.copyWith(compositeId: compositeId);
-      }).toList(),
-      arrivalStations: (routeData.arrivalStations?.toList() ?? [])
-          .where((station) => station != null)
-          .map((station) => StationModel.fromStation(station))
-          .toList(),
+      departureStations: routeData.departureStations?.map((s) {
+            final compositeId = '${s?.id}_$routeId';
+            return StationModel.fromStation(
+              s as GStationFields,
+              routeId: routeId,
+            ).copyWith(compositeId: compositeId);
+          }).toList() ??
+          [],
+      arrivalStations: routeData.arrivalStations
+              ?.whereType<GStationFields>()
+              .map(StationModel.fromStation)
+              .toList() ??
+          [],
       departurePath: (routeData.departurePath?.toList() ?? [])
           .map((location) => LocationModel(
                 latitude: location!.latitude!,
