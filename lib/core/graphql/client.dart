@@ -38,7 +38,7 @@ class GraphQLClient {
       link: httpLink,
       cache: cache,
       defaultFetchPolicies: {
-        OperationType.query: FetchPolicy.CacheFirst,
+        OperationType.query: FetchPolicy.CacheAndNetwork,
         OperationType.mutation: FetchPolicy.NetworkOnly,
         OperationType.subscription: FetchPolicy.CacheFirst,
       },

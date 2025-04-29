@@ -17,7 +17,6 @@ class RouteRepository extends GraphQLRepository {
   Future<MapDataModel> getMapData() => _fetch(
         GGetMapDataReq(
           (b) => b
-            ..fetchPolicy = FetchPolicy.CacheAndNetwork
             ..vars.withPath = true
             ..vars.withStations = true
             ..vars.withLocation = true
