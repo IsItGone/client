@@ -5,6 +5,8 @@ targets:
         enabled: true
         options:
           schema: client|lib/data/graphql/schema.graphql
+          queries_glob: lib/data/graphql/**/*.{graphql,gql}
+
       ferry_generator|serializer_builder:
         enabled: true
         options:

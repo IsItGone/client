@@ -39,26 +39,15 @@ class BottomDrawer extends ConsumerWidget {
             ),
           ],
         ),
-        // child: switch (infoType) {
-        //   InfoType.station => _buildStationDetail(
-        //       ref,
-        //       stationId,
-        //       routeId,
-        //     ),
-        //   InfoType.place => const PlaceDetail(),
-        //   InfoType.route => RouteDetail(routeId),
-        // },
         child: isDrawerOpen
             ? RepaintBoundary(
-                // 내부 콘텐츠도 별도 레이어로 분리
                 child: _buildDrawerContent(ref, infoType),
               )
-            : const SizedBox.shrink(), // 닫혀있을 때는 내용 렌더링 안함
+            : const SizedBox.shrink(),
       ),
     );
   }
 
-  // 추가 메소드: 드로어 내용 구성
   Widget _buildDrawerContent(WidgetRef ref, InfoType infoType) {
     final stationId =
         ref.watch(bottomDrawerProvider.select((s) => s.stationId));
@@ -74,11 +63,11 @@ class BottomDrawer extends ConsumerWidget {
 
 Widget _buildStationDetail(WidgetRef ref, String? stationId, String? routeId) {
   if (stationId == null) {
-    return const Center(child: Text('정류장을 선택하세요.'));
+    return const Center(child: Text('선택된 정류장이 없습니다.'));
   }
 
   final stationAsync =
-      ref.watch(StationProviders.stationByIdProvider(stationId));
+      ref.watch(StationProviders.stationDetailProvider(stationId));
 
   return stationAsync.when(
     data: (station) {

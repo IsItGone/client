@@ -1,0 +1,102 @@
+# ─── fragments ─────────────────────────────────────
+
+fragment RouteFields on Route {
+  id
+  name
+
+  # 상세 경로 좌표
+  departurePath @include(if: $withPath) {
+    latitude
+    longitude
+  }
+  arrivalPath @include(if: $withPath) {
+    latitude
+    longitude
+  }
+
+  # 정류장 정보
+  departureStations @include(if: $withStations) {
+    ...StationFields
+  }
+
+  arrivalStations @include(if: $withStations) {
+    ...StationFields
+  }
+}
+
+fragment StationFields on Station {
+  id
+  latitude @include(if: $withLocation)
+  longitude @include(if: $withLocation)
+  isDeparture @include(if: $withLocation)
+  name @include(if: $withDetail)
+  address @include(if: $withDetail)
+  description @include(if: $withDetail)
+  stopTime @include(if: $withDetail)
+  routes @include(if: $withRoutes)
+}
+
+# ─── queries ─────────────────────────
+
+query GetMapData(
+  $withPath: Boolean! = true
+  $withStations: Boolean! = true
+  $withLocation: Boolean! = true
+  $withDetail: Boolean! = false
+  $withRoutes: Boolean! = false
+) {
+  getRoutes {
+    ...RouteFields
+  }
+  getStations {
+    ...StationFields
+  }
+}
+
+query GetRouteById(
+  $id: ID!
+  $withPath: Boolean! = false
+  $withStations: Boolean! = true
+  $withLocation: Boolean! = true
+  $withDetail: Boolean! = true
+  $withRoutes: Boolean! = false
+) {
+  getRouteById(id: $id) {
+    ...RouteFields
+  }
+}
+
+query GetRouteByName(
+  $name: String!
+  $withPath: Boolean! = false
+  $withStations: Boolean! = false
+  $withLocation: Boolean! = false
+  $withDetail: Boolean! = false
+  $withRoutes: Boolean! = false
+) {
+  getRouteByName(name: $name) {
+    ...RouteFields
+  }
+}
+
+query GetStationById(
+  $id: ID!
+  $withLocation: Boolean! = false
+  $withDetail: Boolean! = true
+  $withRoutes: Boolean! = true
+) {
+  getStationById(id: $id) {
+    ...StationFields
+  }
+}
+
+query SearchStationsByKeyword(
+  $keyword: String!
+  $withLocation: Boolean! = true
+  $withDetail: Boolean! = true
+  $withRoutes: Boolean! = false
+) {
+  searchStationsByKeyword(keyword: $keyword) {
+    ...StationFields
+  }
+}

@@ -38,7 +38,7 @@ class _StationDetailState extends ConsumerState<StationDetail> {
     for (final routeId in widget.routeIds) {
       try {
         final route =
-            await ref.read(RouteProviders.routeByIdProvider(routeId).future);
+            await ref.read(RouteProviders.routeDetailProvider(routeId).future);
         routeCache[routeId] = {
           'route': route,
           'color': route.color,
@@ -59,7 +59,7 @@ class _StationDetailState extends ConsumerState<StationDetail> {
   @override
   Widget build(BuildContext context) {
     final stationAsync =
-        ref.watch(StationProviders.stationByIdProvider(widget.stationId));
+        ref.watch(StationProviders.stationDetailProvider(widget.stationId));
 
     return stationAsync.when(
       data: (station) {
@@ -89,7 +89,6 @@ class _StationDetailState extends ConsumerState<StationDetail> {
                 flex: 3,
                 child: StationDetailInfo(
                   station: station,
-                  stationId: widget.stationId,
                   routeId: widget.selectedRouteId,
                   color: widget.selectedColor,
                   routeCache: routeCache, // 캐시된 노선 데이터 전달

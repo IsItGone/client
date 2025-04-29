@@ -5,7 +5,6 @@ import 'package:client/core/constants/constants.dart';
 import 'package:client/data/models/location_model.dart';
 import 'package:client/data/models/route_model.dart';
 import 'package:client/data/models/station_model.dart';
-import 'package:client/features/home/widgets/bottom_drawer/view_models/bottom_drawer_view_model.dart';
 import 'package:client/core/theme/theme.dart';
 import 'package:flutter_naver_map/flutter_naver_map.dart';
 
@@ -28,9 +27,6 @@ class OverlayService {
     required this.routePatternImage,
     required this.stationMarkerImage,
   });
-
-  Map<NLatLng, int> overlapCount = {};
-  Map<String, int> pathCount = {};
 
   List<NLatLng> adjustRoute(List<NLatLng> originalPath, int routeIndex) {
     List<NLatLng> curvedPath = [];
@@ -105,16 +101,14 @@ class OverlayService {
   Map<String, dynamic> createMapOverlays(
     List<RouteModel> routes,
     List<StationModel> stations,
-    BottomDrawerViewModel drawerNotifier,
   ) {
     if (_mapCallback == null) {
       throw Exception('MapInteractionCallback이 설정되지 않았습니다.');
     }
 
     final routeData = _prepareRouteData(routes);
-    dev.log('routeData: $routeData');
-    final routeOverlays = _createRouteOverlays(routeData, drawerNotifier);
-    final stationOverlays = _createStationMarkers(stations, drawerNotifier);
+    final routeOverlays = _createRouteOverlays(routeData);
+    final stationOverlays = _createStationMarkers(stations);
 
     return {
       'routeOverlays': _processRouteOverlays(routeOverlays),
@@ -134,29 +128,13 @@ class OverlayService {
         'id': entry.value.id,
         'departureCoords': route.departurePath,
         'arrivalCoords': route.arrivalPath,
-        // 'departureCoords': _prepareCoordinates(route.departureStations),
-        // 'arrivalCoords': _prepareCoordinates(route.arrivalStations),
       };
     }).toList();
   }
 
-  // 좌표 데이터 준비
-  List<NLatLng> _prepareCoordinates(List<StationModel> stations) =>
-      stations.map((s) => NLatLng(s.latitude!, s.longitude!)).toList();
-
-  // List<Map<String, dynamic>> _prepareCoordinates(List<StationModel> stations) {
-  //   return stations
-  //       .map((station) => {
-  //             'coord': NLatLng(station.latitude!, station.longitude!),
-  //             'id': station.id
-  //           })
-  //       .toList();
-  // }
-
   // 경로 오버레이 생성
   Map<String, Set<NAddableOverlay<NOverlay<void>>>> _createRouteOverlays(
     List<Map<String, dynamic>> routeData,
-    BottomDrawerViewModel drawerNotifier,
   ) {
     final overlays = {
       'baseRoutes': <NAddableOverlay<NOverlay<void>>>{},
@@ -164,7 +142,7 @@ class OverlayService {
     };
 
     for (var route in routeData) {
-      _processRoute(route, overlays, drawerNotifier);
+      _processRoute(route, overlays);
     }
 
     _setRouteZoomLevels(overlays);
@@ -190,7 +168,6 @@ class OverlayService {
   void _processRoute(
     Map<String, dynamic> route,
     Map<String, Set<NAddableOverlay<NOverlay<void>>>> overlays,
-    BottomDrawerViewModel drawerNotifier,
   ) {
     int index = route['index'];
     String id = route['id'];
@@ -204,7 +181,6 @@ class OverlayService {
       id,
       [departureCoords],
       false,
-      drawerNotifier,
     );
 
     // 상세 경로 추가
@@ -219,7 +195,6 @@ class OverlayService {
       id,
       extendedCoords,
       true,
-      drawerNotifier,
     );
   }
 
@@ -230,7 +205,6 @@ class OverlayService {
     String id,
     List<List<LocationModel>> coordsList,
     bool isExtended,
-    BottomDrawerViewModel drawerNotifier,
   ) {
     List<NMultipartPath> paths = coordsList
         .map((coords) => NMultipartPath(
@@ -263,7 +237,6 @@ class OverlayService {
   // 정류장 마커 생성
   Map<String, Set<NAddableOverlay<NOverlay<void>>>> _createStationMarkers(
     List<StationModel> stations,
-    BottomDrawerViewModel drawerNotifier,
   ) {
     final baseStations = <NAddableOverlay<NOverlay<void>>>{};
     final extendedStations = <NAddableOverlay<NOverlay<void>>>{};
@@ -280,7 +253,6 @@ class OverlayService {
 
           final marker = _createStationMarker(
             station,
-            drawerNotifier,
           );
 
           if (station.isDeparture != null && station.isDeparture == true) {
@@ -303,7 +275,6 @@ class OverlayService {
   // 정류장 마커 생성 헬퍼 메서드
   NMarker _createStationMarker(
     StationModel station,
-    BottomDrawerViewModel drawerNotifier,
   ) {
     final marker = NMarker(
       id: station.id,

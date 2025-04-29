@@ -4,17 +4,13 @@ import 'package:ferry/ferry.dart';
 abstract class GraphQLRepository {
   final Client _client = GraphQLClient.client;
 
-  // 쿼리 실행 메서드
-  Future<OperationResponse<TData, TVars>> executeQuery<TData, TVars>(
-    OperationRequest<TData, TVars> request, {
-    FetchPolicy? fetchPolicy,
+  Future<T> run<T, D, V>(
+    OperationRequest<D, V> req, {
+    T Function(D data)? convert,
   }) async {
-    try {
-      // GraphQL 요청 실행
-      final response = await _client.request(request).first;
-      return response;
-    } catch (e) {
-      throw Exception('GraphQL 요청 중 오류 발생: $e');
-    }
+    final res = await _client.request(req).take(2).last;
+    if (res.hasErrors) throw Exception(res.graphqlErrors?.first.message);
+    if (res.data == null) throw Exception('데이터 없음');
+    return convert != null ? convert(res.data as D) : res.data as T;
   }
 }

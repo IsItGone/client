@@ -33,8 +33,6 @@ extension RouteModelWebExtension on RouteModel {
   Map<String, dynamic> toJson() => {
         'id': id,
         'name': name,
-        // 'departureStations': departureStations.map((s) => s.toJson()).toList(),
-        // 'arrivalStations': arrivalStations.map((s) => s.toJson()).toList(),
         'departurePath': departurePath?.map((l) => l.toJson()).toList(),
         'arrivalPath': arrivalPath?.map((l) => l.toJson()).toList(),
       };
