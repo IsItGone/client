@@ -4,10 +4,6 @@ on:
   release:
     types: [published]
 
-  push: # TODO: delete
-    branches:
-      - ci
-
 env:
   ENVIRONMENT: prod
   REPOSITORY_NAME: ${{ github.event.repository.name }}
@@ -23,8 +19,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-#        with: # TODO: uncomment
-#          ref: refs/tags/${{ env.APP_VERSION }}
+        with:
+          ref: refs/tags/${{ env.APP_VERSION }}
 
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
