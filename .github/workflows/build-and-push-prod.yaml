@@ -12,7 +12,7 @@ env:
   HOST: ${{ vars.HOST }}
 
 jobs:
-  build-and-push:
+  build-and-deploy:
     environment: prod
     runs-on: ubuntu-latest
 
@@ -27,6 +27,7 @@ jobs:
         with:
           flutter-version: "3.29.2"
 
+      # Build
       - name: Install dependencies
         run: flutter pub get
 
@@ -36,38 +37,13 @@ jobs:
       - name: Build Flutter Web
         run: flutter build web --release --dart-define=NAVER_MAP_CLIENT_ID=${{ secrets.NAVER_MAP_CLIENT_ID }} --dart-define=API_URL=https://${{ vars.HOST }}/api/graphql --base-href /
 
-      - name: Build and Push image with Docker buildx
-        uses: IsItgone/ci-templates/.github/actions/build-and-push-image@main
-        with:
-          registry: ${{ vars.REGISTRY }}
-          tags: |
-            ${{ env.IMAGE_REPOSITORY }}:${{ env.APP_VERSION }},
-            ${{ env.IMAGE_REPOSITORY }}:latest
-          password: ${{ secrets.GHCR_TOKEN }}
+      # Deploy
+      - name: Install Vercel CLI
+        run: npm install -g vercel@latest
 
-  update-helm-chart:
-    needs: build-and-push
-    environment: prod
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          repository: ${{ vars.ORGANIZATION }}/cluster-config
-          token: ${{ secrets.GITOPS_TOKEN }}
-
-      - name: Update Helm Chart
-        working-directory: apps/${{ env.REPOSITORY_NAME }}/${{ env.ENVIRONMENT }}/chart
-        run: |
-          yq -i '.version = "${{ env.APP_VERSION }}"' Chart.yaml
-          yq -i '.appVersion = "${{ env.APP_VERSION }}"' Chart.yaml
-          yq -i '.flutter-base.image.repository = "${{ env.IMAGE_REPOSITORY }}"' values.yaml
-          yq -i '.flutter-base.image.tag = "${{ env.APP_VERSION }}"' values.yaml
-          yq -i '.flutter-base.ingress.host = "${{ env.HOST }}"' values.yaml
-
-      - name: Commit changes
-        uses: stefanzweifel/git-auto-commit-action@v5
-        with:
-          commit_message: Update Image tag to ${{ env.APP_VERSION }}
+      - name: Deploy to Vercel
+        run: vercel build/web --prod --yes
         env:
-          GITHUB_TOKEN: ${{ secrets.GITOPS_TOKEN }}
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
