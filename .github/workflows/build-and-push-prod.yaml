@@ -4,6 +4,10 @@ on:
   release:
     types: [published]
 
+  push:
+    branches:
+      - ci
+
 env:
   ENVIRONMENT: prod
   REPOSITORY_NAME: ${{ github.event.repository.name }}
