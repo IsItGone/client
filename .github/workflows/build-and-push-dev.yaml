@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - main
-      - ci # TODO: delete
   workflow_dispatch:
 
 env:
@@ -30,23 +29,7 @@ jobs:
           NAVER_MAP_CLIENT_ID: ${{ secrets.NAVER_MAP_CLIENT_ID }}
           HOST: ${{ env.HOST }}
 
-#      # Build
-#      - name: Set up Flutter
-#        uses: subosito/flutter-action@v2
-#        with:
-#          flutter-version: "3.29.2"
-#
-#      - name: Install dependencies
-#        run: flutter pub get
-#
-#      - name: Generate GraphQL Schema & Models
-#        run: flutter pub run build_runner build --delete-conflicting-outputs
-#
-#      - name: Build Flutter Web
-#        run: flutter build web --release --dart-define=NAVER_MAP_CLIENT_ID=${{ secrets.NAVER_MAP_CLIENT_ID }} --dart-define=API_URL=https://${{ env.HOST }}/api/graphql --base-href /
-
       - name: Build and Push image with Docker buildx
-        if: false # TODO: delete
         uses: IsItgone/ci-templates/.github/actions/build-and-push-image@main
         with:
           registry: ${{ vars.REGISTRY }}
@@ -56,7 +39,6 @@ jobs:
 
 
   update-helm-chart:
-    if: false # TODO: delete
     needs: build-and-push
     environment: dev
     runs-on: ubuntu-latest
