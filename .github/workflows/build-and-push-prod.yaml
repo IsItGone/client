@@ -3,9 +3,6 @@ name: Build web and Deploy (Prod)
 on:
   release:
     types: [published]
-  push: # TODO: delete
-    branches:
-      - ci
 
   workflow_dispatch:
     inputs:
@@ -14,8 +11,7 @@ on:
         required: true
 
 env:
-#  APP_VERSION: ${{ github.event.release.tag_name || github.event.inputs.tag }} # TODO: uncomment
-  APP_VERSION: ${{ github.event.release.tag_name || github.event.inputs.tag || github.sha }} # TODO: delete
+  APP_VERSION: ${{ github.event.release.tag_name || github.event.inputs.tag }}
   HOST: ${{ vars.HOST }}
 
 jobs:
@@ -29,25 +25,16 @@ jobs:
         with:
           ref: refs/tags/${{ env.APP_VERSION }}
 
-      - name: Debug inputs & release tag # TODO: delete
-        run: |
-          echo "event_name        = ${{ github.event_name }}"
-          echo "app version       = ${{ env.APP_VERSION }}"        
-
       - name: Set up and build Flutter web
-        if: false # TODO: delete
         uses: IsItgone/ci-templates/.github/actions/build-flutter-web@main
         with:
           NAVER_MAP_CLIENT_ID: ${{ secrets.NAVER_MAP_CLIENT_ID }}
           HOST: ${{ env.HOST }}
 
-
       - name: Install Vercel CLI
-        if: false # TODO: delete
         run: npm install -g vercel@latest
 
       - name: Deploy to Vercel
-        if: false # TODO: delete
         run: vercel build/web --prod --token ${{ secrets.VERCEL_TOKEN }} --yes
         env:
           VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
