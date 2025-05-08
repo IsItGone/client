@@ -1,0 +1,58 @@
+name: Build .aab and Deploy
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'tag'
+        required: true
+  push: # TODO: delete
+    branches:
+      - ci
+
+env:
+  APP_VERSION: ${{ github.sha }} # TODO: delete
+#  APP_VERSION: ${{ github.event.release.tag_name || github.event.inputs.tag }} # TODO: uncomment
+  HOST: ${{ vars.HOST }}
+
+
+jobs:
+  build-and-deploy:
+    environment: prod
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          #          ref: refs/tags/${{ env.APP_VERSION }} # TODO: uncomment
+          ref: ${{ env.APP_VERSION }} # TODO: delete
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'liberica'
+      - name: test jdk version # TODO: delete
+        run: java -version
+
+      - name: Decode keystore
+        run: echo "${{ secrets.ANDROID_KEYSTORE_BASE64 }}" | base64 --decode > android/upload-keystore.jks
+
+      - name: Prepare key properties for signing
+        run: |
+          cat <<EOF >> android/key.properties
+          storePassword=${{ secrets.ANDROID_KEYSTORE_STORE_PASSWORD }}
+          keyPassword=${{ secrets.ANDROID_KEYSTORE_KEY_PASSWORD }}
+          keyAlias=${{ secrets.ANDROID_KEYSTORE_ALIAS }}
+          storeFile=android/upload-keystore.jks
+          EOF
+
+      - name: Set up and build Flutter App bundle
+        uses: IsItgone/ci-templates/.github/actions/build-flutter@main
+        with:
+          platform: appbundle
+          map-api-key-id: ${{ secrets.NAVER_MAP_CLIENT_ID }}
+          api-host: ${{ env.HOST }}
