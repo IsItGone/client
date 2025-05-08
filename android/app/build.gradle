@@ -43,11 +43,21 @@ android {
         versionName = flutterVersionName
     }
 
-    buildTypes {
+    signingConfigs {
         release {
-            // TODO: Add your own signing config for the release build.
-            // Signing with the debug keys for now, so `flutter run --release` works.
-            signingConfig = signingConfigs.debug
+            // release 빌드에 사용할 keystore 정보
+            keyAlias keystoreProperties['keyAlias']
+            keyPassword keystoreProperties['keyPassword']
+            storeFile file(keystoreProperties['storeFile'])
+            storePassword keystoreProperties['storePassword']
+        }
+    }
+
+    buildTypes {
+        // debug 빌드에는 자동으로 관리되는 debug keystore 사용
+        release {
+            // release 빌드에는 signingConfigs.release에 설정한 keystore 사용
+            signingConfig = signingConfigs.release
         }
     }
 }
