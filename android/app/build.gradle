@@ -11,42 +11,30 @@ if (keystorePropertiesFile.exists()) {
     keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
 }
 
-def localProperties = new Properties()
-def localPropertiesFile = rootProject.file("local.properties")
-if (localPropertiesFile.exists()) {
-    localPropertiesFile.withReader("UTF-8") { reader ->
-        localProperties.load(reader)
-    }
-}
-
-def flutterVersionCode = localProperties.getProperty("flutter.versionCode")
-def flutterVersionName = localProperties.getProperty("flutter.versionName")
-def flutterNdkVersion = localProperties.getProperty("flutter.ndkVersion")
-def flutterMinSdkVersion = localProperties.getProperty("flutter.minSdkVersion")
-
 android {
-    namespace = "com.ddd.isitgone"
-    compileSdk = flutter.compileSdkVersion
-    ndkVersion = flutterNdkVersion
+    namespace "com.ddd.isitgone"
+    compileSdk flutter.compileSdkVersion
 
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_17
-        targetCompatibility = JavaVersion.VERSION_17
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
     }
 
     kotlinOptions {
-        jvmTarget = JavaVersion.VERSION_17
+        jvmTarget = JavaVersion.VERSION_17.toString()
     }
 
     defaultConfig {
         // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
-        applicationId = "com.ddd.isitgone"
+        applicationId "com.ddd.isitgone"
         // You can update the following values to match your application needs.
         // For more information, see: https://docs.flutter.dev/deployment/android#reviewing-the-gradle-build-configuration.
-        minSdk = flutterMinSdkVersion.toInteger()
-        targetSdk = flutter.targetSdkVersion
-        versionCode = flutterVersionCode.toInteger()
-        versionName = flutterVersionName
+        targetSdk flutter.targetSdkVersion
+        minSdkVersion project.findProperty("flutterMinSdkVersion") as Integer
+        ndkVersion project.findProperty("flutterNdkVersion") as String
+        // 없으면 로컬 개발 편의를 위해 기본값을 사용
+        versionCode project.hasProperty("flutterVersionCode")? project.property("flutterVersionCode").toInteger(): 1
+        versionName project.hasProperty("flutterVersionName")? project.property("flutterVersionName") as String : "0.1.0"
     }
 
     signingConfigs {
@@ -63,7 +51,7 @@ android {
         // debug 빌드에는 자동으로 관리되는 debug keystore 사용
         release {
             // release 빌드에는 signingConfigs.release에 설정한 keystore 사용
-            signingConfig = signingConfigs.release
+            signingConfig signingConfigs.release
         }
     }
 }
@@ -73,5 +61,5 @@ flutter {
 }
 
 dependencies {
-    implementation 'androidx.appcompat:appcompat:1.6.1'
+    implementation 'androidx.appcompat:appcompat:1.7.0'
 }
