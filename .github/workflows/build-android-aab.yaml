@@ -35,11 +35,8 @@ jobs:
         with:
           java-version: '17'
           distribution: 'liberica'
-      - name: test jdk version # TODO: delete
-        run: java -version
-
       - name: Decode keystore
-        run: echo "${{ secrets.ANDROID_KEYSTORE_BASE64 }}" | base64 --decode > android/upload-keystore.jks
+        run: echo "${{ secrets.ANDROID_KEYSTORE_BASE64 }}" | base64 --decode > android/keystore.jks
 
       - name: Prepare key properties for signing
         run: |
@@ -47,7 +44,7 @@ jobs:
           storePassword=${{ secrets.ANDROID_KEYSTORE_STORE_PASSWORD }}
           keyPassword=${{ secrets.ANDROID_KEYSTORE_KEY_PASSWORD }}
           keyAlias=${{ secrets.ANDROID_KEYSTORE_ALIAS }}
-          storeFile=android/upload-keystore.jks
+          storeFile=android/keystore.jks
           EOF
 
       - name: Set up and build Flutter App bundle
