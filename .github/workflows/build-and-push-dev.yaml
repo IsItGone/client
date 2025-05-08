@@ -24,10 +24,11 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Set up and build Flutter web
-        uses: IsItgone/ci-templates/.github/actions/build-flutter-web@main
+        uses: IsItgone/ci-templates/.github/actions/build-flutter@main
         with:
-          NAVER_MAP_CLIENT_ID: ${{ secrets.NAVER_MAP_CLIENT_ID }}
-          HOST: ${{ env.HOST }}
+          platform: web
+          map-api-key-id: ${{ secrets.NAVER_MAP_CLIENT_ID }}
+          api-host: ${{ env.HOST }}
 
       - name: Build and Push image with Docker buildx
         uses: IsItgone/ci-templates/.github/actions/build-and-push-image@main
