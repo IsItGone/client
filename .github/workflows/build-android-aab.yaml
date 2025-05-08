@@ -8,9 +8,9 @@ on:
       tag:
         description: 'tag'
         required: true
-  push: # TODO: delete
-    branches:
-      - ci
+#  push: # TODO: delete
+#    branches:
+#      - ci
 
 env:
   APP_VERSION: ${{ github.sha }} # TODO: delete
