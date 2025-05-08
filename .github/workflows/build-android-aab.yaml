@@ -35,16 +35,19 @@ jobs:
         with:
           java-version: '17'
           distribution: 'liberica'
+
       - name: Decode keystore
-        run: echo "${{ secrets.ANDROID_KEYSTORE_BASE64 }}" | base64 --decode > android/keystore.jks
+        run: echo "${{ secrets.ANDROID_KEYSTORE_BASE64 }}" | base64 --decode > android/app/keystore.jks
 
       - name: Prepare key properties for signing
+        # android/app/build.gradle이 working directory이기 때문에,
+        # build.gradle에서 참조하는 keyProperties의 storeFile은 android/app/keystore.jks
         run: |
           cat <<EOF >> android/key.properties
           storePassword=${{ secrets.ANDROID_KEYSTORE_STORE_PASSWORD }}
           keyPassword=${{ secrets.ANDROID_KEYSTORE_KEY_PASSWORD }}
           keyAlias=${{ secrets.ANDROID_KEYSTORE_ALIAS }}
-          storeFile=android/keystore.jks
+          storeFile=keystore.jks
           EOF
 
       - name: Set up and build Flutter App bundle
