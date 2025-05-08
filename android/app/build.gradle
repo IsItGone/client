@@ -15,13 +15,14 @@ if (localPropertiesFile.exists()) {
 
 def flutterVersionCode = localProperties.getProperty("flutter.versionCode")
 def flutterVersionName = localProperties.getProperty("flutter.versionName")
-def flutterNdkVersion = localProperties.getProperty("flutter.ndkVersion")
+def flutterNdkVersion = localProperties.getProperty("flutter.ndkVersion") ?: flutter.ndkVersion
 def flutterMinSdkVersion = localProperties.getProperty("flutter.minSdkVersion")
 
 android {
     namespace = "com.ddd.isitgone"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutterNdkVersion
+    println ">>> ndkVersion = ${ndkVersion}"
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
