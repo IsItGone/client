@@ -1,4 +1,4 @@
-name: Build, Push, Deploy (Dev)
+name: Build web and Deploy (Dev)
 
 on:
   push:
@@ -23,19 +23,12 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Set up Flutter
-        uses: subosito/flutter-action@v2
+      - name: Set up and build Flutter web
+        uses: IsItgone/ci-templates/.github/actions/build-flutter@main
         with:
-          flutter-version: "3.29.2"
-
-      - name: Install dependencies
-        run: flutter pub get
-
-      - name: Generate GraphQL Schema & Models
-        run: flutter pub run build_runner build --delete-conflicting-outputs
-
-      - name: Build Flutter Web
-        run: flutter build web --release --dart-define=NAVER_MAP_CLIENT_ID=${{ secrets.NAVER_MAP_CLIENT_ID }} --dart-define=API_URL=https://dev.${{ vars.HOST }}/api/graphql --base-href /
+          platform: web
+          map-api-key-id: ${{ secrets.NAVER_MAP_CLIENT_ID }}
+          api-host: ${{ env.HOST }}
 
       - name: Build and Push image with Docker buildx
         uses: IsItgone/ci-templates/.github/actions/build-and-push-image@main

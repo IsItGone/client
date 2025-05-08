@@ -1,14 +1,17 @@
-name: Build and Push Package (Prod)
+name: Build web and Deploy (Prod)
 
 on:
   release:
     types: [published]
 
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'tag'
+        required: true
+
 env:
-  ENVIRONMENT: prod
-  REPOSITORY_NAME: ${{ github.event.repository.name }}
-  IMAGE_REPOSITORY: ${{ vars.REGISTRY }}/${{ vars.ORGANIZATION }}/${{ github.event.repository.name }}
-  APP_VERSION: ${{ github.event.release.tag_name }}
+  APP_VERSION: ${{ github.event.release.tag_name || github.event.inputs.tag }}
   HOST: ${{ vars.HOST }}
 
 jobs:
@@ -22,22 +25,13 @@ jobs:
         with:
           ref: refs/tags/${{ env.APP_VERSION }}
 
-      - name: Set up Flutter
-        uses: subosito/flutter-action@v2
+      - name: Set up and build Flutter web
+        uses: IsItgone/ci-templates/.github/actions/build-flutter@main
         with:
-          flutter-version: "3.29.2"
+          platform: web
+          map-api-key-id: ${{ secrets.NAVER_MAP_CLIENT_ID }}
+          api-host: ${{ env.HOST }}
 
-      # Build
-      - name: Install dependencies
-        run: flutter pub get
-
-      - name: Generate GraphQL Schema & Models
-        run: flutter pub run build_runner build --delete-conflicting-outputs
-
-      - name: Build Flutter Web
-        run: flutter build web --release --dart-define=NAVER_MAP_CLIENT_ID=${{ secrets.NAVER_MAP_CLIENT_ID }} --dart-define=API_URL=https://${{ vars.HOST }}/api/graphql --base-href /
-
-      # Deploy
       - name: Install Vercel CLI
         run: npm install -g vercel@latest
 
